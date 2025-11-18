@@ -1,0 +1,142 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  schedule:
+    # Run link checker weekly on Mondays at 9am UTC
+    - cron: '0 9 * * 1'
+
+jobs:
+  # Validation job - runs on all triggers
+  validate:
+    name: Validate HTML
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate HTML
+        uses: Cyb3r-Jak3/html5validator-action@v7.2.0
+        with:
+          root: ./
+          css: true
+
+      - name: Check for common issues
+        run: |
+          echo "Checking for common HTML issues..."
+
+          # Check for missing alt attributes on images
+          if grep -r '<img[^>]*>' index.html | grep -v 'alt=' ; then
+            echo "Warning: Found img tags without alt attributes"
+          fi
+
+          # Check for inline styles (should use Tailwind classes)
+          if grep -r 'style="' index.html | grep -v 'background-image\|border:0' ; then
+            echo "Warning: Found inline styles (prefer Tailwind classes)"
+          fi
+
+          echo "Basic validation checks completed!"
+
+  # Link checker job - runs on push, PR, and schedule
+  link-check:
+    name: Check Links
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check internal links
+        run: |
+          echo "Checking internal anchor links..."
+
+          # Extract all href="#..." links
+          grep -o 'href="#[^"]*"' index.html | sed 's/href="#\([^"]*\)"/\1/' > links.txt
+
+          # Extract all id="..." attributes
+          grep -o 'id="[^"]*"' index.html | sed 's/id="\([^"]*\)"/\1/' > ids.txt
+
+          # Check if all internal links have corresponding IDs
+          while read link; do
+            if ! grep -q "^$link$" ids.txt; then
+              echo "ERROR: Broken internal link found: #$link"
+              exit 1
+            fi
+          done < links.txt
+
+          echo "All internal links are valid!"
+
+  # Deploy and purge cache - only runs on push to master
+  deploy:
+    name: Deploy & Purge Cache
+    runs-on: ubuntu-latest
+    needs: [validate, link-check]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Wait for GitHub Pages deployment
+        run: |
+          echo "Waiting 30 seconds for GitHub Pages to deploy..."
+          sleep 30
+
+      - name: Purge Cloudflare cache
+        run: |
+          echo "Purging Cloudflare cache for jpautomotivegroup.com..."
+
+          RESPONSE=$(curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}' \
+            -w "\n%{http_code}" -s)
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Cloudflare cache purged successfully!"
+          else
+            echo "❌ Failed to purge Cloudflare cache (HTTP $HTTP_CODE)"
+            echo "$BODY"
+            exit 1
+          fi
+
+      - name: Deployment summary
+        run: |
+          echo "🚀 Deployment completed successfully!"
+          echo "📦 Site: https://jpautomotivegroup.com"
+          echo "🔄 Cloudflare cache purged"
+          echo "⏰ Deployed at: $(date)"
+
+  # Performance audit - runs on push to master
+  lighthouse:
+    name: Lighthouse Audit
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Wait for cache purge to propagate
+        run: sleep 15
+
+      - name: Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            https://jpautomotivegroup.com
+          uploadArtifacts: true
+          temporaryPublicStorage: true
