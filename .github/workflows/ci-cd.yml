@@ -139,4 +139,4 @@ jobs:
           urls: |
             https://jpautomotivegroup.com
           uploadArtifacts: false
-          temporaryPublicStorage: true
+          temporaryPublicStorage: false
