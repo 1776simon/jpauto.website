@@ -147,12 +147,41 @@ jobs:
           temporaryPublicStorage: false
           runs: 3
 
-      - name: Generate Lighthouse report
+      - name: Display Lighthouse scores
         run: |
-          echo "Lighthouse audit completed. Checking for results..."
+          echo "📊 Lighthouse Audit Results for jpautomotivegroup.com"
+          echo "=================================================="
+
           if [ -d ".lighthouseci" ]; then
-            echo "✅ Lighthouse results directory found"
-            ls -la .lighthouseci/
+            # Find the most recent JSON report
+            REPORT=$(ls -t .lighthouseci/lhr-*.json | head -n 1)
+
+            if [ -f "$REPORT" ]; then
+              echo ""
+              echo "🎯 Performance Scores (0-100):"
+              echo "----------------------------------------"
+
+              # Extract scores using grep and basic text processing
+              PERFORMANCE=$(grep -o '"performance":[0-9.]*' "$REPORT" | head -n 1 | cut -d':' -f2)
+              ACCESSIBILITY=$(grep -o '"accessibility":[0-9.]*' "$REPORT" | head -n 1 | cut -d':' -f2)
+              BEST_PRACTICES=$(grep -o '"best-practices":[0-9.]*' "$REPORT" | head -n 1 | cut -d':' -f2)
+              SEO=$(grep -o '"seo":[0-9.]*' "$REPORT" | head -n 1 | cut -d':' -f2)
+
+              # Convert to percentages (multiply by 100)
+              PERF_SCORE=$(echo "$PERFORMANCE * 100" | bc)
+              ACCESS_SCORE=$(echo "$ACCESSIBILITY * 100" | bc)
+              BP_SCORE=$(echo "$BEST_PRACTICES * 100" | bc)
+              SEO_SCORE=$(echo "$SEO * 100" | bc)
+
+              echo "⚡ Performance:     ${PERF_SCORE%.*}/100"
+              echo "♿ Accessibility:   ${ACCESS_SCORE%.*}/100"
+              echo "✅ Best Practices:  ${BP_SCORE%.*}/100"
+              echo "🔍 SEO:             ${SEO_SCORE%.*}/100"
+              echo ""
+              echo "📁 Full reports available in artifacts"
+            else
+              echo "⚠️ No JSON report found"
+            fi
           else
             echo "⚠️ No Lighthouse results directory found"
           fi
