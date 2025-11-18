@@ -138,5 +138,5 @@ jobs:
         with:
           urls: |
             https://jpautomotivegroup.com
-          uploadArtifacts: true
+          uploadArtifacts: false
           temporaryPublicStorage: true
