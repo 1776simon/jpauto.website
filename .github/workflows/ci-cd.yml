@@ -60,6 +60,7 @@ jobs:
         with:
           root: _site/
           css: true
+          skip_git_check: true
 
       - name: Check for common issues
         run: |
