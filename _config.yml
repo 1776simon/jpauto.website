@@ -1,0 +1,79 @@
+# Jekyll Configuration for JP Auto
+
+# Site Settings
+title: "JP Auto - Quality Used Cars in Sacramento"
+description: "Sacramento's trusted source for quality pre-owned vehicles. Browse our inventory, get financing, and find your perfect car today."
+url: "https://jpautomotivegroup.com"
+baseurl: ""
+
+# Business Information
+business:
+  name: "JP Auto"
+  phone: "(916) 618-7197"
+  email: "info@jpautomotivegroup.com"
+  address: "Sacramento, CA"
+  hours:
+    monday: "9:00 AM - 7:00 PM"
+    tuesday: "9:00 AM - 7:00 PM"
+    wednesday: "9:00 AM - 7:00 PM"
+    thursday: "9:00 AM - 7:00 PM"
+    friday: "9:00 AM - 7:00 PM"
+    saturday: "9:00 AM - 6:00 PM"
+    sunday: "10:00 AM - 5:00 PM"
+
+# Collections
+collections:
+  vehicles:
+    output: true
+    permalink: /vehicles/:title/
+  pages:
+    output: true
+    permalink: /:title/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "vehicles"
+    values:
+      layout: "vehicle"
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+
+# Build Settings
+markdown: kramdown
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Exclude from processing
+exclude:
+  - .claude/
+  - .github/
+  - .idea/
+  - node_modules/
+  - vendor/
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - index-original.html
+  - 2025-11-18-init.txt
+
+# Include in processing
+include:
+  - _pages
+
+# Sass
+sass:
+  style: compressed
+
+# SEO
+lang: en_US
+logo: /assets/images/logo.png
+social:
+  links:
+    - https://facebook.com/jpautomotive
+    - https://twitter.com/jpautomotive

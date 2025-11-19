@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JP AUTO - Quality Used Cars Sacramento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ff6b35',
+                        'primary-dark': '#e55a28',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans text-gray-800">
+    <!-- Header Section -->
+    <header class="bg-gray-900 text-white fixed w-full top-0 z-50 shadow-lg">
+        <!-- Top Info Bar -->
+        <div class="bg-gray-800">
+            <div class="max-w-[2560px] mx-auto px-4 md:px-8">
+                <div class="flex justify-center items-center py-2">
+                    <div class="flex flex-wrap gap-4 md:gap-6 text-xs md:text-sm">
+                        <a href="tel:9166187197" class="flex items-center gap-2 hover:text-primary transition-colors">
+                            📞 (916) 618-7197
+                        </a>
+                        <span class="flex items-center gap-2">
+                            📍 2529 Connie Dr #15, Sacramento, CA 95815
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="bg-gray-900 text-white border-t border-gray-700">
+            <div class="max-w-[2560px] mx-auto px-4 md:px-8">
+                <nav class="py-3">
+                    <ul class="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-base">
+                        <li><a href="#home" class="hover:text-primary transition-colors duration-300 font-medium">Home</a></li>
+                        <li><a href="#inventory" class="hover:text-primary transition-colors duration-300 font-medium">Inventory</a></li>
+                        <li><a href="#finance" class="hover:text-primary transition-colors duration-300 font-medium">Finance</a></li>
+                        <li><a href="#trade-in" class="hover:text-primary transition-colors duration-300 font-medium">Trade-In</a></li>
+                        <li><a href="#service" class="hover:text-primary transition-colors duration-300 font-medium">Service</a></li>
+                        <li><a href="#testimonials" class="hover:text-primary transition-colors duration-300 font-medium">Testimonials</a></li>
+                        <li><a href="#contact" class="hover:text-primary transition-colors duration-300 font-medium">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Company Name -->
+    <div class="bg-gray-900 text-white border-b border-gray-700 mt-[75px]">
+        <div class="max-w-[2560px] mx-auto px-4 md:px-8">
+            <div class="text-center py-4">
+                <h1 class="text-3xl md:text-4xl font-bold tracking-wide">JP AUTO</h1>
+                <p class="text-sm text-gray-400 mt-1">Quality Used Cars in Sacramento</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Banner Section -->
+    <section id="home" class="relative w-full overflow-hidden">
+        <div class="relative w-full h-[400px] md:h-[600px] lg:h-[700px] max-w-[2560px] mx-auto">
+            <!-- Google Maps Embed -->
+            <iframe src="https://www.google.com/maps/embed?pb=!4v1763498242460!6m8!1m7!1sqav6_XY_0jZY-OYQQ3eZ4w!2m2!1d38.61236790272711!2d-121.420795656854!3f278.46!4f0!5f0.7820865974627469" class="absolute inset-0 w-full h-full" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <!-- Banner Content -->
+            <div class="absolute inset-0 z-10 bg-black/30 flex items-center justify-center text-center text-white px-4">
+                <div>
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">Find Your Perfect Ride</h2>
+                    <p class="text-lg md:text-xl lg:text-2xl mb-8 drop-shadow-md">Quality Pre-Owned Vehicles at Unbeatable Prices</p>
+                    <a href="#search" class="inline-block px-8 py-4 bg-primary text-white rounded-lg text-lg font-semibold hover:bg-primary-dark transition-colors duration-300 shadow-lg">Browse Inventory</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vehicle Search Bar -->
+    <section id="search" class="bg-white py-8 shadow-lg -mt-20 relative z-20">
+        <div class="max-w-[2560px] mx-auto px-4 md:px-8">
+            <div class="bg-gray-50 rounded-lg p-6 shadow-md">
+                <h3 class="text-2xl font-bold text-center mb-6">Search Your Perfect Vehicle</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Make</label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option>All Makes</option>
+                            <option>Honda</option>
+                            <option>Toyota</option>
+                            <option>Ford</option>
+                            <option>Chevrolet</option>
+                            <option>Nissan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Model</label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option>All Models</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Price Range</label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option>Any Price</option>
+                            <option>Under $15,000</option>
+                            <option>$15,000 - $25,000</option>
+                            <option>$25,000 - $35,000</option>
+                            <option>Over $35,000</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button class="w-full px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors duration-300">
+                            Search Vehicles
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Links Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-[2560px] mx-auto px-4 md:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+                <!-- Inventory Link -->
+                <a href="#inventory" class="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                        <span class="text-3xl group-hover:scale-110 transition-transform duration-300">🚗</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">Inventory</h3>
+                    <p class="text-sm text-gray-600 mt-2">Browse Our Cars</p>
+                </a>
+
+                <!-- Finance Link -->
+                <a href="#finance" class="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                        <span class="text-3xl group-hover:scale-110 transition-transform duration-300">💰</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">Finance</h3>
+                    <p class="text-sm text-gray-600 mt-2">Get Pre-Approved</p>
+                </a>
+
+                <!-- Trade-In Link -->
+                <a href="#trade-in" class="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                        <span class="text-3xl group-hover:scale-110 transition-transform duration-300">🔄</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">Trade-In</h3>
+                    <p class="text-sm text-gray-600 mt-2">Value Your Car</p>
+                </a>
+
+                <!-- Service Link -->
+                <a href="#service" class="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                        <span class="text-3xl group-hover:scale-110 transition-transform duration-300">🔧</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">Service</h3>
+                    <p class="text-sm text-gray-600 mt-2">Schedule Service</p>
+                </a>
+
+                <!-- Testimonials Link -->
+                <a href="#testimonials" class="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                        <span class="text-3xl group-hover:scale-110 transition-transform duration-300">⭐</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">Testimonials</h3>
+                    <p class="text-sm text-gray-600 mt-2">Customer Reviews</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Vehicles -->
+    <section id="inventory" class="max-w-[2560px] mx-auto my-16 px-4 md:px-8">
+        <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Featured Vehicles</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Car Card 1 -->
+            <div class="border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
+                <div class="w-full h-48 bg-gray-300 flex items-center justify-center text-gray-600">
+                    Car Image
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2">2020 Honda Accord</h3>
+                    <p class="text-primary text-3xl font-bold my-4">$22,995</p>
+                    <ul class="space-y-2 mb-4 text-gray-600">
+                        <li>📍 35,000 miles</li>
+                        <li>⚙️ Automatic</li>
+                        <li>⛽ Fuel Efficient</li>
+                        <li>✅ Clean Title</li>
+                    </ul>
+                    <a href="#contact" class="inline-block w-full text-center px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300">View Details</a>
+                </div>
+            </div>
+
+            <!-- Car Card 2 -->
+            <div class="border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
+                <div class="w-full h-48 bg-gray-300 flex items-center justify-center text-gray-600">
+                    Car Image
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2">2019 Toyota RAV4</h3>
+                    <p class="text-primary text-3xl font-bold my-4">$26,500</p>
+                    <ul class="space-y-2 mb-4 text-gray-600">
+                        <li>📍 42,000 miles</li>
+                        <li>⚙️ Automatic</li>
+                        <li>🚙 SUV</li>
+                        <li>✅ Clean Title</li>
+                    </ul>
+                    <a href="#contact" class="inline-block w-full text-center px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300">View Details</a>
+                </div>
+            </div>
+
+            <!-- Car Card 3 -->
+            <div class="border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
+                <div class="w-full h-48 bg-gray-300 flex items-center justify-center text-gray-600">
+                    Car Image
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2">2021 Ford F-150</h3>
+                    <p class="text-primary text-3xl font-bold my-4">$34,995</p>
+                    <ul class="space-y-2 mb-4 text-gray-600">
+                        <li>📍 28,000 miles</li>
+                        <li>⚙️ Automatic</li>
+                        <li>🚚 Truck</li>
+                        <li>✅ Clean Title</li>
+                    </ul>
+                    <a href="#contact" class="inline-block w-full text-center px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300">View Details</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section id="about" class="bg-gray-100 py-16 px-4 md:px-8">
+        <div class="max-w-[2560px] mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Why Choose JP AUTO?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center p-8">
+                    <h3 class="text-xl font-bold mb-4 text-primary">Quality Inspected</h3>
+                    <p class="text-gray-700">Every vehicle undergoes a thorough 150-point inspection to ensure reliability and safety.</p>
+                </div>
+                <div class="text-center p-8">
+                    <h3 class="text-xl font-bold mb-4 text-primary">Best Prices</h3>
+                    <p class="text-gray-700">Competitive pricing with flexible financing options to fit your budget.</p>
+                </div>
+                <div class="text-center p-8">
+                    <h3 class="text-xl font-bold mb-4 text-primary">Warranty Included</h3>
+                    <p class="text-gray-700">All our vehicles come with a comprehensive warranty for your peace of mind.</p>
+                </div>
+                <div class="text-center p-8">
+                    <h3 class="text-xl font-bold mb-4 text-primary">Trusted Service</h3>
+                    <p class="text-gray-700">Over 20 years of serving our community with honest and transparent service.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Finance Section -->
+    <section id="finance" class="max-w-[2560px] mx-auto my-16 px-4 md:px-8">
+        <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Financing Options</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <h3 class="text-2xl font-bold mb-4 text-primary">💰 Get Pre-Approved</h3>
+                <p class="text-gray-700 mb-6">Apply for financing today and get pre-approved in minutes. We work with multiple lenders to find you the best rates.</p>
+                <ul class="space-y-3 mb-6 text-gray-700">
+                    <li>✅ Quick approval process</li>
+                    <li>✅ Competitive interest rates</li>
+                    <li>✅ Flexible payment terms</li>
+                    <li>✅ Bad credit? No problem!</li>
+                </ul>
+                <button class="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors duration-300">Apply Now</button>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <h3 class="text-2xl font-bold mb-4 text-primary">📊 Calculate Your Payment</h3>
+                <p class="text-gray-700 mb-6">Use our payment calculator to estimate your monthly payments and find a plan that fits your budget.</p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Vehicle Price</label>
+                        <input type="text" placeholder="$25,000" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Down Payment</label>
+                        <input type="text" placeholder="$5,000" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                    <button class="w-full px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors duration-300">Calculate</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trade-In Section -->
+    <section id="trade-in" class="bg-gray-100 py-16 px-4 md:px-8">
+        <div class="max-w-[2560px] mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Trade In Your Vehicle</h2>
+            <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
+                <div class="text-center mb-8">
+                    <span class="text-6xl mb-4 block">🔄</span>
+                    <h3 class="text-2xl font-bold mb-4">Get an Instant Trade-In Value</h3>
+                    <p class="text-gray-700">Fill out our simple form and get an instant estimate for your trade-in vehicle. We accept all makes and models!</p>
+                </div>
+                <form class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Year</label>
+                            <input type="text" placeholder="2018" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Make</label>
+                            <input type="text" placeholder="Honda" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Model</label>
+                            <input type="text" placeholder="Civic" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Mileage</label>
+                            <input type="text" placeholder="50,000" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors duration-300">Get My Trade-In Value</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Service Section -->
+    <section id="service" class="max-w-[2560px] mx-auto my-16 px-4 md:px-8">
+        <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Service & Maintenance</h2>
+        <div class="text-center mb-12">
+            <p class="text-lg text-gray-700">Keep your vehicle running smoothly with our professional service center. From routine maintenance to major repairs, we've got you covered.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <span class="text-5xl mb-4 block">🔧</span>
+                <h3 class="text-xl font-bold mb-3">General Maintenance</h3>
+                <p class="text-gray-700">Oil changes, tire rotations, brake inspections, and more.</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <span class="text-5xl mb-4 block">⚙️</span>
+                <h3 class="text-xl font-bold mb-3">Engine Repairs</h3>
+                <p class="text-gray-700">Expert diagnostics and repairs for all engine issues.</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <span class="text-5xl mb-4 block">🛠️</span>
+                <h3 class="text-xl font-bold mb-3">Body Work</h3>
+                <p class="text-gray-700">Collision repair, dent removal, and paint services.</p>
+            </div>
+        </div>
+        <div class="text-center mt-8">
+            <button class="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors duration-300">Schedule Service Appointment</button>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="bg-gray-100 py-16 px-4 md:px-8">
+        <div class="max-w-[2560px] mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">What Our Customers Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <span class="text-3xl mr-2">👤</span>
+                        <div>
+                            <h4 class="font-bold">John Smith</h4>
+                            <div class="text-primary">⭐⭐⭐⭐⭐</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"Great experience! The staff was professional and helpful. Found the perfect car at an amazing price. Highly recommend JP AUTO!"</p>
+                </div>
+                <!-- Testimonial 2 -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <span class="text-3xl mr-2">👤</span>
+                        <div>
+                            <h4 class="font-bold">Sarah Johnson</h4>
+                            <div class="text-primary">⭐⭐⭐⭐⭐</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"Best dealership in Sacramento! They worked with my budget and got me approved for financing within hours. Thank you JP AUTO!"</p>
+                </div>
+                <!-- Testimonial 3 -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <span class="text-3xl mr-2">👤</span>
+                        <div>
+                            <h4 class="font-bold">Mike Rodriguez</h4>
+                            <div class="text-primary">⭐⭐⭐⭐⭐</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"Excellent service from start to finish. The car was exactly as described, and the trade-in process was smooth. Will definitely return!"</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="max-w-[2560px] mx-auto my-16 px-4 md:px-8 text-center">
+        <h2 class="text-4xl md:text-5xl font-bold mb-8">Visit Us Today</h2>
+        <p class="text-lg mb-8">Stop by our dealership or give us a call to schedule a test drive!</p>
+        <div class="flex flex-wrap justify-center gap-12 mt-8">
+            <div class="p-4">
+                <h3 class="text-xl font-bold mb-2">📍 Location</h3>
+                <p class="text-gray-700">2529 Connie Dr #15<br>Sacramento, CA 95815</p>
+            </div>
+            <div class="p-4">
+                <h3 class="text-xl font-bold mb-2">📞 Phone</h3>
+                <p class="text-gray-700">(916) 618-7197</p>
+            </div>
+            <div class="p-4">
+                <h3 class="text-xl font-bold mb-2">🕒 Hours</h3>
+                <p class="text-gray-700">Mon-Fri: 9AM-7PM<br>Sat: 9AM-6PM<br>Sun: 10AM-5PM</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-16">
+        <div class="max-w-[2560px] mx-auto px-4 md:px-8 text-center">
+            <p>&copy; 2024 JP AUTO. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
