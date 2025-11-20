@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consignment Sales - JP Auto</title>
+    <meta name="description" content="Submit your vehicle for consignment sales at JP Auto. We'll handle the selling process while you get top dollar for your vehicle.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ff6b35',
+                        'primary-dark': '#e55a28',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-gray-900">JP AUTO</h1>
+                <a href="https://jpautomotivegroup.com" class="text-primary hover:text-primary-dark">← Back to Home</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary to-primary-dark text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-bold mb-4">Consignment Sales - Let Us Sell Your Car</h1>
+            <p class="text-xl mb-2">Submit your vehicle for consignment sales</p>
+            <p class="text-base opacity-90">We'll handle the selling process while you get top dollar for your vehicle</p>
+        </div>
+    </section>
+
+    <!-- Form Section -->
+    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <form id="submissionForm">
+                <!-- Customer Information -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Your Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="customerName" class="block text-sm font-medium text-gray-700 mb-2">
+                                Full Name *
+                            </label>
+                            <input type="text" id="customerName" name="customerName" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="customerEmail" class="block text-sm font-medium text-gray-700 mb-2">
+                                Email Address *
+                            </label>
+                            <input type="email" id="customerEmail" name="customerEmail" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="customerPhone" class="block text-sm font-medium text-gray-700 mb-2">
+                                Phone Number *
+                            </label>
+                            <input type="tel" id="customerPhone" name="customerPhone" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Information -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Vehicle Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="year" class="block text-sm font-medium text-gray-700 mb-2">
+                                Year *
+                            </label>
+                            <input type="number" id="year" name="year" min="1900" max="2025" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="make" class="block text-sm font-medium text-gray-700 mb-2">
+                                Make *
+                            </label>
+                            <input type="text" id="make" name="make" required placeholder="e.g., Honda, Toyota"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="model" class="block text-sm font-medium text-gray-700 mb-2">
+                                Model *
+                            </label>
+                            <input type="text" id="model" name="model" required placeholder="e.g., Accord, Camry"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="trim" class="block text-sm font-medium text-gray-700 mb-2">
+                                Trim (Optional)
+                            </label>
+                            <input type="text" id="trim" name="trim" placeholder="e.g., EX, Sport"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="vin" class="block text-sm font-medium text-gray-700 mb-2">
+                                VIN *
+                            </label>
+                            <input type="text" id="vin" name="vin" required maxlength="17" placeholder="17-character VIN"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="mileage" class="block text-sm font-medium text-gray-700 mb-2">
+                                Mileage *
+                            </label>
+                            <input type="number" id="mileage" name="mileage" required min="0"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="exteriorColor" class="block text-sm font-medium text-gray-700 mb-2">
+                                Exterior Color
+                            </label>
+                            <input type="text" id="exteriorColor" name="exteriorColor"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="interiorColor" class="block text-sm font-medium text-gray-700 mb-2">
+                                Interior Color
+                            </label>
+                            <input type="text" id="interiorColor" name="interiorColor"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="transmission" class="block text-sm font-medium text-gray-700 mb-2">
+                                Transmission
+                            </label>
+                            <select id="transmission" name="transmission"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="">Select...</option>
+                                <option value="Automatic">Automatic</option>
+                                <option value="Manual">Manual</option>
+                                <option value="CVT">CVT</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="titleStatus" class="block text-sm font-medium text-gray-700 mb-2">
+                                Title Status
+                            </label>
+                            <select id="titleStatus" name="titleStatus"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="">Select...</option>
+                                <option value="Clean">Clean</option>
+                                <option value="Salvage">Salvage</option>
+                                <option value="Rebuilt">Rebuilt</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Notes -->
+                <div class="mb-8">
+                    <label for="customerNotes" class="block text-sm font-medium text-gray-700 mb-2">
+                        Additional Notes (Condition, Features, etc.)
+                    </label>
+                    <textarea id="customerNotes" name="customerNotes" rows="4"
+                        placeholder="Tell us about your vehicle's condition, any upgrades, service history, etc."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                </div>
+
+                <!-- Image Upload -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Vehicle Photos</h2>
+                    <p class="text-gray-600 mb-4">Upload up to 40 photos of your vehicle (exterior, interior, engine, etc.)</p>
+
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                        <input type="file" id="images" name="images" accept="image/*" multiple
+                            class="hidden">
+                        <label for="images" class="cursor-pointer">
+                            <div class="mb-4">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                            <p class="text-lg font-medium text-gray-900">Click to select photos</p>
+                            <p class="text-sm text-gray-500">or drag and drop</p>
+                        </label>
+                    </div>
+
+                    <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between">
+                    <p class="text-sm text-gray-500">* Required fields</p>
+                    <button type="submit" id="submitBtn"
+                        class="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-lg transition duration-200">
+                        Submit Vehicle
+                    </button>
+                </div>
+
+                <!-- Progress -->
+                <div id="uploadProgress" class="hidden mt-6">
+                    <div class="bg-gray-200 rounded-full h-2.5">
+                        <div id="progressBar" class="bg-primary h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="progressText" class="text-sm text-gray-600 mt-2 text-center"></p>
+                </div>
+            </form>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="hidden mt-8 p-6 bg-green-50 border border-green-200 rounded-lg">
+                <h3 class="text-lg font-bold text-green-800 mb-2">✓ Consignment Application Received!</h3>
+                <p class="text-green-700">Thank you for submitting your vehicle for consignment sales. Our team will review your submission and contact you within 24-48 hours to discuss the next steps.</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden mt-8 p-6 bg-red-50 border border-red-200 rounded-lg">
+                <h3 class="text-lg font-bold text-red-800 mb-2">Submission Failed</h3>
+                <p id="errorText" class="text-red-700"></p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const API_URL = 'https://jp-auto-inventory-production.up.railway.app';
+        const form = document.getElementById('submissionForm');
+        const imageInput = document.getElementById('images');
+        const imagePreview = document.getElementById('imagePreview');
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+
+        let selectedFiles = [];
+
+        // Image preview
+        imageInput.addEventListener('change', (e) => {
+            selectedFiles = Array.from(e.target.files);
+
+            if (selectedFiles.length > 40) {
+                alert('Maximum 40 images allowed');
+                selectedFiles = selectedFiles.slice(0, 40);
+            }
+
+            imagePreview.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'relative';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg">
+                        <button type="button" onclick="removeImage(${index})"
+                            class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                            ×
+                        </button>
+                    `;
+                    imagePreview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        window.removeImage = (index) => {
+            selectedFiles.splice(index, 1);
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            imageInput.files = dt.files;
+            imageInput.dispatchEvent(new Event('change'));
+        };
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Hide previous messages
+            successMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                // Step 1: Submit vehicle data
+                uploadProgress.classList.remove('hidden');
+                progressBar.style.width = '20%';
+                progressText.textContent = 'Submitting vehicle information...';
+
+                const formData = {
+                    customerName: document.getElementById('customerName').value,
+                    customerEmail: document.getElementById('customerEmail').value,
+                    customerPhone: document.getElementById('customerPhone').value,
+                    year: parseInt(document.getElementById('year').value),
+                    make: document.getElementById('make').value,
+                    model: document.getElementById('model').value,
+                    trim: document.getElementById('trim').value || null,
+                    vin: document.getElementById('vin').value,
+                    mileage: parseInt(document.getElementById('mileage').value),
+                    exteriorColor: document.getElementById('exteriorColor').value || null,
+                    interiorColor: document.getElementById('interiorColor').value || null,
+                    transmission: document.getElementById('transmission').value || null,
+                    titleStatus: document.getElementById('titleStatus').value || null,
+                    customerNotes: document.getElementById('customerNotes').value || null
+                };
+
+                const response = await fetch(`${API_URL}/api/submissions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Submission failed');
+                }
+
+                const result = await response.json();
+                const submissionId = result.submission.id;
+
+                progressBar.style.width = '50%';
+
+                // Step 2: Upload images if any
+                if (selectedFiles.length > 0) {
+                    progressText.textContent = `Uploading ${selectedFiles.length} photos...`;
+
+                    const imageFormData = new FormData();
+                    selectedFiles.forEach(file => {
+                        imageFormData.append('images', file);
+                    });
+
+                    const imageResponse = await fetch(`${API_URL}/api/submissions/${submissionId}/images`, {
+                        method: 'POST',
+                        body: imageFormData
+                    });
+
+                    if (!imageResponse.ok) {
+                        console.error('Image upload failed, but submission was successful');
+                    }
+
+                    progressBar.style.width = '100%';
+                    progressText.textContent = 'Upload complete!';
+                } else {
+                    progressBar.style.width = '100%';
+                    progressText.textContent = 'Submission complete!';
+                }
+
+                // Show success message
+                setTimeout(() => {
+                    uploadProgress.classList.add('hidden');
+                    successMessage.classList.remove('hidden');
+                    form.reset();
+                    imagePreview.innerHTML = '';
+                    selectedFiles = [];
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Vehicle';
+                }, 1000);
+
+            } catch (error) {
+                console.error('Submission error:', error);
+                uploadProgress.classList.add('hidden');
+                errorMessage.classList.remove('hidden');
+                errorText.textContent = error.message;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Vehicle';
+            }
+        });
+    </script>
+</body>
+</html>
