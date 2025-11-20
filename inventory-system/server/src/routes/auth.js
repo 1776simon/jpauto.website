@@ -26,8 +26,9 @@ router.get('/google/callback',
       console.log('✅ User authenticated and session saved:', req.user.email);
       console.log('✅ Session ID after save:', req.sessionID);
 
-      // Redirect to local success page instead of external URL
-      res.redirect('/auth/success');
+      // Redirect to admin dashboard
+      const adminUrl = process.env.ADMIN_URL || 'http://localhost:5173';
+      res.redirect(`${adminUrl}/dashboard`);
     });
   }
 );
