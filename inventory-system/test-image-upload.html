@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image Upload - JP Auto Inventory</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Image Upload</h1>
+    <p>Upload images to your test vehicle</p>
+
+    <form id="uploadForm">
+        <div class="form-group">
+            <label for="vehicleId">Vehicle ID:</label>
+            <input type="text" id="vehicleId" placeholder="Paste vehicle ID here" required>
+        </div>
+
+        <div class="form-group">
+            <label for="images">Select Images (max 40):</label>
+            <input type="file" id="images" accept="image/*" multiple required>
+            <small>You can select multiple images at once</small>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="replace">
+                Replace existing images (if any)
+            </label>
+        </div>
+
+        <button type="submit">Upload Images</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        const API_URL = 'https://jp-auto-inventory-production.up.railway.app';
+
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const vehicleId = document.getElementById('vehicleId').value;
+            const images = document.getElementById('images').files;
+            const replace = document.getElementById('replace').checked;
+            const resultDiv = document.getElementById('result');
+
+            if (images.length === 0) {
+                resultDiv.className = 'error';
+                resultDiv.textContent = 'Please select at least one image';
+                return;
+            }
+
+            if (images.length > 40) {
+                resultDiv.className = 'error';
+                resultDiv.textContent = 'Maximum 40 images allowed';
+                return;
+            }
+
+            resultDiv.textContent = `Uploading ${images.length} image(s)...`;
+            resultDiv.className = '';
+
+            try {
+                const formData = new FormData();
+                for (let i = 0; i < images.length; i++) {
+                    formData.append('images', images[i]);
+                }
+
+                const url = `${API_URL}/api/inventory/${vehicleId}/images${replace ? '?replace=true' : ''}`;
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.className = 'success';
+                    resultDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.textContent = `Error: ${data.error}\n${data.message || ''}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
