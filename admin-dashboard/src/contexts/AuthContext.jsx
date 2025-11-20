@@ -10,21 +10,35 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+
+    // Check auth again when window regains focus (helpful after OAuth redirect)
+    const handleFocus = () => {
+      if (!user) {
+        checkAuth();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [user]);
 
   const checkAuth = async () => {
     try {
       setLoading(true);
       setError(null);
+
+      console.log('🔍 Checking auth status...');
       const data = await api.checkAuthStatus();
+      console.log('📊 Auth response:', data);
 
       if (data.authenticated) {
         setUser(data.user);
+        console.log('✅ User authenticated:', data.user.email);
       } else {
         setUser(null);
+        console.log('❌ Not authenticated');
       }
     } catch (err) {
-      console.error('Auth check failed:', err);
+      console.error('❌ Auth check failed:', err);
       setError(err.message);
       setUser(null);
     } finally {
