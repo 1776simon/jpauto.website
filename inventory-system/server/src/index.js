@@ -27,7 +27,9 @@ const allowedOrigins = [
   process.env.CLIENT_URL || 'http://localhost:3000',
   'https://consign.jpautomotivegroup.com',
   'https://jp-auto-consignment.pages.dev',
-  'http://localhost:3000'
+  'https://admin.jpautomotivegroup.com',
+  'http://localhost:3000',
+  'http://localhost:5173'
 ];
 
 app.use(cors({
