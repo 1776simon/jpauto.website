@@ -25,27 +25,12 @@ router.get('/google/callback',
       }
       console.log('✅ User authenticated and session saved:', req.user.email);
       console.log('✅ Session ID after save:', req.sessionID);
+      console.log('✅ Cookie domain:', req.session.cookie.domain);
+      console.log('✅ Cookie sameSite:', req.session.cookie.sameSite);
 
-      // Instead of redirecting, send HTML page that will set cookie then redirect
+      // Redirect to admin dashboard
       const adminUrl = process.env.ADMIN_URL || 'http://localhost:5173';
-      res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Login Successful</title>
-        </head>
-        <body>
-          <script>
-            // Cookie should now be set by server
-            // Wait a moment for cookie to be stored, then redirect
-            setTimeout(function() {
-              window.location.href = '${adminUrl}/dashboard';
-            }, 100);
-          </script>
-          <p>Login successful! Redirecting to dashboard...</p>
-        </body>
-        </html>
-      `);
+      res.redirect(`${adminUrl}/dashboard`);
     });
   }
 );
