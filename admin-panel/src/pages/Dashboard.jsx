@@ -36,9 +36,9 @@ export default function Dashboard() {
   });
 
   return (
-    <div class="flex min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-gray-50">
       {/* Navigation Sidebar */}
-      <aside class="w-64 nav-rail">
+      <aside class="nav-rail">
         <div class="p-6">
           <h1 class="text-2xl font-bold text-gray-900">JP Auto</h1>
           <p class="text-sm text-gray-600">Admin Panel</p>
@@ -46,28 +46,28 @@ export default function Dashboard() {
 
         <nav class="mt-6 space-y-2">
           <A href="/dashboard" class="nav-item nav-item-active">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
             <span>Dashboard</span>
           </A>
 
           <A href="/submissions" class="nav-item">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <span>Submissions</span>
           </A>
 
           <A href="/inventory" class="nav-item">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
             <span>Inventory</span>
           </A>
 
           <A href="/exports" class="nav-item">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <span>Exports</span>
@@ -75,19 +75,19 @@ export default function Dashboard() {
         </nav>
 
         {/* User Section */}
-        <div class="absolute bottom-0 w-64 p-4 border-t border-gray-200">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
+        <div class="mt-auto p-4 border-t border-gray-200">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-semibold">
               {user()?.name?.charAt(0) || 'U'}
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate">{user()?.name}</p>
+              <p class="text-xs font-medium text-gray-900 truncate">{user()?.name}</p>
               <p class="text-xs text-gray-500 truncate">{user()?.email}</p>
             </div>
           </div>
           <button
             onClick={logout}
-            class="btn-outlined w-full text-sm"
+            class="btn-outlined w-full text-xs py-2"
           >
             Sign Out
           </button>
@@ -95,7 +95,7 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main class="flex-1 p-8">
+      <main class="ml-64 p-8">
         <div class="max-w-7xl mx-auto">
           {/* Header */}
           <div class="mb-8">
@@ -112,7 +112,7 @@ export default function Dashboard() {
                   <p class="text-3xl font-bold text-gray-900 mt-2">{stats().totalSubmissions}</p>
                 </div>
                 <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                  <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
@@ -126,7 +126,7 @@ export default function Dashboard() {
                   <p class="text-3xl font-bold text-gray-900 mt-2">{stats().pendingSubmissions}</p>
                 </div>
                 <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -140,7 +140,7 @@ export default function Dashboard() {
                   <p class="text-3xl font-bold text-gray-900 mt-2">{stats().totalInventory}</p>
                 </div>
                 <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                 </div>

@@ -123,6 +123,12 @@
   .nav-rail {
     background-color: #fffbff;
     border-right: 1px solid #d8c2ba;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 16rem;
+    overflow-y: auto;
   }
 
   /* Material 3 Navigation Item */
