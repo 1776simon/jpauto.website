@@ -1,5 +1,5 @@
 // API Configuration
-const API_URL = import.meta.env.VITE_API_URL || 'https://jp-auto-inventory-production.up.railway.app';
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.jpautomotivegroup.com';
 
 // API Helper
 class ApiService {
