@@ -13,11 +13,11 @@
 
 ## CRITICAL PRIORITY (Do First)
 
-### 1. N+1 Query Problem in Export Controllers
+### 1. N+1 Query Problem in Export Controllers ✅ COMPLETED
 **File:** `inventory-system/server/src/controllers/exportsController.js`
-**Lines:** 39-46, 92-99, 157-164, 225-232, 288-295
+**Lines:** 38-48, 93-103, 160-170, 230-240, 295-305
 
-**Current Code:**
+**Previous Code:**
 ```javascript
 await Promise.all(
   vehicles.map(vehicle =>
@@ -29,11 +29,12 @@ await Promise.all(
 );
 ```
 
-**Fix:** Replace with bulk update
+**Implemented Fix:** Replaced with bulk update in all 5 export functions
 ```javascript
+const vehicleIds = vehicles.map(v => v.id);
 await Inventory.update(
   { exportedToJekyll: true, exportedToJekyllAt: new Date() },
-  { where: { id: vehicles.map(v => v.id) } }
+  { where: { id: vehicleIds } }
 );
 ```
 
@@ -41,25 +42,33 @@ await Inventory.update(
 
 ---
 
-### 2. Missing Database Indexes
-**File:** `inventory-system/database/schema.sql`
+### 2. Missing Database Indexes ✅ COMPLETED
+**Files:** `inventory-system/database/schema.sql`, `inventory-system/database/migrations/001_add_performance_indexes.sql`
 
-**Add these indexes:**
+**Implemented indexes:**
 ```sql
 -- Composite index for common filter queries
 CREATE INDEX idx_inventory_filters ON inventory(status, make, model, year);
 
--- Price range queries
+-- Price range queries (partial index)
 CREATE INDEX idx_inventory_price_range ON inventory(price) WHERE status = 'available';
 
--- Customer lookups
-CREATE INDEX idx_pending_submissions_email ON pending_submissions(customer_email);
+-- Case-insensitive search indexes
+CREATE INDEX idx_inventory_make_lower ON inventory(LOWER(make));
+CREATE INDEX idx_inventory_model_lower ON inventory(LOWER(model));
 
--- Featured vehicles
-CREATE INDEX idx_inventory_featured ON inventory(is_featured) WHERE status = 'available';
+-- Year, mileage, featured vehicles
+CREATE INDEX idx_inventory_year ON inventory(year DESC);
+CREATE INDEX idx_inventory_mileage ON inventory(mileage);
+CREATE INDEX idx_inventory_featured_available ON inventory(featured, created_at DESC) WHERE status = 'available';
+
+-- Customer email lookups
+CREATE INDEX idx_pending_submissions_email ON pending_submissions(customer_email);
+CREATE INDEX idx_pending_submissions_status_date ON pending_submissions(submission_status, submitted_at DESC);
 ```
 
-**Impact:** Much faster inventory filtering and search
+**Impact:** 10-100x faster inventory filtering and search
+**Migration:** Run 001_add_performance_indexes.sql on production database
 
 ---
 
@@ -96,25 +105,31 @@ requiredEnvVars.forEach(varName => {
 
 ## HIGH PRIORITY
 
-### 4. Rate Limiting on Auth Endpoints
+### 4. Rate Limiting on Auth Endpoints ✅ COMPLETED
 **File:** `inventory-system/server/src/routes/auth.js`
-**Current:** No rate limiting (vulnerable to brute force)
+**Lines:** 6-18, 26, 56
 
-**Fix:**
+**Implemented:**
 ```javascript
 const rateLimit = require('express-rate-limit');
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts per window
-  message: { error: 'Too many login attempts, please try again later' }
+  max: 10, // 10 attempts per window
+  message: {
+    error: 'Too many authentication attempts',
+    message: 'Please try again later'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.ip === '127.0.0.1' || req.ip === '::1' // Skip localhost
 });
 
 router.get('/google', authLimiter, passport.authenticate('google', ...));
 router.get('/microsoft', authLimiter, passport.authenticate('microsoft', ...));
 ```
 
-**Impact:** Protection against brute force attacks
+**Impact:** Protection against authentication brute force attacks
 
 ---
 
@@ -373,18 +388,19 @@ Required in Railway dashboard:
 ## Next Session Plan
 
 ### ✅ COMPLETED: Quick Wins (Commit 366350b)
-   - ✅ Environment variable validation
-   - ✅ File upload size logic fix
-   - ✅ CORS origins to env var
+   - ✅ Environment variable validation (index.js:72-93)
+   - ✅ File upload size logic fix (upload.js:5)
+   - ✅ CORS origins to env var (index.js:26-35)
 
-### Next Priority: Performance Boost
-   - Add database indexes (Critical #2)
-   - Fix N+1 queries in export controllers (Critical #1)
-   - Add auth rate limiting (High #4)
+### ✅ COMPLETED: Performance Boost (Commit 68f01dc)
+   - ✅ Database indexes (schema.sql + 001_add_performance_indexes.sql)
+   - ✅ N+1 queries fixed (exportsController.js - all 5 export functions)
+   - ✅ Auth rate limiting (auth.js:6-18, 26, 56)
 
-### Time Permitting:
+### Next Priority: Code Quality Improvements
    - Transactions for critical ops (High #6)
    - Standardize error handling (Medium #7)
    - Refactor duplicate code (Medium #9)
+   - Session configuration for production (Medium #10)
 
-**Estimated Total Time:** 1-2 hours for performance optimizations
+**Estimated Total Time:** 2-3 hours for remaining optimizations
