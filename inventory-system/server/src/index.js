@@ -23,15 +23,16 @@ app.use(helmet({
 }));
 
 // CORS configuration - allow requests from multiple origins
-const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:3000',
-  'https://consign.jpautomotivegroup.com',
-  'https://jp-auto-consignment.pages.dev',
-  'https://admin.jpautomotivegroup.com',
-  'https://api.jpautomotivegroup.com', // Custom domain for Railway
-  'http://localhost:3000',
-  'http://localhost:5173'
-];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://consign.jpautomotivegroup.com',
+      'https://jp-auto-consignment.pages.dev',
+      'https://admin.jpautomotivegroup.com',
+      'https://api.jpautomotivegroup.com'
+    ];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -69,8 +70,25 @@ sessionStore.on('error', (err) => {
 });
 
 // Validate required environment variables
-if (!process.env.SESSION_SECRET) {
-  console.error('FATAL: SESSION_SECRET environment variable is not set');
+const requiredEnvVars = [
+  'DATABASE_URL',
+  'SESSION_SECRET',
+  'R2_ACCESS_KEY_ID',
+  'R2_SECRET_ACCESS_KEY',
+  'R2_BUCKET_NAME',
+  'R2_PUBLIC_URL',
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'GOOGLE_CALLBACK_URL',
+  'ADMIN_URL'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  console.error('FATAL: The following required environment variables are not set:');
+  missingVars.forEach(varName => console.error(`  - ${varName}`));
+  console.error('\nPlease set these variables in Railway dashboard or .env file');
   process.exit(1);
 }
 
