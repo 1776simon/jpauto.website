@@ -172,37 +172,7 @@ const processVehicleImages = async (files, vin) => {
   }
 };
 
-/**
- * Basic virus scan simulation (placeholder for actual ClamAV integration)
- * @param {Buffer} fileBuffer - File buffer to scan
- * @returns {Promise<boolean>}
- */
-const scanForVirus = async (fileBuffer) => {
-  // This is a placeholder. In production, integrate with ClamAV or VirusTotal API
-  // Example with node-clamav:
-  /*
-  const NodeClam = require('node-clamav');
-  const ClamScan = new NodeClam().init({
-    clamdscan: {
-      host: process.env.CLAMAV_HOST || 'localhost',
-      port: process.env.CLAMAV_PORT || 3310,
-    }
-  });
-
-  const { isInfected, viruses } = await ClamScan.scanBuffer(fileBuffer);
-  if (isInfected) {
-    throw new Error(`Virus detected: ${viruses.join(', ')}`);
-  }
-  */
-
-  // For now, just return true (no virus detected)
-  // Enable actual virus scanning by setting ENABLE_VIRUS_SCAN=true in .env
-  if (process.env.ENABLE_VIRUS_SCAN === 'true') {
-    console.warn('Virus scanning is enabled but not implemented. Please configure ClamAV.');
-  }
-
-  return true;
-};
+// Virus scanning removed - implement with ClamAV or VirusTotal if needed
 
 module.exports = {
   processImage,

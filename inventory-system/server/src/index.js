@@ -41,7 +41,7 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.log('❌ CORS blocked origin:', origin);
+      console.error('CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -65,12 +65,18 @@ const sessionStore = new pgSession({
 
 // Add error logging for session store
 sessionStore.on('error', (err) => {
-  console.error('🔴 Session store error:', err);
+  console.error('Session store error:', err);
 });
+
+// Validate required environment variables
+if (!process.env.SESSION_SECRET) {
+  console.error('FATAL: SESSION_SECRET environment variable is not set');
+  process.exit(1);
+}
 
 app.use(session({
   store: sessionStore,
-  secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   name: 'connect.sid', // Explicit cookie name
@@ -79,7 +85,7 @@ app.use(session({
     secure: true, // Required for HTTPS
     httpOnly: true,
     sameSite: 'none', // Must be 'none' for cross-subdomain cookies to work
-    domain: '.jpautomotivegroup.com', // Share cookie across all subdomains
+    domain: process.env.COOKIE_DOMAIN || '.jpautomotivegroup.com', // Share cookie across all subdomains
     path: '/'
   }
 }));
@@ -168,10 +174,10 @@ const startServer = async () => {
     app.listen(PORT, () => {
       console.log('');
       console.log('='.repeat(50));
-      console.log(`✅ JP Auto Inventory System Server`);
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📍 API URL: http://localhost:${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`JP Auto Inventory System Server`);
+      console.log(`Server running on port ${PORT}`);
+      console.log(`API URL: http://localhost:${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log('='.repeat(50));
       console.log('');
     });

@@ -17,19 +17,15 @@ export function AuthProvider({ children }) {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Checking auth status...');
       const data = await api.checkAuthStatus();
-      console.log('📊 Auth response:', data);
 
       if (data.authenticated) {
         setUser(data.user);
-        console.log('✅ User authenticated:', data.user.email);
       } else {
         setUser(null);
-        console.log('❌ Not authenticated');
       }
     } catch (err) {
-      console.error('❌ Auth check failed:', err);
+      console.error('Auth check failed:', err);
       setError(err.message);
       setUser(null);
     } finally {

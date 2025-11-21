@@ -14,7 +14,7 @@ async function verifyRecaptcha(token, action = 'submit', minScore = 0.5) {
 
   // Skip verification if reCAPTCHA is not configured
   if (!secretKey || secretKey === 'YOUR_SECRET_KEY_HERE') {
-    console.warn('⚠️  reCAPTCHA not configured - skipping verification');
+    console.warn('reCAPTCHA not configured - skipping verification');
     return {
       success: true,
       score: 1.0,
@@ -108,15 +108,12 @@ function recaptchaMiddleware(action = 'submit', minScore = 0.5) {
     const result = await verifyRecaptcha(token, action, minScore);
 
     if (!result.success) {
-      console.log(`❌ reCAPTCHA verification failed:`, result.error);
       return res.status(400).json({
         error: 'Bot protection verification failed',
         message: 'Please try again. If the problem persists, contact support.',
         details: process.env.NODE_ENV === 'development' ? result : undefined
       });
     }
-
-    console.log(`✅ reCAPTCHA verified: score=${result.score}, action=${result.action}`);
 
     // Attach score to request for logging/analytics
     req.recaptchaScore = result.score;

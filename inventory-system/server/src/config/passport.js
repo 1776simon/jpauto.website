@@ -6,19 +6,16 @@ require('dotenv').config();
 
 // Serialize user for session
 passport.serializeUser((user, done) => {
-  console.log('🔵 serializeUser called with user:', user.id, user.email);
   done(null, user.id);
 });
 
 // Deserialize user from session
 passport.deserializeUser(async (id, done) => {
-  console.log('🔵 deserializeUser called with id:', id);
   try {
     const user = await User.findByPk(id);
-    console.log('🔵 deserializeUser found user:', user ? user.email : 'NOT FOUND');
     done(null, user);
   } catch (error) {
-    console.error('🔴 deserializeUser error:', error);
+    console.error('Passport deserializeUser error:', error);
     done(error, null);
   }
 });
@@ -51,8 +48,6 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           role: 'viewer', // Default role
           lastLogin: new Date()
         });
-
-        console.log(`✅ New user registered: ${user.email}`);
       } else {
         // Update last login
         await user.update({ lastLogin: new Date() });
@@ -95,8 +90,6 @@ if (process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET) {
           role: 'viewer', // Default role
           lastLogin: new Date()
         });
-
-        console.log(`✅ New user registered: ${user.email}`);
       } else {
         // Update last login
         await user.update({ lastLogin: new Date() });

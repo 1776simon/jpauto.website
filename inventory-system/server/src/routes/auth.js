@@ -23,10 +23,6 @@ router.get('/google/callback',
         console.error('Session save error:', err);
         return res.status(500).json({ error: 'Session save failed' });
       }
-      console.log('✅ User authenticated and session saved:', req.user.email);
-      console.log('✅ Session ID after save:', req.sessionID);
-      console.log('✅ Cookie domain:', req.session.cookie.domain);
-      console.log('✅ Cookie sameSite:', req.session.cookie.sameSite);
 
       // Redirect to admin dashboard
       const adminUrl = process.env.ADMIN_URL || 'http://localhost:5173';
@@ -34,32 +30,6 @@ router.get('/google/callback',
     });
   }
 );
-
-// OAuth success page - test if session persists
-router.get('/success', (req, res) => {
-  console.log('🟢 Success page - Session ID:', req.sessionID);
-  console.log('🟢 Success page - Is authenticated:', req.isAuthenticated());
-
-  if (req.isAuthenticated()) {
-    res.json({
-      success: true,
-      message: 'Authentication successful!',
-      user: {
-        id: req.user.id,
-        name: req.user.name,
-        email: req.user.email,
-        role: req.user.role
-      },
-      instructions: 'You can now visit /auth/status to verify your session is working'
-    });
-  } else {
-    res.json({
-      success: false,
-      message: 'Session not found - cookie issue detected',
-      sessionId: req.sessionID
-    });
-  }
-});
 
 /**
  * Microsoft OAuth Routes
