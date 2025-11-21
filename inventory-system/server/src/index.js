@@ -76,9 +76,10 @@ app.use(session({
   name: 'connect.sid', // Explicit cookie name
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    secure: true, // Required for sameSite: 'none'
+    secure: true, // Required for HTTPS
     httpOnly: true,
-    sameSite: 'none', // Allow cross-site cookies for OAuth redirects
+    sameSite: 'lax', // Allow same-site cookies (works with custom domain)
+    domain: '.jpautomotivegroup.com', // Share cookie across all subdomains
     path: '/'
   }
 }));
