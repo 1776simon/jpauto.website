@@ -1,6 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('../config/passport');
+const rateLimit = require('express-rate-limit');
+
+// Rate limiter for auth endpoints to prevent brute force attacks
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 requests per window
+  message: {
+    error: 'Too many authentication attempts',
+    message: 'Please try again later'
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Skip rate limiting for trusted proxies (Railway uses proxies)
+  skip: (req) => req.ip === '127.0.0.1' || req.ip === '::1'
+});
 
 /**
  * Google OAuth Routes
@@ -8,6 +23,7 @@ const passport = require('../config/passport');
 
 // Initiate Google OAuth
 router.get('/google',
+  authLimiter, // Add rate limiting
   passport.authenticate('google', {
     scope: ['profile', 'email']
   })
@@ -37,6 +53,7 @@ router.get('/google/callback',
 
 // Initiate Microsoft OAuth
 router.get('/microsoft',
+  authLimiter, // Add rate limiting
   passport.authenticate('microsoft', {
     scope: ['user.read']
   })

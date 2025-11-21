@@ -35,14 +35,16 @@ const exportJekyll = async (req, res) => {
     const outputPath = process.env.JEKYLL_EXPORT_PATH || path.resolve(__dirname, '../../../_vehicles');
     const results = await exportToJekyll(vehiclesData, outputPath);
 
-    // Update export tracking
-    await Promise.all(
-      vehicles.map(vehicle =>
-        vehicle.update({
-          exportedToJekyll: true,
-          exportedToJekyllAt: new Date()
-        })
-      )
+    // Update export tracking (bulk update - much faster than individual updates)
+    const vehicleIds = vehicles.map(v => v.id);
+    await Inventory.update(
+      {
+        exportedToJekyll: true,
+        exportedToJekyllAt: new Date()
+      },
+      {
+        where: { id: vehicleIds }
+      }
     );
 
     res.json({
@@ -88,14 +90,16 @@ const exportDealerCenter = async (req, res) => {
     // Export to Dealer Center
     const results = await exportToDealerCenter(vehiclesData);
 
-    // Update export tracking
-    await Promise.all(
-      vehicles.map(vehicle =>
-        vehicle.update({
-          exportedToDealerCenter: true,
-          exportedToDealerCenterAt: new Date()
-        })
-      )
+    // Update export tracking (bulk update - much faster than individual updates)
+    const vehicleIds = vehicles.map(v => v.id);
+    await Inventory.update(
+      {
+        exportedToDealerCenter: true,
+        exportedToDealerCenterAt: new Date()
+      },
+      {
+        where: { id: vehicleIds }
+      }
     );
 
     // Send file for download
@@ -153,14 +157,16 @@ const exportAutoTrader = async (req, res) => {
     // Export to AutoTrader
     const results = await exportToAutoTrader(vehiclesData, dealerInfo);
 
-    // Update export tracking
-    await Promise.all(
-      vehicles.map(vehicle =>
-        vehicle.update({
-          exportedToAutotrader: true,
-          exportedToAutotraderAt: new Date()
-        })
-      )
+    // Update export tracking (bulk update - much faster than individual updates)
+    const vehicleIds = vehicles.map(v => v.id);
+    await Inventory.update(
+      {
+        exportedToAutotrader: true,
+        exportedToAutotraderAt: new Date()
+      },
+      {
+        where: { id: vehicleIds }
+      }
     );
 
     // Send file for download
@@ -221,14 +227,16 @@ const exportCarGurus = async (req, res) => {
     // Export to CarGurus
     const results = await exportToCarGurus(vehiclesData, dealerInfo);
 
-    // Update export tracking
-    await Promise.all(
-      vehicles.map(vehicle =>
-        vehicle.update({
-          exportedToCargurus: true,
-          exportedToCargurusAt: new Date()
-        })
-      )
+    // Update export tracking (bulk update - much faster than individual updates)
+    const vehicleIds = vehicles.map(v => v.id);
+    await Inventory.update(
+      {
+        exportedToCargurus: true,
+        exportedToCargurusAt: new Date()
+      },
+      {
+        where: { id: vehicleIds }
+      }
     );
 
     // Send file for download
@@ -284,14 +292,16 @@ const exportFacebook = async (req, res) => {
     // Export to Facebook
     const results = await exportToFacebook(vehiclesData, dealerInfo);
 
-    // Update export tracking
-    await Promise.all(
-      vehicles.map(vehicle =>
-        vehicle.update({
-          exportedToFacebook: true,
-          exportedToFacebookAt: new Date()
-        })
-      )
+    // Update export tracking (bulk update - much faster than individual updates)
+    const vehicleIds = vehicles.map(v => v.id);
+    await Inventory.update(
+      {
+        exportedToFacebook: true,
+        exportedToFacebookAt: new Date()
+      },
+      {
+        where: { id: vehicleIds }
+      }
     );
 
     // Send file for download

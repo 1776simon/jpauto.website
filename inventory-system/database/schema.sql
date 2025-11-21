@@ -183,9 +183,9 @@ CREATE TABLE activity_logs (
 );
 
 -- Indexes for better performance
+-- Basic indexes
 CREATE INDEX idx_inventory_status ON inventory(status);
 CREATE INDEX idx_inventory_vin ON inventory(vin);
-CREATE INDEX idx_inventory_featured ON inventory(featured);
 CREATE INDEX idx_inventory_created_at ON inventory(created_at);
 CREATE INDEX idx_pending_submission_status ON pending_submissions(submission_status);
 CREATE INDEX idx_pending_submission_vin ON pending_submissions(vin);
@@ -194,6 +194,32 @@ CREATE INDEX idx_export_logs_type ON export_logs(export_type);
 CREATE INDEX idx_export_logs_exported_at ON export_logs(exported_at);
 CREATE INDEX idx_activity_logs_user ON activity_logs(user_id);
 CREATE INDEX idx_activity_logs_entity ON activity_logs(entity_type, entity_id);
+
+-- Performance optimization indexes (added 2025-01)
+-- Composite index for common filter queries (status + make + model + year)
+CREATE INDEX idx_inventory_filters ON inventory(status, make, model, year);
+
+-- Price range queries on available vehicles (partial index)
+CREATE INDEX idx_inventory_price_range ON inventory(price) WHERE status = 'available';
+
+-- Case-insensitive search indexes for make and model
+CREATE INDEX idx_inventory_make_lower ON inventory(LOWER(make));
+CREATE INDEX idx_inventory_model_lower ON inventory(LOWER(model));
+
+-- Year range queries
+CREATE INDEX idx_inventory_year ON inventory(year DESC);
+
+-- Mileage filtering
+CREATE INDEX idx_inventory_mileage ON inventory(mileage);
+
+-- Customer email lookups
+CREATE INDEX idx_pending_submissions_email ON pending_submissions(customer_email);
+
+-- Pending submissions by status and date
+CREATE INDEX idx_pending_submissions_status_date ON pending_submissions(submission_status, submitted_at DESC);
+
+-- Featured vehicles (partial index for available + featured)
+CREATE INDEX idx_inventory_featured_available ON inventory(featured, created_at DESC) WHERE status = 'available';
 
 -- Triggers for updated_at timestamps
 CREATE OR REPLACE FUNCTION update_updated_at_column()
