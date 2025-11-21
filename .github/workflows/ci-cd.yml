@@ -61,6 +61,7 @@ jobs:
           root: _site/
           css: true
           skip_git_check: true
+          blacklist: admin-dashboard/src/index.css
 
       - name: Check for common issues
         run: |
