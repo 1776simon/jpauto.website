@@ -178,6 +178,5 @@ module.exports = {
   processImage,
   createThumbnail,
   validateImage,
-  processVehicleImages,
-  scanForVirus
+  processVehicleImages
 };
