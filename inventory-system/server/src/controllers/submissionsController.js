@@ -1,4 +1,4 @@
-const { PendingSubmission, Inventory, User } = require('../models');
+const { PendingSubmission, Inventory, User, sequelize } = require('../models');
 const { uploadFile, deleteMultipleFiles, extractKeyFromUrl } = require('../services/r2Storage');
 const { processVehicleImages, scanForVirus } = require('../services/imageProcessor');
 const { Op } = require('sequelize');
@@ -214,19 +214,24 @@ const getSubmissionById = async (req, res) => {
  * POST /api/submissions/:id/approve
  */
 const approveSubmission = async (req, res) => {
+  // Start a database transaction for data integrity
+  const transaction = await sequelize.transaction();
+
   try {
     const { id } = req.params;
     const { price, stockNumber, internalNotes } = req.body;
 
-    const submission = await PendingSubmission.findByPk(id);
+    const submission = await PendingSubmission.findByPk(id, { transaction });
 
     if (!submission) {
+      await transaction.rollback();
       return res.status(404).json({
         error: 'Submission not found'
       });
     }
 
     if (submission.submissionStatus !== 'pending') {
+      await transaction.rollback();
       return res.status(400).json({
         error: 'Submission already reviewed'
       });
@@ -272,7 +277,7 @@ const approveSubmission = async (req, res) => {
       status: 'available'
     };
 
-    const inventory = await Inventory.create(inventoryData);
+    const inventory = await Inventory.create(inventoryData, { transaction });
 
     // Update submission status
     await submission.update({
@@ -280,7 +285,10 @@ const approveSubmission = async (req, res) => {
       reviewedAt: new Date(),
       reviewedBy: req.user.id,
       internalNotes
-    });
+    }, { transaction });
+
+    // Commit transaction - all operations succeeded
+    await transaction.commit();
 
     res.json({
       message: 'Submission approved and added to inventory',
@@ -292,6 +300,8 @@ const approveSubmission = async (req, res) => {
       }
     });
   } catch (error) {
+    // Rollback transaction on any error
+    await transaction.rollback();
     console.error('Error approving submission:', error);
 
     if (error.name === 'SequelizeUniqueConstraintError') {

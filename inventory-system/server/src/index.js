@@ -97,13 +97,18 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  rolling: true, // Refresh session on each request to keep active sessions alive
   name: 'connect.sid', // Explicit cookie name
   cookie: {
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    secure: true, // Required for HTTPS
+    maxAge: process.env.NODE_ENV === 'production'
+      ? 7 * 24 * 60 * 60 * 1000  // 7 days in production
+      : 30 * 24 * 60 * 60 * 1000, // 30 days in development
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
     httpOnly: true,
-    sameSite: 'none', // Must be 'none' for cross-subdomain cookies to work
-    domain: process.env.COOKIE_DOMAIN || '.jpautomotivegroup.com', // Share cookie across all subdomains
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-domain in prod, 'lax' for local
+    domain: process.env.NODE_ENV === 'production'
+      ? (process.env.COOKIE_DOMAIN || '.jpautomotivegroup.com')
+      : undefined, // No domain restriction in development
     path: '/'
   }
 }));
@@ -153,24 +158,14 @@ app.use('/api/inventory', require('./routes/inventory'));
 app.use('/api/exports', require('./routes/exports'));
 app.use('/api/users', require('./routes/users'));
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
+// Standardized error handling
+const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
-  res.status(err.status || 500).json({
-    error: {
-      message: err.message || 'Internal Server Error',
-      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    }
-  });
-});
+// 404 handler - must be after all routes
+app.use(notFoundHandler);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    error: 'Route not found'
-  });
-});
+// Global error handler - must be last
+app.use(errorHandler);
 
 // Start server
 const startServer = async () => {
