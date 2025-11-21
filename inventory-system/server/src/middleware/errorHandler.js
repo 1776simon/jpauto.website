@@ -3,6 +3,8 @@
  * Provides consistent error responses across all controllers
  */
 
+const logger = require('../config/logger');
+
 /**
  * Custom API Error class for structured errors
  */
@@ -22,7 +24,7 @@ class APIError extends Error {
  */
 const errorHandler = (err, req, res, next) => {
   // Log error for debugging
-  console.error('Error occurred:', {
+  logger.error('Error occurred:', {
     name: err.name,
     message: err.message,
     statusCode: err.statusCode || 500,

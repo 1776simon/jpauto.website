@@ -4,18 +4,21 @@ const { exportToDealerCenter } = require('../exports/dealer-center/dealerCenterE
 const { exportToAutoTrader } = require('../exports/autotrader/autotraderExporter');
 const { exportToCarGurus } = require('../exports/cargurus/cargurusExporter');
 const { exportToFacebook } = require('../exports/facebook/facebookExporter');
+const logger = require('../config/logger');
 const path = require('path');
 
 /**
- * Export inventory to Jekyll
- * POST /api/exports/jekyll
+ * Generic export handler to reduce code duplication
+ * Handles common export logic: fetch vehicles, call exporter, update tracking
  */
-const exportJekyll = async (req, res) => {
+const handleExport = async (req, res, config) => {
+  const { exportFunction, exportType, displayName, fieldPrefix, downloadable = false, downloadFilename } = config;
+
   try {
     const { status = 'available', includeAll = false } = req.query;
 
     // Get vehicles to export
-    const where = includeAll ? {} : { status };
+    const where = includeAll !== undefined && includeAll !== 'false' ? (includeAll ? {} : { status }) : { status };
     const vehicles = await Inventory.findAll({
       where,
       order: [['createdAt', 'DESC']]
@@ -28,39 +31,66 @@ const exportJekyll = async (req, res) => {
       });
     }
 
-    // Convert Sequelize instances to plain objects
+    // Convert to plain objects
     const vehiclesData = vehicles.map(v => v.toJSON());
 
-    // Export to Jekyll
-    const outputPath = process.env.JEKYLL_EXPORT_PATH || path.resolve(__dirname, '../../../_vehicles');
-    const results = await exportToJekyll(vehiclesData, outputPath);
+    // Call the specific exporter function
+    const results = await exportFunction(vehiclesData, config.exportOptions);
 
-    // Update export tracking (bulk update - much faster than individual updates)
+    // Update export tracking (bulk update)
     const vehicleIds = vehicles.map(v => v.id);
-    await Inventory.update(
-      {
-        exportedToJekyll: true,
-        exportedToJekyllAt: new Date()
-      },
-      {
-        where: { id: vehicleIds }
-      }
-    );
+    const updateFields = {};
+    updateFields[`exportedTo${fieldPrefix}`] = true;
+    updateFields[`exportedTo${fieldPrefix}At`] = new Date();
 
-    res.json({
-      message: 'Jekyll export completed successfully',
-      vehicleCount: vehiclesData.length,
-      successCount: results.success.length,
-      errorCount: results.errors.length,
-      results
-    });
+    await Inventory.update(updateFields, { where: { id: vehicleIds } });
+
+    // Handle response based on export type
+    if (downloadable && results.filePath) {
+      // Send file for download
+      res.download(results.filePath, downloadFilename || `${exportType}_${Date.now()}.${config.fileExtension || 'csv'}`, (err) => {
+        if (err) {
+          logger.error(`Error sending ${displayName} file:`, err);
+          if (!res.headersSent) {
+            res.status(500).json({
+              error: 'Failed to send file',
+              message: err.message
+            });
+          }
+        }
+      });
+    } else {
+      // Send JSON response
+      res.json({
+        message: `${displayName} export completed successfully`,
+        vehicleCount: vehiclesData.length,
+        successCount: results.success?.length || vehiclesData.length,
+        errorCount: results.errors?.length || 0,
+        results
+      });
+    }
   } catch (error) {
-    console.error('Jekyll export error:', error);
+    logger.error(`${displayName} export error:`, error);
     res.status(500).json({
-      error: 'Jekyll export failed',
+      error: `${displayName} export failed`,
       message: error.message
     });
   }
+};
+
+/**
+ * Export inventory to Jekyll
+ * POST /api/exports/jekyll
+ */
+const exportJekyll = async (req, res) => {
+  const outputPath = process.env.JEKYLL_EXPORT_PATH || path.resolve(__dirname, '../../../_vehicles');
+  return handleExport(req, res, {
+    exportFunction: (vehiclesData) => exportToJekyll(vehiclesData, outputPath),
+    exportType: 'jekyll',
+    displayName: 'Jekyll',
+    fieldPrefix: 'Jekyll',
+    downloadable: false
+  });
 };
 
 /**
@@ -68,57 +98,14 @@ const exportJekyll = async (req, res) => {
  * POST /api/exports/dealer-center
  */
 const exportDealerCenter = async (req, res) => {
-  try {
-    const { status = 'available', includeAll = false } = req.query;
-
-    // Get vehicles to export
-    const where = includeAll ? {} : { status };
-    const vehicles = await Inventory.findAll({
-      where,
-      order: [['createdAt', 'DESC']]
-    });
-
-    if (vehicles.length === 0) {
-      return res.status(404).json({
-        error: 'No vehicles found',
-        message: 'No vehicles available for export'
-      });
-    }
-
-    const vehiclesData = vehicles.map(v => v.toJSON());
-
-    // Export to Dealer Center
-    const results = await exportToDealerCenter(vehiclesData);
-
-    // Update export tracking (bulk update - much faster than individual updates)
-    const vehicleIds = vehicles.map(v => v.id);
-    await Inventory.update(
-      {
-        exportedToDealerCenter: true,
-        exportedToDealerCenterAt: new Date()
-      },
-      {
-        where: { id: vehicleIds }
-      }
-    );
-
-    // Send file for download
-    res.download(results.filePath, `dealer_center_${Date.now()}.csv`, (err) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(500).json({
-          error: 'Failed to send file',
-          message: err.message
-        });
-      }
-    });
-  } catch (error) {
-    console.error('Dealer Center export error:', error);
-    res.status(500).json({
-      error: 'Dealer Center export failed',
-      message: error.message
-    });
-  }
+  return handleExport(req, res, {
+    exportFunction: exportToDealerCenter,
+    exportType: 'dealer_center',
+    displayName: 'Dealer Center',
+    fieldPrefix: 'DealerCenter',
+    downloadable: true,
+    fileExtension: 'csv'
+  });
 };
 
 /**
@@ -126,66 +113,23 @@ const exportDealerCenter = async (req, res) => {
  * POST /api/exports/autotrader
  */
 const exportAutoTrader = async (req, res) => {
-  try {
-    const { status = 'available' } = req.query;
+  const dealerInfo = {
+    dealerId: process.env.AUTOTRADER_DEALER_ID,
+    dealerName: process.env.DEALER_NAME || 'JP Auto',
+    phone: process.env.DEALER_PHONE || '(916) 618-7197',
+    email: process.env.DEALER_EMAIL || 'info@jpautomotivegroup.com',
+    address: process.env.DEALER_ADDRESS || 'Sacramento, CA',
+    websiteUrl: process.env.WEBSITE_URL || 'https://jpautomotivegroup.com'
+  };
 
-    // Get vehicles to export
-    const vehicles = await Inventory.findAll({
-      where: { status },
-      order: [['createdAt', 'DESC']]
-    });
-
-    if (vehicles.length === 0) {
-      return res.status(404).json({
-        error: 'No vehicles found',
-        message: 'No vehicles available for export'
-      });
-    }
-
-    const vehiclesData = vehicles.map(v => v.toJSON());
-
-    // Dealer info from env or defaults
-    const dealerInfo = {
-      dealerId: process.env.AUTOTRADER_DEALER_ID,
-      dealerName: process.env.DEALER_NAME || 'JP Auto',
-      phone: process.env.DEALER_PHONE || '(916) 618-7197',
-      email: process.env.DEALER_EMAIL || 'info@jpautomotivegroup.com',
-      address: process.env.DEALER_ADDRESS || 'Sacramento, CA',
-      websiteUrl: process.env.WEBSITE_URL || 'https://jpautomotivegroup.com'
-    };
-
-    // Export to AutoTrader
-    const results = await exportToAutoTrader(vehiclesData, dealerInfo);
-
-    // Update export tracking (bulk update - much faster than individual updates)
-    const vehicleIds = vehicles.map(v => v.id);
-    await Inventory.update(
-      {
-        exportedToAutotrader: true,
-        exportedToAutotraderAt: new Date()
-      },
-      {
-        where: { id: vehicleIds }
-      }
-    );
-
-    // Send file for download
-    res.download(results.filePath, `autotrader_${Date.now()}.xml`, (err) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(500).json({
-          error: 'Failed to send file',
-          message: err.message
-        });
-      }
-    });
-  } catch (error) {
-    console.error('AutoTrader export error:', error);
-    res.status(500).json({
-      error: 'AutoTrader export failed',
-      message: error.message
-    });
-  }
+  return handleExport(req, res, {
+    exportFunction: (vehiclesData) => exportToAutoTrader(vehiclesData, dealerInfo),
+    exportType: 'autotrader',
+    displayName: 'AutoTrader',
+    fieldPrefix: 'Autotrader',
+    downloadable: true,
+    fileExtension: 'xml'
+  });
 };
 
 /**
@@ -193,69 +137,26 @@ const exportAutoTrader = async (req, res) => {
  * POST /api/exports/cargurus
  */
 const exportCarGurus = async (req, res) => {
-  try {
-    const { status = 'available' } = req.query;
+  const dealerInfo = {
+    dealerId: process.env.CARGURUS_DEALER_ID,
+    dealerName: process.env.DEALER_NAME || 'JP Auto',
+    phone: process.env.DEALER_PHONE || '(916) 618-7197',
+    email: process.env.DEALER_EMAIL || 'info@jpautomotivegroup.com',
+    address: process.env.DEALER_ADDRESS || 'Sacramento',
+    city: process.env.DEALER_CITY || 'Sacramento',
+    state: process.env.DEALER_STATE || 'CA',
+    zip: process.env.DEALER_ZIP || '',
+    websiteUrl: process.env.WEBSITE_URL || 'https://jpautomotivegroup.com'
+  };
 
-    // Get vehicles to export
-    const vehicles = await Inventory.findAll({
-      where: { status },
-      order: [['createdAt', 'DESC']]
-    });
-
-    if (vehicles.length === 0) {
-      return res.status(404).json({
-        error: 'No vehicles found',
-        message: 'No vehicles available for export'
-      });
-    }
-
-    const vehiclesData = vehicles.map(v => v.toJSON());
-
-    // Dealer info
-    const dealerInfo = {
-      dealerId: process.env.CARGURUS_DEALER_ID,
-      dealerName: process.env.DEALER_NAME || 'JP Auto',
-      phone: process.env.DEALER_PHONE || '(916) 618-7197',
-      email: process.env.DEALER_EMAIL || 'info@jpautomotivegroup.com',
-      address: process.env.DEALER_ADDRESS || 'Sacramento',
-      city: process.env.DEALER_CITY || 'Sacramento',
-      state: process.env.DEALER_STATE || 'CA',
-      zip: process.env.DEALER_ZIP || '',
-      websiteUrl: process.env.WEBSITE_URL || 'https://jpautomotivegroup.com'
-    };
-
-    // Export to CarGurus
-    const results = await exportToCarGurus(vehiclesData, dealerInfo);
-
-    // Update export tracking (bulk update - much faster than individual updates)
-    const vehicleIds = vehicles.map(v => v.id);
-    await Inventory.update(
-      {
-        exportedToCargurus: true,
-        exportedToCargurusAt: new Date()
-      },
-      {
-        where: { id: vehicleIds }
-      }
-    );
-
-    // Send file for download
-    res.download(results.filePath, `cargurus_${Date.now()}.xml`, (err) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(500).json({
-          error: 'Failed to send file',
-          message: err.message
-        });
-      }
-    });
-  } catch (error) {
-    console.error('CarGurus export error:', error);
-    res.status(500).json({
-      error: 'CarGurus export failed',
-      message: error.message
-    });
-  }
+  return handleExport(req, res, {
+    exportFunction: (vehiclesData) => exportToCarGurus(vehiclesData, dealerInfo),
+    exportType: 'cargurus',
+    displayName: 'CarGurus',
+    fieldPrefix: 'Cargurus',
+    downloadable: true,
+    fileExtension: 'xml'
+  });
 };
 
 /**
@@ -263,64 +164,21 @@ const exportCarGurus = async (req, res) => {
  * POST /api/exports/facebook
  */
 const exportFacebook = async (req, res) => {
-  try {
-    const { status = 'available' } = req.query;
+  const dealerInfo = {
+    dealerName: process.env.DEALER_NAME || 'JP Auto',
+    address: process.env.DEALER_ADDRESS || 'Sacramento, CA',
+    phone: process.env.DEALER_PHONE || '(916) 618-7197',
+    websiteUrl: process.env.WEBSITE_URL || 'https://jpautomotivegroup.com'
+  };
 
-    // Get vehicles to export
-    const vehicles = await Inventory.findAll({
-      where: { status },
-      order: [['createdAt', 'DESC']]
-    });
-
-    if (vehicles.length === 0) {
-      return res.status(404).json({
-        error: 'No vehicles found',
-        message: 'No vehicles available for export'
-      });
-    }
-
-    const vehiclesData = vehicles.map(v => v.toJSON());
-
-    // Dealer info
-    const dealerInfo = {
-      dealerName: process.env.DEALER_NAME || 'JP Auto',
-      address: process.env.DEALER_ADDRESS || 'Sacramento, CA',
-      phone: process.env.DEALER_PHONE || '(916) 618-7197',
-      websiteUrl: process.env.WEBSITE_URL || 'https://jpautomotivegroup.com'
-    };
-
-    // Export to Facebook
-    const results = await exportToFacebook(vehiclesData, dealerInfo);
-
-    // Update export tracking (bulk update - much faster than individual updates)
-    const vehicleIds = vehicles.map(v => v.id);
-    await Inventory.update(
-      {
-        exportedToFacebook: true,
-        exportedToFacebookAt: new Date()
-      },
-      {
-        where: { id: vehicleIds }
-      }
-    );
-
-    // Send file for download
-    res.download(results.filePath, `facebook_marketplace_${Date.now()}.csv`, (err) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(500).json({
-          error: 'Failed to send file',
-          message: err.message
-        });
-      }
-    });
-  } catch (error) {
-    console.error('Facebook export error:', error);
-    res.status(500).json({
-      error: 'Facebook export failed',
-      message: error.message
-    });
-  }
+  return handleExport(req, res, {
+    exportFunction: (vehiclesData) => exportToFacebook(vehiclesData, dealerInfo),
+    exportType: 'facebook_marketplace',
+    displayName: 'Facebook Marketplace',
+    fieldPrefix: 'Facebook',
+    downloadable: true,
+    fileExtension: 'csv'
+  });
 };
 
 /**

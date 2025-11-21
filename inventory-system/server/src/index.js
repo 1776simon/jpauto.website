@@ -9,6 +9,7 @@ require('dotenv').config();
 const { testConnection, sequelize } = require('./config/database');
 const { syncDatabase } = require('./models');
 const passport = require('./config/passport');
+const logger = require('./config/logger');
 
 // Initialize Express app
 const app = express();
@@ -42,7 +43,7 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.error('CORS blocked origin:', origin);
+      logger.warn(`CORS blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -66,7 +67,7 @@ const sessionStore = new pgSession({
 
 // Add error logging for session store
 sessionStore.on('error', (err) => {
-  console.error('Session store error:', err);
+  logger.error('Session store error:', err);
 });
 
 // Validate required environment variables
@@ -86,9 +87,9 @@ const requiredEnvVars = [
 const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingVars.length > 0) {
-  console.error('FATAL: The following required environment variables are not set:');
-  missingVars.forEach(varName => console.error(`  - ${varName}`));
-  console.error('\nPlease set these variables in Railway dashboard or .env file');
+  logger.error('FATAL: The following required environment variables are not set:');
+  missingVars.forEach(varName => logger.error(`  - ${varName}`));
+  logger.error('\nPlease set these variables in Railway dashboard or .env file');
   process.exit(1);
 }
 
@@ -174,7 +175,7 @@ const startServer = async () => {
     const dbConnected = await testConnection();
 
     if (!dbConnected) {
-      console.error('Failed to connect to database. Exiting...');
+      logger.error('Failed to connect to database. Exiting...');
       process.exit(1);
     }
 
@@ -185,30 +186,28 @@ const startServer = async () => {
 
     // Start listening
     app.listen(PORT, () => {
-      console.log('');
-      console.log('='.repeat(50));
-      console.log(`JP Auto Inventory System Server`);
-      console.log(`Server running on port ${PORT}`);
-      console.log(`API URL: http://localhost:${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log('='.repeat(50));
-      console.log('');
+      logger.info('='.repeat(50));
+      logger.info(`JP Auto Inventory System Server`);
+      logger.info(`Server running on port ${PORT}`);
+      logger.info(`API URL: http://localhost:${PORT}`);
+      logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      logger.info('='.repeat(50));
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server:', error);
     process.exit(1);
   }
 };
 
 // Handle graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('SIGTERM signal received: closing HTTP server');
+  logger.info('SIGTERM signal received: closing HTTP server');
   await sequelize.close();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  console.log('SIGINT signal received: closing HTTP server');
+  logger.info('SIGINT signal received: closing HTTP server');
   await sequelize.close();
   process.exit(0);
 });

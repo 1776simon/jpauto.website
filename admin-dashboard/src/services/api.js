@@ -43,9 +43,13 @@ class ApiService {
   }
 
   // Submissions endpoints
-  async getSubmissions(status = 'all') {
-    const query = status !== 'all' ? `?status=${status}` : '';
-    return this.request(`/api/submissions${query}`);
+  async getSubmissions(status = 'all', page = 1, limit = 20) {
+    const params = new URLSearchParams();
+    if (status !== 'all') params.append('status', status);
+    params.append('page', page);
+    params.append('limit', limit);
+    const query = params.toString();
+    return this.request(`/api/submissions?${query}`);
   }
 
   async approveSubmission(id) {

@@ -4,6 +4,15 @@ const { processVehicleImages, scanForVirus } = require('../services/imageProcess
 const { Op } = require('sequelize');
 
 /**
+ * Sanitize user input for LIKE queries to prevent SQL wildcards in user input
+ * Escapes % and _ characters that have special meaning in LIKE queries
+ */
+const sanitizeLikeInput = (input) => {
+  if (!input) return input;
+  return input.replace(/[%_]/g, '\\$&');
+};
+
+/**
  * Get all inventory
  * GET /api/inventory
  */
@@ -38,11 +47,11 @@ const getAllInventory = async (req, res) => {
     }
 
     if (make) {
-      where.make = { [Op.iLike]: `%${make}%` };
+      where.make = { [Op.iLike]: `%${sanitizeLikeInput(make)}%` };
     }
 
     if (model) {
-      where.model = { [Op.iLike]: `%${model}%` };
+      where.model = { [Op.iLike]: `%${sanitizeLikeInput(model)}%` };
     }
 
     if (yearMin || yearMax) {
