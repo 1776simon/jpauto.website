@@ -31,7 +31,9 @@ class ApiService {
 
   // Auth endpoints
   async checkAuthStatus() {
-    return this.request('/auth/status');
+    const response = await this.request('/auth/status');
+    console.log('🍪 Cookies sent:', document.cookie);
+    return response;
   }
 
   getLoginUrl() {
