@@ -1,0 +1,5 @@
+name = "jp-auto-admin"
+compatibility_date = "2025-11-21"
+
+[site]
+bucket = "./dist"
