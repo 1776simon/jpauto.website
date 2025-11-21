@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://jp-auto-backend-production.up.railway.app';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://api.jpautomotivegroup.com';
 
 class ApiService {
   async request(endpoint, options = {}) {
