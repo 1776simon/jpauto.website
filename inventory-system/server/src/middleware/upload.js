@@ -2,7 +2,7 @@ const multer = require('multer');
 const path = require('path');
 
 // Configuration
-const MAX_FILE_SIZE = parseInt(process.env.MAX_IMAGE_SIZE_MB) * 1024 * 1024 || 10 * 1024 * 1024; // 10MB default
+const MAX_FILE_SIZE = (parseInt(process.env.MAX_IMAGE_SIZE_MB) || 10) * 1024 * 1024; // 10MB default
 const MAX_FILES = parseInt(process.env.MAX_IMAGES_PER_SUBMISSION) || 40;
 
 // File filter - only allow images
