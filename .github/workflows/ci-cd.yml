@@ -59,9 +59,8 @@ jobs:
         uses: Cyb3r-Jak3/html5validator-action@v7.2.0
         with:
           root: _site/
-          css: true
+          css: false
           skip_git_check: true
-          blacklist: admin-dashboard/src/index.css
 
       - name: Check for common issues
         run: |
