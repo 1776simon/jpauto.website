@@ -10,16 +10,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     checkAuth();
-
-    // Check auth again when window regains focus (helpful after OAuth redirect)
-    const handleFocus = () => {
-      if (!user) {
-        checkAuth();
-      }
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [user]);
+  }, []); // Empty dependency array - only run once on mount
 
   const checkAuth = async () => {
     try {
