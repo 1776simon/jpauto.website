@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Material 3 Design System */
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #fffbff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  /* Material 3 Filled Button */
+  .btn-filled {
+    padding: 0.75rem 1.5rem;
+    background-color: #ff6b35;
+    color: white;
+    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s;
+  }
+
+  .btn-filled:hover {
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-filled:active {
+    transform: scale(0.95);
+  }
+
+  .btn-filled:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* Material 3 Outlined Button */
+  .btn-outlined {
+    padding: 0.75rem 1.5rem;
+    background-color: transparent;
+    color: #ff6b35;
+    border: 1px solid #85736c;
+    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+  }
+
+  .btn-outlined:hover {
+    background-color: rgba(255, 107, 53, 0.08);
+  }
+
+  .btn-outlined:active {
+    transform: scale(0.95);
+  }
+
+  /* Material 3 Text Button */
+  .btn-text {
+    padding: 0.5rem 1rem;
+    background-color: transparent;
+    color: #ff6b35;
+    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+  }
+
+  .btn-text:hover {
+    background-color: rgba(255, 107, 53, 0.08);
+  }
+
+  .btn-text:active {
+    transform: scale(0.95);
+  }
+
+  /* Material 3 Card (Elevated) */
+  .card-elevated {
+    background-color: #fffbff;
+    border-radius: 0.75rem;
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.2s;
+  }
+
+  .card-elevated:hover {
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Material 3 Card (Filled) */
+  .card-filled {
+    background-color: #e5e1dd;
+    border-radius: 0.75rem;
+  }
+
+  /* Material 3 Card (Outlined) */
+  .card-outlined {
+    background-color: #fffbff;
+    border: 1px solid #d8c2ba;
+    border-radius: 0.75rem;
+  }
+
+  /* Material 3 Input Field (Outlined) */
+  .input-outlined {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: transparent;
+    border: 1px solid #85736c;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+  }
+
+  .input-outlined:focus {
+    border-color: #ff6b35;
+    border-width: 2px;
+    outline: none;
+  }
+
+  /* Material 3 Navigation Rail */
+  .nav-rail {
+    background-color: #fffbff;
+    border-right: 1px solid #d8c2ba;
+  }
+
+  /* Material 3 Navigation Item */
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-radius: 9999px;
+    margin: 0 0.75rem;
+    transition: all 0.2s;
+  }
+
+  .nav-item:hover {
+    background-color: #ffddd3;
+  }
+
+  .nav-item-active {
+    background-color: #ffddd3;
+    color: #77574d;
+  }
+
+  /* Material 3 Chip */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: #f5f1ed;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid #85736c;
+  }
+
+  /* Material 3 Badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+  }
+}
