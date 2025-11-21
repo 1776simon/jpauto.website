@@ -78,7 +78,7 @@ app.use(session({
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     secure: true, // Required for HTTPS
     httpOnly: true,
-    sameSite: 'lax', // Allow same-site cookies (works with custom domain)
+    sameSite: 'none', // Must be 'none' for cross-subdomain cookies to work
     domain: '.jpautomotivegroup.com', // Share cookie across all subdomains
     path: '/'
   }
