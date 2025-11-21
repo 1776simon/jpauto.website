@@ -43,48 +43,48 @@ class ApiService {
   // Consignment submissions
   async getSubmissions(params = {}) {
     const queryString = new URLSearchParams(params).toString();
-    return this.request(`/submissions${queryString ? `?${queryString}` : ''}`);
+    return this.request(`/api/submissions${queryString ? `?${queryString}` : ''}`);
   }
 
   async updateSubmissionStatus(id, status) {
-    return this.request(`/submissions/${id}/status`, {
+    return this.request(`/api/submissions/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     });
   }
 
   async deleteSubmission(id) {
-    return this.request(`/submissions/${id}`, { method: 'DELETE' });
+    return this.request(`/api/submissions/${id}`, { method: 'DELETE' });
   }
 
   // Inventory management
   async getInventory(params = {}) {
     const queryString = new URLSearchParams(params).toString();
-    return this.request(`/inventory${queryString ? `?${queryString}` : ''}`);
+    return this.request(`/api/inventory${queryString ? `?${queryString}` : ''}`);
   }
 
   async createInventoryItem(data) {
-    return this.request('/inventory', {
+    return this.request('/api/inventory', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateInventoryItem(id, data) {
-    return this.request(`/inventory/${id}`, {
+    return this.request(`/api/inventory/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async deleteInventoryItem(id) {
-    return this.request(`/inventory/${id}`, { method: 'DELETE' });
+    return this.request(`/api/inventory/${id}`, { method: 'DELETE' });
   }
 
   // Export functionality
   async exportSubmissions(format = 'csv', filters = {}) {
     const queryString = new URLSearchParams({ format, ...filters }).toString();
-    const url = `${API_URL}/submissions/export?${queryString}`;
+    const url = `${BASE_URL}/api/submissions/export?${queryString}`;
 
     const response = await fetch(url, {
       credentials: 'include',
@@ -99,7 +99,7 @@ class ApiService {
 
   async exportInventory(format = 'csv', filters = {}) {
     const queryString = new URLSearchParams({ format, ...filters }).toString();
-    const url = `${API_URL}/inventory/export?${queryString}`;
+    const url = `${BASE_URL}/api/inventory/export?${queryString}`;
 
     const response = await fetch(url, {
       credentials: 'include',
