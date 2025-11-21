@@ -28,6 +28,7 @@ const allowedOrigins = [
   'https://consign.jpautomotivegroup.com',
   'https://jp-auto-consignment.pages.dev',
   'https://admin.jpautomotivegroup.com',
+  'https://api.jpautomotivegroup.com', // Custom domain for Railway
   'http://localhost:3000',
   'http://localhost:5173'
 ];
