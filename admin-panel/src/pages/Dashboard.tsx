@@ -56,28 +56,28 @@ export default function Dashboard() {
   const statCards = [
     {
       title: "Total Inventory",
-      value: statsLoading ? "..." : stats?.total.toString() || "0",
+      value: statsLoading ? "..." : (stats?.total ?? 0).toString(),
       change: "",
       isPositive: true,
       icon: Car,
     },
     {
       title: "Available Vehicles",
-      value: statsLoading ? "..." : stats?.available.toString() || "0",
+      value: statsLoading ? "..." : (stats?.available ?? 0).toString(),
       change: "",
       isPositive: true,
       icon: CheckCircle,
     },
     {
       title: "Total Value",
-      value: statsLoading ? "..." : formatCurrency(stats?.totalValue || 0),
+      value: statsLoading ? "..." : formatCurrency(stats?.totalValue ?? 0),
       change: "",
       isPositive: true,
       icon: DollarSign,
     },
     {
       title: "Pending Submissions",
-      value: statsLoading ? "..." : stats?.pending.toString() || "0",
+      value: statsLoading ? "..." : (stats?.pending ?? 0).toString(),
       change: "",
       isPositive: false,
       icon: Clock,
@@ -233,9 +233,9 @@ export default function Dashboard() {
                         Available
                       </span>
                       <span className="text-sm font-bold text-green-600">
-                        {stats?.available || 0} (
-                        {stats?.total
-                          ? Math.round((stats.available / stats.total) * 100)
+                        {stats?.available ?? 0} (
+                        {stats?.total && stats.total > 0
+                          ? Math.round(((stats.available ?? 0) / stats.total) * 100)
                           : 0}
                         %)
                       </span>
@@ -245,8 +245,8 @@ export default function Dashboard() {
                         className="bg-green-600 h-2 rounded-full transition-all"
                         style={{
                           width: `${
-                            stats?.total
-                              ? (stats.available / stats.total) * 100
+                            stats?.total && stats.total > 0
+                              ? ((stats.available ?? 0) / stats.total) * 100
                               : 0
                           }%`,
                         }}
@@ -260,9 +260,9 @@ export default function Dashboard() {
                         Pending
                       </span>
                       <span className="text-sm font-bold text-yellow-600">
-                        {stats?.pending || 0} (
-                        {stats?.total
-                          ? Math.round((stats.pending / stats.total) * 100)
+                        {stats?.pending ?? 0} (
+                        {stats?.total && stats.total > 0
+                          ? Math.round(((stats.pending ?? 0) / stats.total) * 100)
                           : 0}
                         %)
                       </span>
@@ -272,7 +272,9 @@ export default function Dashboard() {
                         className="bg-yellow-600 h-2 rounded-full transition-all"
                         style={{
                           width: `${
-                            stats?.total ? (stats.pending / stats.total) * 100 : 0
+                            stats?.total && stats.total > 0
+                              ? ((stats.pending ?? 0) / stats.total) * 100
+                              : 0
                           }%`,
                         }}
                       />
@@ -285,9 +287,9 @@ export default function Dashboard() {
                         Sold
                       </span>
                       <span className="text-sm font-bold text-primary">
-                        {stats?.sold || 0} (
-                        {stats?.total
-                          ? Math.round((stats.sold / stats.total) * 100)
+                        {stats?.sold ?? 0} (
+                        {stats?.total && stats.total > 0
+                          ? Math.round(((stats.sold ?? 0) / stats.total) * 100)
                           : 0}
                         %)
                       </span>
@@ -297,7 +299,9 @@ export default function Dashboard() {
                         className="bg-primary h-2 rounded-full transition-all"
                         style={{
                           width: `${
-                            stats?.total ? (stats.sold / stats.total) * 100 : 0
+                            stats?.total && stats.total > 0
+                              ? ((stats.sold ?? 0) / stats.total) * 100
+                              : 0
                           }%`,
                         }}
                       />
