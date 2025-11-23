@@ -175,7 +175,7 @@ export default function Inventory() {
           <div className="m3-card p-4">
             <p className="text-sm text-muted-foreground mb-1">Total Vehicles</p>
             <p className="text-2xl font-bold text-foreground">
-              {data?.pagination.total || 0}
+              {data?.pagination?.total ?? 0}
             </p>
           </div>
           <div className="m3-card p-4">
@@ -183,7 +183,7 @@ export default function Inventory() {
               Average Price
             </p>
             <p className="text-2xl font-bold text-foreground">
-              {data?.data.length
+              {data?.data?.length
                 ? formatCurrency(
                     data.data.reduce((sum, item) => sum + item.price, 0) /
                       data.data.length
@@ -196,7 +196,7 @@ export default function Inventory() {
               Total Inventory Value
             </p>
             <p className="text-2xl font-bold text-foreground">
-              {data?.data.length
+              {data?.data?.length
                 ? formatCurrency(
                     data.data.reduce((sum, item) => sum + item.price, 0)
                   )
