@@ -77,7 +77,7 @@ export default function Submissions() {
 
   // Filter submissions by search query
   const filteredSubmissions =
-    data?.data.filter((submission) => {
+    data?.data?.filter((submission) => {
       const query = searchQuery.toLowerCase();
       return (
         submission.customerName.toLowerCase().includes(query) ||
