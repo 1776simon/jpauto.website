@@ -85,7 +85,7 @@ export default function Dashboard() {
   ];
 
   const recentActivity =
-    submissionsData?.data.map((submission) => ({
+    submissionsData?.data?.map((submission) => ({
       id: submission.id,
       title: "New vehicle submission",
       description: `${submission.year} ${submission.make} ${submission.model} - ${submission.customerName}`,
