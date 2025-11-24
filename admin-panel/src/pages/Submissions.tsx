@@ -255,7 +255,7 @@ export default function Submissions() {
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-4 h-4" />
-                        <span>{formatDate(submission.createdAt)}</span>
+                        <span>{formatDate(submission.created_at)}</span>
                       </div>
                     </div>
 
@@ -453,7 +453,7 @@ export default function Submissions() {
                   <div>
                     <span className="text-muted-foreground">Submitted:</span>
                     <p className="font-medium text-foreground">
-                      {formatDate(selectedSubmission.createdAt)}
+                      {formatDate(selectedSubmission.created_at)}
                     </p>
                   </div>
                 </div>

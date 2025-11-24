@@ -15,7 +15,7 @@ export interface AuthStatus {
 }
 
 export interface Submission {
-  id: number;
+  id: number | string;
   status: 'pending' | 'approved' | 'rejected';
   customerName: string;
   customerEmail: string;
@@ -29,25 +29,29 @@ export interface Submission {
   condition: string;
   description?: string;
   images: string[];
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
+  createdAt?: string; // Alias for compatibility
+  updatedAt?: string; // Alias for compatibility
 }
 
 export interface InventoryItem {
-  id: number;
+  id: number | string;
   year: number;
   make: string;
   model: string;
   trim?: string;
   vin: string;
   mileage: number;
-  price: number;
+  price: number | string;
   condition: string;
   description?: string;
   images: string[];
   status: 'available' | 'sold' | 'pending';
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
+  createdAt?: string; // Alias for compatibility
+  updatedAt?: string; // Alias for compatibility
 }
 
 export interface InventoryStats {
