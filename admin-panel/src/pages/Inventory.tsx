@@ -118,6 +118,7 @@ export default function Inventory() {
       vin: item.vin,
       mileage: item.mileage,
       price: item.price,
+      cost: item.cost || '',
       exteriorColor: item.exteriorColor || item.exterior_color || '',
       interiorColor: item.interiorColor || item.interior_color || '',
       transmission: item.transmission || '',
@@ -307,7 +308,7 @@ export default function Inventory() {
                 </div>
 
                 {/* Vehicle Details */}
-                <div className="p-4">
+                <div className="p-4 flex flex-col">
                   <h3 className="text-lg font-semibold text-foreground mb-1">
                     {item.year} {item.make} {item.model}
                     {item.trim && ` ${item.trim}`}
@@ -322,15 +323,15 @@ export default function Inventory() {
 
                   <div className="space-y-2 text-sm mb-4">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Mileage:</span>
+                      <span className="text-muted-foreground">Cost:</span>
                       <span className="font-medium text-foreground">
-                        {item.mileage.toLocaleString()} mi
+                        {item.cost ? formatCurrency(item.cost) : 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Condition:</span>
-                      <span className="font-medium text-foreground capitalize">
-                        {item.condition}
+                      <span className="text-muted-foreground">Mileage:</span>
+                      <span className="font-medium text-foreground">
+                        {item.mileage.toLocaleString()} mi
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -347,8 +348,8 @@ export default function Inventory() {
                     </p>
                   )}
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
+                  {/* Action Buttons - Always at bottom */}
+                  <div className="flex gap-2 mt-auto">
                     <button
                       onClick={() => {
                         setSelectedItem(item);
@@ -447,7 +448,7 @@ export default function Inventory() {
                             type="number"
                             value={editFormData.year || ''}
                             onChange={(e) => setEditFormData({ ...editFormData, year: Number(e.target.value) })}
-                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             required
                           />
                         </div>
@@ -519,31 +520,65 @@ export default function Inventory() {
                             type="number"
                             value={editFormData.price || ''}
                             onChange={(e) => setEditFormData({ ...editFormData, price: Number(e.target.value) })}
-                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Cost
+                          </label>
+                          <input
+                            type="number"
+                            value={editFormData.cost || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, cost: Number(e.target.value) })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-2">
                             Exterior Color
                           </label>
-                          <input
-                            type="text"
+                          <select
                             value={editFormData.exteriorColor || ''}
                             onChange={(e) => setEditFormData({ ...editFormData, exteriorColor: e.target.value })}
                             className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
-                          />
+                          >
+                            <option value="">Select...</option>
+                            <option value="Black">Black</option>
+                            <option value="White">White</option>
+                            <option value="Silver">Silver</option>
+                            <option value="Gray">Gray</option>
+                            <option value="Red">Red</option>
+                            <option value="Blue">Blue</option>
+                            <option value="Green">Green</option>
+                            <option value="Brown">Brown</option>
+                            <option value="Beige">Beige</option>
+                            <option value="Gold">Gold</option>
+                            <option value="Orange">Orange</option>
+                            <option value="Yellow">Yellow</option>
+                            <option value="Purple">Purple</option>
+                          </select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-2">
                             Interior Color
                           </label>
-                          <input
-                            type="text"
+                          <select
                             value={editFormData.interiorColor || ''}
                             onChange={(e) => setEditFormData({ ...editFormData, interiorColor: e.target.value })}
                             className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
-                          />
+                          >
+                            <option value="">Select...</option>
+                            <option value="Black">Black</option>
+                            <option value="Gray">Gray</option>
+                            <option value="Beige">Beige</option>
+                            <option value="Tan">Tan</option>
+                            <option value="Brown">Brown</option>
+                            <option value="White">White</option>
+                            <option value="Red">Red</option>
+                            <option value="Blue">Blue</option>
+                          </select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-2">
@@ -557,8 +592,6 @@ export default function Inventory() {
                             <option value="">Select...</option>
                             <option value="Automatic">Automatic</option>
                             <option value="Manual">Manual</option>
-                            <option value="CVT">CVT</option>
-                            <option value="Semi-Automatic">Semi-Automatic</option>
                           </select>
                         </div>
                         <div>
@@ -573,8 +606,7 @@ export default function Inventory() {
                             <option value="">Select...</option>
                             <option value="Clean">Clean</option>
                             <option value="Salvage">Salvage</option>
-                            <option value="Rebuilt">Rebuilt</option>
-                            <option value="Lien">Lien</option>
+                            <option value="Junk">Junk</option>
                           </select>
                         </div>
                       </div>
