@@ -68,6 +68,26 @@ export interface PaginatedResponse<T> {
   };
 }
 
+export interface SubmissionsResponse {
+  submissions: Submission[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface InventoryResponse {
+  inventory: InventoryItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
 // API Helper Class
 class ApiService {
   async request<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -114,13 +134,13 @@ class ApiService {
     status: 'all' | 'pending' | 'approved' | 'rejected' = 'all',
     page = 1,
     limit = 20
-  ): Promise<PaginatedResponse<Submission>> {
+  ): Promise<SubmissionsResponse> {
     const params = new URLSearchParams();
     if (status !== 'all') params.append('status', status);
     params.append('page', page.toString());
     params.append('limit', limit.toString());
     const query = params.toString();
-    return this.request<PaginatedResponse<Submission>>(`/api/submissions?${query}`);
+    return this.request<SubmissionsResponse>(`/api/submissions?${query}`);
   }
 
   async approveSubmission(id: number): Promise<Submission> {
@@ -139,9 +159,9 @@ class ApiService {
   }
 
   // ===== Inventory endpoints =====
-  async getInventory(filters: Record<string, any> = {}): Promise<PaginatedResponse<InventoryItem>> {
+  async getInventory(filters: Record<string, any> = {}): Promise<InventoryResponse> {
     const query = new URLSearchParams(filters).toString();
-    return this.request<PaginatedResponse<InventoryItem>>(`/api/inventory${query ? '?' + query : ''}`);
+    return this.request<InventoryResponse>(`/api/inventory${query ? '?' + query : ''}`);
   }
 
   async getInventoryStats(): Promise<InventoryStats> {

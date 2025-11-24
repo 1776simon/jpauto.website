@@ -71,7 +71,7 @@ export default function Inventory() {
 
   // Filter inventory by search query
   const filteredInventory =
-    data?.data?.filter((item) => {
+    data?.inventory?.filter((item) => {
       const query = searchQuery.toLowerCase();
       return (
         item.make.toLowerCase().includes(query) ||
