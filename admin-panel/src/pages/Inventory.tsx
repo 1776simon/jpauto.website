@@ -183,10 +183,10 @@ export default function Inventory() {
               Average Price
             </p>
             <p className="text-2xl font-bold text-foreground">
-              {data?.data?.length
+              {data?.inventory?.length
                 ? formatCurrency(
-                    data.data.reduce((sum, item) => sum + item.price, 0) /
-                      data.data.length
+                    data.inventory.reduce((sum, item) => sum + Number(item.price), 0) /
+                      data.inventory.length
                   )
                 : "$0"}
             </p>
@@ -196,9 +196,9 @@ export default function Inventory() {
               Total Inventory Value
             </p>
             <p className="text-2xl font-bold text-foreground">
-              {data?.data?.length
+              {data?.inventory?.length
                 ? formatCurrency(
-                    data.data.reduce((sum, item) => sum + item.price, 0)
+                    data.inventory.reduce((sum, item) => sum + Number(item.price), 0)
                   )
                 : "$0"}
             </p>
@@ -461,7 +461,7 @@ export default function Inventory() {
                   <div>
                     <span className="text-muted-foreground">Added:</span>
                     <p className="font-medium text-foreground">
-                      {formatDate(selectedItem.createdAt)}
+                      {formatDate(selectedItem.created_at)}
                     </p>
                   </div>
                 </div>

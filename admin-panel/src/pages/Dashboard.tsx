@@ -326,7 +326,7 @@ export default function Dashboard() {
                 </button>
                 <button
                   className="m3-button-outlined w-full"
-                  onClick={() => navigate("/inventory")}
+                  onClick={() => navigate("/dashboard/inventory")}
                 >
                   Manage Inventory
                 </button>
