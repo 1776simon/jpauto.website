@@ -89,7 +89,7 @@ export default function Dashboard() {
       id: submission.id,
       title: "New vehicle submission",
       description: `${submission.year} ${submission.make} ${submission.model} - ${submission.customerName}`,
-      time: timeAgo(submission.submittedAt),
+      time: timeAgo(submission.submittedAt || submission.createdAt),
       status: submission.submissionStatus || submission.status,
     })) || [];
 
