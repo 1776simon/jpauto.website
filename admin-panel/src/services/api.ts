@@ -16,7 +16,8 @@ export interface AuthStatus {
 
 export interface Submission {
   id: number | string;
-  status: 'pending' | 'approved' | 'rejected';
+  submissionStatus: 'pending' | 'approved' | 'rejected';
+  status?: 'pending' | 'approved' | 'rejected'; // Alias
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -29,10 +30,12 @@ export interface Submission {
   condition: string;
   description?: string;
   images: string[];
-  created_at: string;
-  updated_at: string;
+  submittedAt: string;
+  reviewedAt?: string;
   createdAt?: string; // Alias for compatibility
   updatedAt?: string; // Alias for compatibility
+  created_at?: string; // Alias for compatibility
+  updated_at?: string; // Alias for compatibility
 }
 
 export interface InventoryItem {

@@ -222,14 +222,14 @@ export default function Submissions() {
                         <div className="flex items-center gap-2">
                           <span
                             className={`text-xs px-2 py-1 rounded-full font-medium ${
-                              submission.status === "pending"
+                              (submission.submissionStatus || submission.status) === "pending"
                                 ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                                : submission.status === "approved"
+                                : (submission.submissionStatus || submission.status) === "approved"
                                 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                                 : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
                             }`}
                           >
-                            {submission.status}
+                            {submission.submissionStatus || submission.status}
                           </span>
                           <span className="text-xs text-muted-foreground">
                             VIN: {submission.vin}
@@ -255,7 +255,7 @@ export default function Submissions() {
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-4 h-4" />
-                        <span>{formatDate(submission.created_at)}</span>
+                        <span>{formatDate(submission.submittedAt)}</span>
                       </div>
                     </div>
 
@@ -297,7 +297,7 @@ export default function Submissions() {
                         <Eye className="w-4 h-4" />
                         View Details
                       </button>
-                      {submission.status === "pending" && (
+                      {(submission.submissionStatus || submission.status) === "pending" && (
                         <>
                           <button
                             onClick={() =>
@@ -386,14 +386,14 @@ export default function Submissions() {
                   </h2>
                   <span
                     className={`text-xs px-2 py-1 rounded-full font-medium ${
-                      selectedSubmission.status === "pending"
+                      (selectedSubmission.submissionStatus || selectedSubmission.status) === "pending"
                         ? "bg-yellow-100 text-yellow-800"
-                        : selectedSubmission.status === "approved"
+                        : (selectedSubmission.submissionStatus || selectedSubmission.status) === "approved"
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {selectedSubmission.status}
+                    {selectedSubmission.submissionStatus || selectedSubmission.status}
                   </span>
                 </div>
                 <button
@@ -453,7 +453,7 @@ export default function Submissions() {
                   <div>
                     <span className="text-muted-foreground">Submitted:</span>
                     <p className="font-medium text-foreground">
-                      {formatDate(selectedSubmission.created_at)}
+                      {formatDate(selectedSubmission.submittedAt)}
                     </p>
                   </div>
                 </div>
@@ -499,7 +499,7 @@ export default function Submissions() {
               )}
 
               {/* Actions */}
-              {selectedSubmission.status === "pending" && (
+              {(selectedSubmission.submissionStatus || selectedSubmission.status) === "pending" && (
                 <div className="flex gap-3 pt-4 border-t border-border">
                   <button
                     onClick={() => {
