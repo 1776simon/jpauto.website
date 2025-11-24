@@ -255,33 +255,6 @@ export default function Dashboard() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-foreground">
-                      Pending
-                    </span>
-                    <span className="text-sm font-bold text-yellow-600">
-                      {stats?.pending ?? 0} (
-                      {stats?.total && stats.total > 0
-                        ? Math.round(((stats.pending ?? 0) / stats.total) * 100)
-                        : 0}
-                      %)
-                    </span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div
-                      className="bg-yellow-600 h-2 rounded-full transition-all"
-                      style={{
-                        width: `${
-                          stats?.total && stats.total > 0
-                            ? ((stats.pending ?? 0) / stats.total) * 100
-                            : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-foreground">
                       Sold
                     </span>
                     <span className="text-sm font-bold text-primary">
@@ -303,6 +276,20 @@ export default function Dashboard() {
                         }%`,
                       }}
                     />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-foreground">
+                      Pending Submissions
+                    </span>
+                    <span className="text-sm font-bold text-yellow-600">
+                      {stats?.pending ?? 0}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Awaiting approval
                   </div>
                 </div>
               </div>
