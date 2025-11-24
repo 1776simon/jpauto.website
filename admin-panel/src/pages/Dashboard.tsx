@@ -85,12 +85,12 @@ export default function Dashboard() {
   ];
 
   const recentActivity =
-    submissionsData?.data?.map((submission) => ({
+    submissionsData?.submissions?.map((submission) => ({
       id: submission.id,
       title: "New vehicle submission",
       description: `${submission.year} ${submission.make} ${submission.model} - ${submission.customerName}`,
-      time: timeAgo(submission.createdAt),
-      status: submission.status,
+      time: timeAgo(submission.submittedAt),
+      status: submission.submissionStatus || submission.status,
     })) || [];
 
   return (
@@ -143,9 +143,9 @@ export default function Dashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activity - Takes 2 columns on desktop */}
-          <div className="lg:col-span-2 m3-card p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Recent Activity - Takes 3 columns on desktop */}
+          <div className="lg:col-span-3 m3-card p-6">
             <h3 className="text-lg font-semibold text-foreground mb-6">
               Recent Submissions
             </h3>
@@ -208,136 +208,105 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Quick Stats */}
-          <div className="space-y-6">
-            {/* Inventory Breakdown Card */}
-            <div className="m3-card p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-6">
-                Inventory Breakdown
-              </h3>
+          {/* Inventory Breakdown Card */}
+          <div className="m3-card p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-6">
+              Inventory Breakdown
+            </h3>
 
-              {statsLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="space-y-2">
-                      <div className="h-4 bg-muted rounded w-3/4 animate-pulse" />
-                      <div className="h-2 bg-muted rounded animate-pulse" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground">
-                        Available
-                      </span>
-                      <span className="text-sm font-bold text-green-600">
-                        {stats?.available ?? 0} (
-                        {stats?.total && stats.total > 0
-                          ? Math.round(((stats.available ?? 0) / stats.total) * 100)
-                          : 0}
-                        %)
-                      </span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-green-600 h-2 rounded-full transition-all"
-                        style={{
-                          width: `${
-                            stats?.total && stats.total > 0
-                              ? ((stats.available ?? 0) / stats.total) * 100
-                              : 0
-                          }%`,
-                        }}
-                      />
-                    </div>
+            {statsLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="h-4 bg-muted rounded w-3/4 animate-pulse" />
+                    <div className="h-2 bg-muted rounded animate-pulse" />
                   </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground">
-                        Pending
-                      </span>
-                      <span className="text-sm font-bold text-yellow-600">
-                        {stats?.pending ?? 0} (
-                        {stats?.total && stats.total > 0
-                          ? Math.round(((stats.pending ?? 0) / stats.total) * 100)
-                          : 0}
-                        %)
-                      </span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-yellow-600 h-2 rounded-full transition-all"
-                        style={{
-                          width: `${
-                            stats?.total && stats.total > 0
-                              ? ((stats.pending ?? 0) / stats.total) * 100
-                              : 0
-                          }%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground">
-                        Sold
-                      </span>
-                      <span className="text-sm font-bold text-primary">
-                        {stats?.sold ?? 0} (
-                        {stats?.total && stats.total > 0
-                          ? Math.round(((stats.sold ?? 0) / stats.total) * 100)
-                          : 0}
-                        %)
-                      </span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full transition-all"
-                        style={{
-                          width: `${
-                            stats?.total && stats.total > 0
-                              ? ((stats.sold ?? 0) / stats.total) * 100
-                              : 0
-                          }%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Quick Actions */}
-            <div className="m3-card p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                Quick Actions
-              </h3>
-
-              <div className="space-y-3">
-                <button
-                  className="m3-button-filled w-full"
-                  onClick={() => navigate("/dashboard/submissions")}
-                >
-                  View Submissions
-                </button>
-                <button
-                  className="m3-button-outlined w-full"
-                  onClick={() => navigate("/dashboard/inventory")}
-                >
-                  Manage Inventory
-                </button>
-                <button
-                  className="m3-button-outlined w-full"
-                  onClick={() => navigate("/export")}
-                >
-                  Export Data
-                </button>
+                ))}
               </div>
-            </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-foreground">
+                      Available
+                    </span>
+                    <span className="text-sm font-bold text-green-600">
+                      {stats?.available ?? 0} (
+                      {stats?.total && stats.total > 0
+                        ? Math.round(((stats.available ?? 0) / stats.total) * 100)
+                        : 0}
+                      %)
+                    </span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div
+                      className="bg-green-600 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${
+                          stats?.total && stats.total > 0
+                            ? ((stats.available ?? 0) / stats.total) * 100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-foreground">
+                      Pending
+                    </span>
+                    <span className="text-sm font-bold text-yellow-600">
+                      {stats?.pending ?? 0} (
+                      {stats?.total && stats.total > 0
+                        ? Math.round(((stats.pending ?? 0) / stats.total) * 100)
+                        : 0}
+                      %)
+                    </span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div
+                      className="bg-yellow-600 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${
+                          stats?.total && stats.total > 0
+                            ? ((stats.pending ?? 0) / stats.total) * 100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-foreground">
+                      Sold
+                    </span>
+                    <span className="text-sm font-bold text-primary">
+                      {stats?.sold ?? 0} (
+                      {stats?.total && stats.total > 0
+                        ? Math.round(((stats.sold ?? 0) / stats.total) * 100)
+                        : 0}
+                      %)
+                    </span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all"
+                      style={{
+                        width: `${
+                          stats?.total && stats.total > 0
+                            ? ((stats.sold ?? 0) / stats.total) * 100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
