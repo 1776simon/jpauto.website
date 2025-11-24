@@ -1,7 +1,8 @@
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LayoutDashboard, FileText, Package, Download } from "lucide-react";
+import { Menu, X, LayoutDashboard, FileText, Package, Download, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -10,12 +11,13 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/" },
-    { icon: FileText, label: "Submissions", href: "/submissions" },
-    { icon: Package, label: "Inventory", href: "/inventory" },
-    { icon: Download, label: "Export", href: "/export" },
+    { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+    { icon: FileText, label: "Submissions", href: "/dashboard/submissions" },
+    { icon: Package, label: "Inventory", href: "/dashboard/inventory" },
+    { icon: Download, label: "Export", href: "/dashboard/export" },
   ];
 
   const isActive = (href: string) => {
@@ -84,20 +86,29 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           </nav>
 
           {/* Footer Section */}
-          <div className="border-t border-sidebar-border p-6">
+          <div className="border-t border-sidebar-border p-6 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 bg-sidebar-primary/20 rounded-full flex items-center justify-center text-sidebar-primary font-medium">
-                U
+                {user?.name?.charAt(0).toUpperCase() || 'A'}
               </div>
               <div className="flex-1 min-w-0 hidden sm:block">
                 <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  User Admin
+                  {user?.name || 'Admin User'}
                 </p>
                 <p className="text-xs text-sidebar-foreground/60 truncate">
-                  admin@example.com
+                  {user?.email || 'admin@example.com'}
                 </p>
               </div>
             </div>
+            <Button
+              onClick={() => logout()}
+              variant="outline"
+              size="sm"
+              className="w-full flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </Button>
           </div>
         </div>
       </aside>
