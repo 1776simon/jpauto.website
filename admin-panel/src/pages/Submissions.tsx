@@ -310,12 +310,15 @@ export default function Submissions() {
                             Approve
                           </button>
                           <button
-                            onClick={() =>
-                              rejectMutation.mutate({
-                                id: submission.id,
-                                reason: "",
-                              })
-                            }
+                            onClick={() => {
+                              const reason = prompt("Enter rejection reason (optional):");
+                              if (reason !== null) {
+                                rejectMutation.mutate({
+                                  id: submission.id,
+                                  reason: reason,
+                                });
+                              }
+                            }}
                             disabled={rejectMutation.isPending}
                             className="m3-button-outlined border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 text-sm"
                           >
@@ -513,10 +516,13 @@ export default function Submissions() {
                   </button>
                   <button
                     onClick={() => {
-                      rejectMutation.mutate({
-                        id: selectedSubmission.id,
-                        reason: "",
-                      });
+                      const reason = prompt("Enter rejection reason (optional):");
+                      if (reason !== null) {
+                        rejectMutation.mutate({
+                          id: selectedSubmission.id,
+                          reason: reason,
+                        });
+                      }
                     }}
                     disabled={rejectMutation.isPending}
                     className="m3-button-outlined border-red-600 text-red-600 hover:bg-red-50 flex-1"

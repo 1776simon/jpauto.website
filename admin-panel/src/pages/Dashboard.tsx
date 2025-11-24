@@ -320,7 +320,7 @@ export default function Dashboard() {
               <div className="space-y-3">
                 <button
                   className="m3-button-filled w-full"
-                  onClick={() => navigate("/submissions")}
+                  onClick={() => navigate("/dashboard/submissions")}
                 >
                   View Submissions
                 </button>
