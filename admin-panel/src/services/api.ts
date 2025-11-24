@@ -40,17 +40,75 @@ export interface Submission {
 
 export interface InventoryItem {
   id: number | string;
+  status: 'available' | 'sold' | 'pending' | 'hold';
+  featured?: boolean;
+
+  // Vehicle basic information
   year: number;
   make: string;
   model: string;
   trim?: string;
   vin: string;
-  mileage: number;
+  stockNumber?: string;
+  stock_number?: string; // Alias
+
+  // Pricing
   price: number | string;
-  condition: string;
-  description?: string;
+  cost?: number | string;
+  msrp?: number | string;
+
+  // Vehicle details
+  mileage: number;
+  exteriorColor?: string;
+  exterior_color?: string; // Alias
+  interiorColor?: string;
+  interior_color?: string; // Alias
+  transmission?: string;
+  engine?: string;
+  fuelType?: string;
+  fuel_type?: string; // Alias
+  drivetrain?: string;
+  bodyType?: string;
+  body_type?: string; // Alias
+  doors?: number;
+  titleStatus?: string;
+  title_status?: string; // Alias
+
+  // Performance
+  mpgCity?: number;
+  mpg_city?: number; // Alias
+  mpgHighway?: number;
+  mpg_highway?: number; // Alias
+  horsepower?: number;
+
+  // Features & images
+  features?: string[];
   images: string[];
-  status: 'available' | 'sold' | 'pending';
+  primaryImageUrl?: string;
+  primary_image_url?: string; // Alias
+
+  // History
+  previousOwners?: number;
+  previous_owners?: number; // Alias
+  accidentHistory?: string;
+  accident_history?: string; // Alias
+  serviceRecords?: string;
+  service_records?: string; // Alias
+  carfaxAvailable?: boolean;
+  carfax_available?: boolean; // Alias
+  carfaxUrl?: string;
+  carfax_url?: string; // Alias
+
+  // Warranty & description
+  warrantyDescription?: string;
+  warranty_description?: string; // Alias
+  description?: string;
+  marketingTitle?: string;
+  marketing_title?: string; // Alias
+  condition?: string; // Legacy field
+
+  // Metadata
+  source?: string;
   created_at: string;
   updated_at: string;
   createdAt?: string; // Alias for compatibility

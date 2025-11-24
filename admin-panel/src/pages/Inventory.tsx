@@ -8,6 +8,8 @@ import {
   DollarSign,
   Eye,
   Filter,
+  X,
+  Save,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -22,6 +24,7 @@ export default function Inventory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState<Partial<InventoryItem>>({});
   const [page, setPage] = useState(1);
 
   // Fetch inventory
@@ -103,6 +106,40 @@ export default function Inventory() {
       id,
       data: { status: newStatus as "available" | "sold" | "pending" },
     });
+  };
+
+  const handleEditClick = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setEditFormData({
+      year: item.year,
+      make: item.make,
+      model: item.model,
+      trim: item.trim || '',
+      vin: item.vin,
+      mileage: item.mileage,
+      price: item.price,
+      exteriorColor: item.exteriorColor || item.exterior_color || '',
+      interiorColor: item.interiorColor || item.interior_color || '',
+      transmission: item.transmission || '',
+      titleStatus: item.titleStatus || item.title_status || '',
+      description: item.description || '',
+    });
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!selectedItem) return;
+
+    updateMutation.mutate({
+      id: selectedItem.id as number,
+      data: editFormData,
+    });
+  };
+
+  const handleCloseModal = () => {
+    setSelectedItem(null);
+    setIsEditing(false);
+    setEditFormData({});
   };
 
   return (
@@ -323,10 +360,7 @@ export default function Inventory() {
                       View
                     </button>
                     <button
-                      onClick={() => {
-                        setSelectedItem(item);
-                        setIsEditing(true);
-                      }}
+                      onClick={() => handleEditClick(item)}
                       className="flex-1 m3-button-filled text-sm flex items-center justify-center gap-1"
                     >
                       <Edit className="w-4 h-4" />
@@ -369,123 +403,313 @@ export default function Inventory() {
       {selectedItem && (
         <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => {
-            setSelectedItem(null);
-            setIsEditing(false);
-          }}
+          onClick={handleCloseModal}
         >
           <div
             className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Header */}
             <div className="p-6 border-b border-border sticky top-0 bg-background z-10">
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-foreground mb-2">
+                    {isEditing ? "Edit Vehicle" : "Vehicle Details"}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
                     {selectedItem.year} {selectedItem.make} {selectedItem.model}
                     {selectedItem.trim && ` ${selectedItem.trim}`}
-                  </h2>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        selectedItem.status === "available"
-                          ? "bg-green-100 text-green-800"
-                          : selectedItem.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {selectedItem.status}
-                    </span>
-                    <span className="text-2xl font-bold text-primary">
-                      {formatCurrency(selectedItem.price)}
-                    </span>
-                  </div>
+                  </p>
                 </div>
                 <button
-                  onClick={() => {
-                    setSelectedItem(null);
-                    setIsEditing(false);
-                  }}
+                  onClick={handleCloseModal}
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  <Eye className="w-6 h-6" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Images */}
-              {selectedItem.images && selectedItem.images.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">
-                    Photos ({selectedItem.images.length})
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {selectedItem.images.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt={`Vehicle ${idx + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
+              {isEditing ? (
+                <>
+                  {/* Edit Form */}
+                  <div className="space-y-6">
+                    {/* Basic Information */}
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-4">Basic Information</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Year *
+                          </label>
+                          <input
+                            type="number"
+                            value={editFormData.year || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, year: Number(e.target.value) })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Make *
+                          </label>
+                          <input
+                            type="text"
+                            value={editFormData.make || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, make: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Model *
+                          </label>
+                          <input
+                            type="text"
+                            value={editFormData.model || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, model: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Trim
+                          </label>
+                          <input
+                            type="text"
+                            value={editFormData.trim || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, trim: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            VIN *
+                          </label>
+                          <input
+                            type="text"
+                            value={editFormData.vin || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, vin: e.target.value.toUpperCase() })}
+                            maxLength={17}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground font-mono"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Mileage *
+                          </label>
+                          <input
+                            type="number"
+                            value={editFormData.mileage || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, mileage: Number(e.target.value) })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Price *
+                          </label>
+                          <input
+                            type="number"
+                            value={editFormData.price || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, price: Number(e.target.value) })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Exterior Color
+                          </label>
+                          <input
+                            type="text"
+                            value={editFormData.exteriorColor || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, exteriorColor: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Interior Color
+                          </label>
+                          <input
+                            type="text"
+                            value={editFormData.interiorColor || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, interiorColor: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Transmission
+                          </label>
+                          <select
+                            value={editFormData.transmission || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, transmission: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          >
+                            <option value="">Select...</option>
+                            <option value="Automatic">Automatic</option>
+                            <option value="Manual">Manual</option>
+                            <option value="CVT">CVT</option>
+                            <option value="Semi-Automatic">Semi-Automatic</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Title Status
+                          </label>
+                          <select
+                            value={editFormData.titleStatus || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, titleStatus: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          >
+                            <option value="">Select...</option>
+                            <option value="Clean">Clean</option>
+                            <option value="Salvage">Salvage</option>
+                            <option value="Rebuilt">Rebuilt</option>
+                            <option value="Lien">Lien</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Description
+                      </label>
+                      <textarea
+                        value={editFormData.description || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                        rows={4}
+                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground resize-none"
+                        placeholder="Enter vehicle description..."
                       />
-                    ))}
-                  </div>
-                </div>
-              )}
+                    </div>
 
-              {/* Vehicle Details */}
-              <div>
-                <h3 className="font-semibold text-foreground mb-3">
-                  Vehicle Information
-                </h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">VIN:</span>
-                    <p className="font-medium text-foreground">
-                      {selectedItem.vin}
-                    </p>
+                    {/* Action Buttons */}
+                    <div className="flex gap-3 pt-4 border-t border-border">
+                      <button
+                        onClick={handleSaveEdit}
+                        disabled={updateMutation.isPending}
+                        className="flex-1 m3-button-filled flex items-center justify-center gap-2"
+                      >
+                        <Save className="w-5 h-5" />
+                        {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                      </button>
+                      <button
+                        onClick={() => setIsEditing(false)}
+                        disabled={updateMutation.isPending}
+                        className="flex-1 m3-button-outlined"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">Mileage:</span>
-                    <p className="font-medium text-foreground">
-                      {selectedItem.mileage.toLocaleString()} miles
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Condition:</span>
-                    <p className="font-medium text-foreground capitalize">
-                      {selectedItem.condition}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Added:</span>
-                    <p className="font-medium text-foreground">
-                      {formatDate(selectedItem.created_at)}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                </>
+              ) : (
+                <>
+                  {/* View Mode */}
+                  {/* Images */}
+                  {selectedItem.images && selectedItem.images.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-3">
+                        Photos ({selectedItem.images.length})
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {selectedItem.images.map((img, idx) => (
+                          <img
+                            key={idx}
+                            src={img}
+                            alt={`Vehicle ${idx + 1}`}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-              {/* Description */}
-              {selectedItem.description && (
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">
-                    Description
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedItem.description}
-                  </p>
-                </div>
-              )}
+                  {/* Vehicle Details */}
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-3">
+                      Vehicle Information
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">VIN:</span>
+                        <p className="font-medium text-foreground">
+                          {selectedItem.vin}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Mileage:</span>
+                        <p className="font-medium text-foreground">
+                          {selectedItem.mileage.toLocaleString()} miles
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Price:</span>
+                        <p className="font-medium text-foreground">
+                          {formatCurrency(selectedItem.price)}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Exterior Color:</span>
+                        <p className="font-medium text-foreground">
+                          {selectedItem.exteriorColor || selectedItem.exterior_color || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Interior Color:</span>
+                        <p className="font-medium text-foreground">
+                          {selectedItem.interiorColor || selectedItem.interior_color || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Transmission:</span>
+                        <p className="font-medium text-foreground">
+                          {selectedItem.transmission || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Title Status:</span>
+                        <p className="font-medium text-foreground">
+                          {selectedItem.titleStatus || selectedItem.title_status || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Added:</span>
+                        <p className="font-medium text-foreground">
+                          {formatDate(selectedItem.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Actions */}
-              <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                {!isEditing && (
-                  <>
+                  {/* Description */}
+                  {selectedItem.description && (
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-3">
+                        Description
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedItem.description}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex flex-col gap-3 pt-4 border-t border-border">
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setIsEditing(true)}
+                        onClick={() => handleEditClick(selectedItem)}
                         className="flex-1 m3-button-filled"
                       >
                         <Edit className="w-5 h-5 mr-2" />
@@ -495,7 +719,7 @@ export default function Inventory() {
                     <div className="grid grid-cols-3 gap-2">
                       <button
                         onClick={() =>
-                          handleStatusChange(selectedItem.id, "available")
+                          handleStatusChange(selectedItem.id as number, "available")
                         }
                         disabled={
                           updateMutation.isPending ||
@@ -507,7 +731,7 @@ export default function Inventory() {
                       </button>
                       <button
                         onClick={() =>
-                          handleStatusChange(selectedItem.id, "pending")
+                          handleStatusChange(selectedItem.id as number, "pending")
                         }
                         disabled={
                           updateMutation.isPending ||
@@ -519,7 +743,7 @@ export default function Inventory() {
                       </button>
                       <button
                         onClick={() =>
-                          handleStatusChange(selectedItem.id, "sold")
+                          handleStatusChange(selectedItem.id as number, "sold")
                         }
                         disabled={
                           updateMutation.isPending ||
@@ -531,16 +755,16 @@ export default function Inventory() {
                       </button>
                     </div>
                     <button
-                      onClick={() => deleteMutation.mutate(selectedItem.id)}
+                      onClick={() => deleteMutation.mutate(selectedItem.id as number)}
                       disabled={deleteMutation.isPending}
                       className="m3-button-outlined border-red-600 text-red-600 hover:bg-red-50"
                     >
                       <Trash2 className="w-5 h-5 mr-2" />
                       Delete Vehicle
                     </button>
-                  </>
-                )}
-              </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
