@@ -276,10 +276,10 @@ export default function Inventory() {
             {filteredInventory.map((item) => (
               <div
                 key={item.id}
-                className="m3-card overflow-hidden hover:shadow-lg transition-shadow group"
+                className="m3-card overflow-hidden hover:shadow-lg transition-shadow group flex flex-col"
               >
                 {/* Vehicle Image */}
-                <div className="relative h-48 bg-muted overflow-hidden">
+                <div className="relative h-48 bg-muted overflow-hidden flex-shrink-0">
                   {item.images && item.images.length > 0 ? (
                     <img
                       src={item.images[0]}
@@ -308,48 +308,50 @@ export default function Inventory() {
                 </div>
 
                 {/* Vehicle Details */}
-                <div className="p-4 flex flex-col">
-                  <h3 className="text-lg font-semibold text-foreground mb-1">
-                    {item.year} {item.make} {item.model}
-                    {item.trim && ` ${item.trim}`}
-                  </h3>
+                <div className="p-4 flex flex-col flex-grow">
+                  <div className="flex-grow">
+                    <h3 className="text-lg font-semibold text-foreground mb-1">
+                      {item.year} {item.make} {item.model}
+                      {item.trim && ` ${item.trim}`}
+                    </h3>
 
-                  <div className="flex items-center gap-2 mb-3">
-                    <DollarSign className="w-4 h-4 text-primary" />
-                    <span className="text-xl font-bold text-primary">
-                      {formatCurrency(item.price)}
-                    </span>
+                    <div className="flex items-center gap-2 mb-3">
+                      <DollarSign className="w-4 h-4 text-primary" />
+                      <span className="text-xl font-bold text-primary">
+                        {formatCurrency(item.price)}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 text-sm mb-4">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Cost:</span>
+                        <span className="font-medium text-foreground">
+                          {item.cost ? formatCurrency(item.cost) : 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Mileage:</span>
+                        <span className="font-medium text-foreground">
+                          {item.mileage.toLocaleString()} mi
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">VIN:</span>
+                        <span className="font-medium text-foreground text-xs">
+                          {item.vin.slice(-8)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {item.description && (
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        {item.description}
+                      </p>
+                    )}
                   </div>
-
-                  <div className="space-y-2 text-sm mb-4">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Cost:</span>
-                      <span className="font-medium text-foreground">
-                        {item.cost ? formatCurrency(item.cost) : 'N/A'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Mileage:</span>
-                      <span className="font-medium text-foreground">
-                        {item.mileage.toLocaleString()} mi
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">VIN:</span>
-                      <span className="font-medium text-foreground text-xs">
-                        {item.vin.slice(-8)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {item.description && (
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {item.description}
-                    </p>
-                  )}
 
                   {/* Action Buttons - Always at bottom */}
-                  <div className="flex gap-2 mt-auto">
+                  <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => {
                         setSelectedItem(item);
