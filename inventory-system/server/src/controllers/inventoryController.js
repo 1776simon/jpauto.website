@@ -417,17 +417,23 @@ const toggleFeatured = async (req, res) => {
 const getInventoryStats = async (req, res) => {
   try {
     const [
-      totalVehicles,
-      availableVehicles,
-      soldVehicles,
-      featuredVehicles,
+      totalInventory,
+      availableInventory,
+      soldInventory,
+      pendingSubmissions,
+      totalValueResult,
       averagePrice,
       averageMileage
     ] = await Promise.all([
       Inventory.count(),
       Inventory.count({ where: { status: 'available' } }),
       Inventory.count({ where: { status: 'sold' } }),
-      Inventory.count({ where: { featured: true } }),
+      PendingSubmission.count({ where: { submissionStatus: 'pending' } }),
+      Inventory.findOne({
+        attributes: [[Inventory.sequelize.fn('SUM', Inventory.sequelize.col('price')), 'totalValue']],
+        where: { status: 'available' },
+        raw: true
+      }),
       Inventory.findOne({
         attributes: [[Inventory.sequelize.fn('AVG', Inventory.sequelize.col('price')), 'avgPrice']],
         where: { status: 'available' },
@@ -441,11 +447,12 @@ const getInventoryStats = async (req, res) => {
     ]);
 
     res.json({
-      totalVehicles,
-      availableVehicles,
-      soldVehicles,
-      featuredVehicles,
-      averagePrice: parseFloat(averagePrice?.avgPrice || 0).toFixed(2),
+      total: totalInventory,
+      available: availableInventory,
+      sold: soldInventory,
+      pending: pendingSubmissions,
+      totalValue: parseFloat(totalValueResult?.totalValue || 0),
+      averagePrice: parseFloat(averagePrice?.avgPrice || 0),
       averageMileage: parseInt(averageMileage?.avgMileage || 0)
     });
   } catch (error) {
