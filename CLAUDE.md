@@ -79,21 +79,25 @@ inventory-system/server/src/
 - `GET /api/exports/dealer-center` - Export to DMS
 
 ### 3. Admin Dashboard (React)
-- **Location**: `inventory-system/client/`
-- **Status**: Structure created, implementation pending
-- **Directories**:
-  - `src/components/` - React components
-  - `src/pages/` - Page views
-  - `src/services/` - API service layer
-  - `src/utils/` - Utility functions
-- **Planned Features**:
+- **Location**: `admin-panel/`
+- **Framework**: React with TypeScript (built via builder.io)
+- **Styling**: Tailwind CSS with shadcn/ui components
+- **Deployment**: Cloudflare Pages (https://admin.jpautomotivegroup.com)
+- **Status**: Production (live)
+- **Key Features**:
   - Login via OAuth (Google/Microsoft)
-  - View pending submissions
+  - Dashboard with inventory statistics
+  - View and manage pending submissions
   - Approve/reject submissions
-  - Manage active inventory
-  - Export to multiple platforms
-  - Upload/manage vehicle photos
-  - Bulk operations
+  - Manage active inventory (add, edit, delete, status changes)
+  - Export to multiple platforms (Jekyll, AutoTrader, CarGurus, Facebook)
+  - Image upload and management
+  - User management
+- **Directories**:
+  - `src/components/` - React components (shadcn/ui)
+  - `src/pages/` - Page views (Dashboard, Inventory, Submissions, Export)
+  - `src/services/` - API service layer
+  - `src/contexts/` - React contexts (AuthContext)
 
 ### 4. Public Consignment Form
 - **Location**: `consignment-form/index.html`
@@ -150,7 +154,7 @@ npm run db:seed
 
 ### Admin Dashboard
 ```bash
-cd inventory-system/client
+cd admin-panel
 
 # Install dependencies
 npm install
@@ -160,6 +164,12 @@ npm run dev
 
 # Build for production
 npm run build
+
+# Deploy to production
+git add .
+git commit -m "Update admin panel"
+git push
+# Cloudflare Pages auto-deploys to https://admin.jpautomotivegroup.com
 ```
 
 ### Consignment Form
@@ -233,7 +243,7 @@ Master Inventory (PostgreSQL)
 - **Public Website**: https://jpautomotivegroup.com (Jekyll - GitHub Pages)
 - **Consignment Form**: https://consign.jpautomotivegroup.com (Cloudflare Pages)
 - **Backend API**: https://jp-auto-inventory-production.up.railway.app (Railway)
-- **Admin Dashboard**: https://admin.jpautomotivegroup.com (Cloudflare Pages - pending deployment)
+- **Admin Dashboard**: https://admin.jpautomotivegroup.com (Cloudflare Pages)
 
 ## Documentation
 

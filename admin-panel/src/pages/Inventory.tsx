@@ -629,21 +629,73 @@ export default function Inventory() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4 border-t border-border">
+                    <div className="flex flex-col gap-3 pt-4 border-t border-border">
+                      <div className="flex gap-3">
+                        <button
+                          onClick={handleSaveEdit}
+                          disabled={updateMutation.isPending}
+                          className="flex-1 m3-button-filled flex items-center justify-center gap-2"
+                        >
+                          <Save className="w-5 h-5" />
+                          {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                        </button>
+                        <button
+                          onClick={() => setIsEditing(false)}
+                          disabled={updateMutation.isPending}
+                          className="flex-1 m3-button-outlined"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+
+                      {/* Status Change Buttons */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          onClick={() =>
+                            handleStatusChange(selectedItem.id as number, "available")
+                          }
+                          disabled={
+                            updateMutation.isPending ||
+                            selectedItem.status === "available"
+                          }
+                          className="m3-button-outlined bg-green-50 border-green-600 text-green-600 hover:bg-green-100 disabled:opacity-50"
+                        >
+                          Mark Available
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleStatusChange(selectedItem.id as number, "pending")
+                          }
+                          disabled={
+                            updateMutation.isPending ||
+                            selectedItem.status === "pending"
+                          }
+                          className="m3-button-outlined bg-yellow-50 border-yellow-600 text-yellow-600 hover:bg-yellow-100 disabled:opacity-50"
+                        >
+                          Mark Pending
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleStatusChange(selectedItem.id as number, "sold")
+                          }
+                          disabled={
+                            updateMutation.isPending ||
+                            selectedItem.status === "sold"
+                          }
+                          className="m3-button-outlined bg-primary/10 border-primary text-primary hover:bg-primary/20 disabled:opacity-50"
+                        >
+                          Mark Sold
+                        </button>
+                      </div>
+
+                      {/* Delete Button */}
                       <button
-                        onClick={handleSaveEdit}
-                        disabled={updateMutation.isPending}
-                        className="flex-1 m3-button-filled flex items-center justify-center gap-2"
+                        onClick={() => deleteMutation.mutate(selectedItem.id as number)}
+                        disabled={deleteMutation.isPending}
+                        className="m3-button-outlined border-red-600 text-red-600 hover:bg-red-50"
                       >
-                        <Save className="w-5 h-5" />
-                        {updateMutation.isPending ? "Saving..." : "Save Changes"}
-                      </button>
-                      <button
-                        onClick={() => setIsEditing(false)}
-                        disabled={updateMutation.isPending}
-                        className="flex-1 m3-button-outlined"
-                      >
-                        Cancel
+                        <Trash2 className="w-5 h-5 mr-2" />
+                        Delete Vehicle
                       </button>
                     </div>
                   </div>
@@ -738,65 +790,6 @@ export default function Inventory() {
                       </p>
                     </div>
                   )}
-
-                  {/* Actions */}
-                  <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEditClick(selectedItem)}
-                        className="flex-1 m3-button-filled"
-                      >
-                        <Edit className="w-5 h-5 mr-2" />
-                        Edit Vehicle
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        onClick={() =>
-                          handleStatusChange(selectedItem.id as number, "available")
-                        }
-                        disabled={
-                          updateMutation.isPending ||
-                          selectedItem.status === "available"
-                        }
-                        className="m3-button-outlined bg-green-50 border-green-600 text-green-600 hover:bg-green-100 disabled:opacity-50"
-                      >
-                        Mark Available
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleStatusChange(selectedItem.id as number, "pending")
-                        }
-                        disabled={
-                          updateMutation.isPending ||
-                          selectedItem.status === "pending"
-                        }
-                        className="m3-button-outlined bg-yellow-50 border-yellow-600 text-yellow-600 hover:bg-yellow-100 disabled:opacity-50"
-                      >
-                        Mark Pending
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleStatusChange(selectedItem.id as number, "sold")
-                        }
-                        disabled={
-                          updateMutation.isPending ||
-                          selectedItem.status === "sold"
-                        }
-                        className="m3-button-outlined bg-primary/10 border-primary text-primary hover:bg-primary/20 disabled:opacity-50"
-                      >
-                        Mark Sold
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => deleteMutation.mutate(selectedItem.id as number)}
-                      disabled={deleteMutation.isPending}
-                      className="m3-button-outlined border-red-600 text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-5 h-5 mr-2" />
-                      Delete Vehicle
-                    </button>
-                  </div>
                 </>
               )}
             </div>
