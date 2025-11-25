@@ -313,14 +313,6 @@ export default function Submissions() {
                           {submission.mileage.toLocaleString()} mi
                         </p>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Condition:
-                        </span>
-                        <p className="font-medium text-foreground capitalize">
-                          {submission.condition}
-                        </p>
-                      </div>
                       <div className="col-span-2">
                         <span className="text-muted-foreground">Images:</span>
                         <p className="font-medium text-foreground">
@@ -493,12 +485,6 @@ export default function Submissions() {
                     <span className="text-muted-foreground">Mileage:</span>
                     <p className="font-medium text-foreground">
                       {selectedSubmission.mileage.toLocaleString()} miles
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Condition:</span>
-                    <p className="font-medium text-foreground capitalize">
-                      {selectedSubmission.condition}
                     </p>
                   </div>
                   <div>

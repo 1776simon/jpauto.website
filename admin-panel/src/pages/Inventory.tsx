@@ -184,8 +184,10 @@ export default function Inventory() {
       exteriorColor: item.exteriorColor || item.exterior_color || '',
       interiorColor: item.interiorColor || item.interior_color || '',
       transmission: item.transmission || '',
+      fuelType: item.fuelType || '',
       titleStatus: item.titleStatus || item.title_status || '',
       description: item.description || '',
+      images: item.images || [],
     });
     setIsEditing(true);
   };

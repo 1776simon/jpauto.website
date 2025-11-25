@@ -17,7 +17,10 @@ const exportToDealerCenter = async (vehicles, outputPath = null) => {
     if (!outputPath) {
       const exportDir = path.resolve(__dirname, '../../../exports/dealer-center');
       await fs.mkdir(exportDir, { recursive: true });
-      outputPath = path.join(exportDir, dealerCenterConfig.export.filename);
+      const filename = typeof dealerCenterConfig.export.getFilename === 'function'
+        ? dealerCenterConfig.export.getFilename()
+        : dealerCenterConfig.export.filename || 'dealer-center-export.csv';
+      outputPath = path.join(exportDir, filename);
     }
 
     await fs.writeFile(outputPath, csv, 'utf8');

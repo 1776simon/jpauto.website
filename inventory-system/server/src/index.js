@@ -188,10 +188,11 @@ const startServer = async () => {
     }
 
     // Schedule DealerCenter exports (daily at 2:00 AM)
-    if (process.env.ENABLE_DEALER_CENTER_EXPORT !== 'false') {
-      const { scheduleDealerCenterExport } = require('./jobs/dealerCenterExport');
-      scheduleDealerCenterExport();
-    }
+    // DISABLED: Use manual trigger via POST /api/exports/dealer-center/upload
+    // if (process.env.ENABLE_DEALER_CENTER_EXPORT === 'true') {
+    //   const { scheduleDealerCenterExport } = require('./jobs/dealerCenterExport');
+    //   scheduleDealerCenterExport();
+    // }
 
     // Start listening
     app.listen(PORT, () => {

@@ -31,7 +31,13 @@ module.exports = {
 
   // Export Configuration
   export: {
-    filename: 'jp-auto-inventory.csv',
+    getFilename: () => {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `29007654_${year}${month}${day}.csv`;
+    },
     remotePath: '/', // Root directory on FTP server
     schedule: '0 2 * * *', // Daily at 2:00 AM (cron format)
     includeHeaders: true
