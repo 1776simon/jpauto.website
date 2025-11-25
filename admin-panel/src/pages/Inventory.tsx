@@ -644,7 +644,7 @@ export default function Inventory() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">VIN:</span>
-                        <span className="font-medium text-foreground text-xs font-mono">
+                        <span className="vin-text text-foreground text-sm">
                           {item.vin}
                         </span>
                       </div>
@@ -1176,7 +1176,7 @@ export default function Inventory() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-muted-foreground">VIN:</span>
-                        <p className="font-medium text-foreground">
+                        <p className="vin-text text-foreground text-base">
                           {selectedItem.vin}
                         </p>
                       </div>
@@ -1274,8 +1274,8 @@ export default function Inventory() {
                   {selectedItem.year} {selectedItem.make} {selectedItem.model}
                   {selectedItem.trim && ` ${selectedItem.trim}`}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  VIN: {selectedItem.vin}
+                <p className="text-sm mt-1">
+                  <span className="text-muted-foreground">VIN:</span> <span className="vin-text text-foreground">{selectedItem.vin}</span>
                 </p>
                 <p className="text-sm text-red-600 font-medium mt-3">
                   This action cannot be undone.

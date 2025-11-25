@@ -146,4 +146,10 @@
   .m3-elevation-2 {
     @apply shadow-md;
   }
+
+  .vin-text {
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
 }

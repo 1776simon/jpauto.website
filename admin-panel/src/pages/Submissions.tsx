@@ -278,8 +278,8 @@ export default function Submissions() {
                           >
                             {submission.submissionStatus || submission.status}
                           </span>
-                          <span className="text-xs text-muted-foreground">
-                            VIN: {submission.vin}
+                          <span className="text-sm">
+                            <span className="text-muted-foreground">VIN:</span> <span className="vin-text text-foreground">{submission.vin}</span>
                           </span>
                         </div>
                       </div>
@@ -477,7 +477,7 @@ export default function Submissions() {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">VIN:</span>
-                    <p className="font-medium text-foreground">
+                    <p className="vin-text text-foreground text-base">
                       {selectedSubmission.vin}
                     </p>
                   </div>
