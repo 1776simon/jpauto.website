@@ -18,7 +18,7 @@ const runDealerCenterExport = async () => {
       where: {
         status: ['available', 'pending']
       },
-      order: [['createdAt', 'DESC']]
+      order: [['id', 'DESC']]
     });
 
     logger.info(`Found ${vehicles.length} vehicles to export`);

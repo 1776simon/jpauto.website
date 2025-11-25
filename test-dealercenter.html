@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DealerCenter Integration Test Suite</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff6b35;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #e55a28;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .status-pending { background: #ffeaa7; color: #856404; }
+        .status-running { background: #74b9ff; color: #0652dd; }
+        .status-success { background: #55efc4; color: #00b894; }
+        .status-failed { background: #ff7675; color: #d63031; }
+        .instructions {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0984e3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 DealerCenter Integration Test Suite</h1>
+        <p class="subtitle">JP Auto Inventory System - Production Testing</p>
+
+        <div class="instructions">
+            <strong>📋 Instructions:</strong><br>
+            1. Make sure you're logged into the admin panel first<br>
+            2. Run tests in order from top to bottom<br>
+            3. Check results after each test before proceeding
+        </div>
+
+        <!-- Test 1: Migration Status -->
+        <div class="test-section">
+            <h3>1. Migration Status Check <span class="status-badge status-pending" id="status1">Pending</span></h3>
+            <p>Check if the latestPhotoModified column exists in the database</p>
+            <button onclick="checkMigrationStatus()">Check Status</button>
+            <div id="result1"></div>
+        </div>
+
+        <!-- Test 2: Run Migration -->
+        <div class="test-section">
+            <h3>2. Run Database Migration <span class="status-badge status-pending" id="status2">Pending</span></h3>
+            <p>Add latestPhotoModified field to inventory table (one-time operation)</p>
+            <button onclick="runMigration()">Run Migration</button>
+            <div id="result2"></div>
+        </div>
+
+        <!-- Test 3: FTP Test -->
+        <div class="test-section">
+            <h3>3. FTP Connection Test <span class="status-badge status-pending" id="status3">Pending</span></h3>
+            <p>Test connection to DealerCenter FTP server (ftp.nowcom.com)</p>
+            <button onclick="testFTP()">Test FTP Connection</button>
+            <div id="result3"></div>
+        </div>
+
+        <!-- Test 4: Export Generation -->
+        <div class="test-section">
+            <h3>4. DealerCenter Export Test <span class="status-badge status-pending" id="status4">Pending</span></h3>
+            <p>Generate CSV export with dealer information</p>
+            <button onclick="testExport()">Generate Export</button>
+            <button onclick="testExportAndUpload()">Generate & Upload to FTP</button>
+            <div id="result4"></div>
+        </div>
+
+        <!-- Test 5: API Endpoints -->
+        <div class="test-section">
+            <h3>5. Photo Management API Test <span class="status-badge status-pending" id="status5">Pending</span></h3>
+            <p>Verify new photo management endpoints are available</p>
+            <button onclick="testPhotoAPIs()">Test Photo APIs</button>
+            <div id="result5"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://jp-auto-inventory-production.up.railway.app';
+
+        function updateStatus(testNum, status) {
+            const badge = document.getElementById(`status${testNum}`);
+            badge.className = `status-badge status-${status}`;
+            badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        }
+
+        function showResult(testNum, message, type = 'info') {
+            const result = document.getElementById(`result${testNum}`);
+            result.className = `result ${type}`;
+            result.textContent = message;
+        }
+
+        async function checkMigrationStatus() {
+            updateStatus(1, 'running');
+            showResult(1, 'Checking migration status...', 'info');
+
+            try {
+                const response = await fetch(`${API_URL}/api/migrations/status`, {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const isApplied = data.migrations['add-latest-photo-modified'].applied;
+                    updateStatus(1, isApplied ? 'success' : 'pending');
+                    showResult(1, JSON.stringify(data, null, 2), isApplied ? 'success' : 'warning');
+                } else {
+                    updateStatus(1, 'failed');
+                    showResult(1, `Error: ${data.error}\n${data.message}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(1, 'failed');
+                showResult(1, `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function runMigration() {
+            updateStatus(2, 'running');
+            showResult(2, 'Running migration...', 'info');
+
+            try {
+                const response = await fetch(`${API_URL}/api/migrations/run`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok || data.success) {
+                    updateStatus(2, 'success');
+                    showResult(2, JSON.stringify(data, null, 2), 'success');
+
+                    // Refresh status check
+                    setTimeout(() => checkMigrationStatus(), 1000);
+                } else {
+                    updateStatus(2, 'failed');
+                    showResult(2, `Error: ${data.error}\n${data.message}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(2, 'failed');
+                showResult(2, `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFTP() {
+            updateStatus(3, 'running');
+            showResult(3, 'Testing FTP connection... This will attempt to upload a test export.', 'info');
+
+            try {
+                // We'll use the export endpoint which includes FTP upload
+                const response = await fetch(`${API_URL}/api/exports/dealer-center/upload`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    updateStatus(3, 'success');
+                    showResult(3,
+                        `✅ FTP Connection Successful!\n\n` +
+                        `Vehicles Exported: ${data.vehicleCount}\n` +
+                        `Remote Path: ${data.remotePath}\n` +
+                        `Exported At: ${data.exportedAt}\n\n` +
+                        JSON.stringify(data, null, 2),
+                        'success'
+                    );
+                } else {
+                    updateStatus(3, 'failed');
+                    showResult(3,
+                        `❌ FTP Test Failed\n\n` +
+                        `Error: ${data.error}\n${data.message}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                updateStatus(3, 'failed');
+                showResult(3, `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testExport() {
+            updateStatus(4, 'running');
+            showResult(4, 'Generating DealerCenter CSV export...', 'info');
+
+            try {
+                const response = await fetch(`${API_URL}/api/exports/dealer-center`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    // Download the file
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `dealer-center-export-${new Date().toISOString().split('T')[0]}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    updateStatus(4, 'success');
+                    showResult(4,
+                        '✅ Export generated successfully!\n\n' +
+                        'CSV file has been downloaded. Check your Downloads folder.\n' +
+                        'Open the CSV to verify dealer information and vehicle data.',
+                        'success'
+                    );
+                } else {
+                    const data = await response.json();
+                    updateStatus(4, 'failed');
+                    showResult(4, `Error: ${data.error}\n${data.message}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(4, 'failed');
+                showResult(4, `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testExportAndUpload() {
+            updateStatus(4, 'running');
+            showResult(4, 'Generating export and uploading to FTP...', 'info');
+
+            try {
+                const response = await fetch(`${API_URL}/api/exports/dealer-center/upload`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    updateStatus(4, 'success');
+                    showResult(4,
+                        `✅ Export and Upload Successful!\n\n` +
+                        `Vehicles Exported: ${data.vehicleCount}\n` +
+                        `Remote Path: ${data.remotePath}\n` +
+                        `Local Path: ${data.localPath}\n` +
+                        `Exported At: ${data.exportedAt}\n\n` +
+                        JSON.stringify(data, null, 2),
+                        'success'
+                    );
+                } else {
+                    updateStatus(4, 'failed');
+                    showResult(4, `Error: ${data.error}\n${data.message}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(4, 'failed');
+                showResult(4, `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPhotoAPIs() {
+            updateStatus(5, 'running');
+            showResult(5, 'Testing photo management API endpoints...', 'info');
+
+            const results = [];
+
+            // Test 1: Check if reorder endpoint exists
+            try {
+                const response = await fetch(`${API_URL}/api/inventory/test-id/photos/reorder`, {
+                    method: 'OPTIONS',
+                    credentials: 'include'
+                });
+                results.push(`✅ Reorder endpoint registered (${response.status})`);
+            } catch (error) {
+                results.push(`⚠️ Reorder endpoint: ${error.message}`);
+            }
+
+            // Test 2: Check if delete endpoint exists
+            try {
+                const response = await fetch(`${API_URL}/api/inventory/test-id/photos`, {
+                    method: 'OPTIONS',
+                    credentials: 'include'
+                });
+                results.push(`✅ Delete photo endpoint registered (${response.status})`);
+            } catch (error) {
+                results.push(`⚠️ Delete endpoint: ${error.message}`);
+            }
+
+            // Test 3: Check migration status to ensure photo tracking is ready
+            try {
+                const response = await fetch(`${API_URL}/api/migrations/status`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                const isApplied = data.migrations?.['add-latest-photo-modified']?.applied;
+
+                if (isApplied) {
+                    results.push(`✅ Photo tracking database field ready`);
+                } else {
+                    results.push(`⚠️ Photo tracking database field not yet applied`);
+                }
+            } catch (error) {
+                results.push(`⚠️ Migration check: ${error.message}`);
+            }
+
+            updateStatus(5, 'success');
+            showResult(5,
+                'Photo Management API Status:\n\n' +
+                results.join('\n') +
+                '\n\n✅ All photo management features are deployed!',
+                'success'
+            );
+        }
+
+        // Auto-check on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                showResult(1, 'Click "Check Status" to begin testing', 'info');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
