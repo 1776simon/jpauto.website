@@ -381,7 +381,7 @@ class ApiService {
     const url = `${API_URL}/api/exports/dealer-center`;
     const response = await fetch(url, {
       credentials: 'include',
-      method: 'GET',
+      method: 'POST',
     });
 
     if (!response.ok) {
@@ -389,10 +389,22 @@ class ApiService {
     }
 
     const blob = await response.blob();
+
+    // Try to get filename from Content-Disposition header
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let filename = '29007654_' + new Date().toISOString().split('T')[0].replace(/-/g, '') + '.csv';
+
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+      if (filenameMatch) {
+        filename = filenameMatch[1];
+      }
+    }
+
     const downloadUrl = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = downloadUrl;
-    a.download = `dealer-center-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(downloadUrl);

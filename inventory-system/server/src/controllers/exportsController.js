@@ -48,7 +48,9 @@ const handleExport = async (req, res, config) => {
     // Handle response based on export type
     if (downloadable && results.filePath) {
       // Send file for download
-      res.download(results.filePath, downloadFilename || `${exportType}_${Date.now()}.${config.fileExtension || 'csv'}`, (err) => {
+      // Extract filename from path if no downloadFilename specified
+      const filename = downloadFilename || path.basename(results.filePath);
+      res.download(results.filePath, filename, (err) => {
         if (err) {
           logger.error(`Error sending ${displayName} file:`, err);
           if (!res.headersSent) {
