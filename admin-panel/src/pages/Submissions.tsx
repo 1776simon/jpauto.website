@@ -11,6 +11,8 @@ import {
   Phone,
   Mail,
   Car,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -26,6 +28,9 @@ export default function Submissions() {
   const [selectedSubmission, setSelectedSubmission] =
     useState<Submission | null>(null);
   const [page, setPage] = useState(1);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Fetch submissions
   const { data, isLoading } = useQuery({
@@ -96,6 +101,33 @@ export default function Submissions() {
       hour: "2-digit",
       minute: "2-digit",
     }).format(new Date(date));
+  };
+
+  const openGallery = (images: string[], startIndex: number = 0) => {
+    setGalleryImages(images);
+    setCurrentImageIndex(startIndex);
+    setGalleryOpen(true);
+  };
+
+  const closeGallery = () => {
+    setGalleryOpen(false);
+    setGalleryImages([]);
+    setCurrentImageIndex(0);
+  };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!galleryOpen) return;
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'Escape') closeGallery();
   };
 
   return (
@@ -202,7 +234,8 @@ export default function Submissions() {
                       <img
                         src={submission.images[0]}
                         alt={`${submission.year} ${submission.make} ${submission.model}`}
-                        className="w-full h-full object-cover"
+                        onClick={() => openGallery(submission.images, 0)}
+                        className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -422,7 +455,8 @@ export default function Submissions() {
                           key={idx}
                           src={img}
                           alt={`Vehicle ${idx + 1}`}
-                          className="w-full h-32 object-cover rounded-lg"
+                          onClick={() => openGallery(selectedSubmission.images, idx)}
+                          className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
                         />
                       ))}
                     </div>
@@ -534,6 +568,89 @@ export default function Submissions() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Image Gallery Popup */}
+      {galleryOpen && galleryImages.length > 0 && (
+        <div
+          className="fixed inset-0 bg-black/95 z-[70] flex items-center justify-center"
+          onClick={closeGallery}
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
+        >
+          {/* Close button */}
+          <button
+            onClick={closeGallery}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+          >
+            <X className="w-8 h-8" />
+          </button>
+
+          {/* Image counter */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-full">
+            {currentImageIndex + 1} / {galleryImages.length}
+          </div>
+
+          {/* Previous button */}
+          {galleryImages.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                prevImage();
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 bg-black/50 rounded-full p-3 hover:bg-black/70 transition-colors"
+            >
+              <ChevronLeft className="w-8 h-8" />
+            </button>
+          )}
+
+          {/* Image */}
+          <div
+            className="max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={galleryImages[currentImageIndex]}
+              alt={`Image ${currentImageIndex + 1}`}
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+
+          {/* Next button */}
+          {galleryImages.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextImage();
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 bg-black/50 rounded-full p-3 hover:bg-black/70 transition-colors"
+            >
+              <ChevronRight className="w-8 h-8" />
+            </button>
+          )}
+
+          {/* Thumbnail strip */}
+          {galleryImages.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto max-w-[90vw] p-2 bg-black/50 rounded-lg">
+              {galleryImages.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt={`Thumbnail ${idx + 1}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentImageIndex(idx);
+                  }}
+                  className={`w-16 h-16 object-cover rounded cursor-pointer transition-all ${
+                    idx === currentImageIndex
+                      ? 'ring-2 ring-white scale-110'
+                      : 'opacity-50 hover:opacity-100'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </AdminLayout>
