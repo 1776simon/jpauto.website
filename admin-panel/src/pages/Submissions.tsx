@@ -15,7 +15,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api, { Submission } from "@/services/api";
 import { toast } from "sonner";
 
@@ -123,12 +123,26 @@ export default function Submissions() {
     setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // Keyboard navigation for gallery
+  useEffect(() => {
     if (!galleryOpen) return;
-    if (e.key === 'ArrowRight') nextImage();
-    if (e.key === 'ArrowLeft') prevImage();
-    if (e.key === 'Escape') closeGallery();
-  };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        nextImage();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevImage();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closeGallery();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [galleryOpen, galleryImages.length]);
 
   return (
     <AdminLayout
@@ -576,8 +590,6 @@ export default function Submissions() {
         <div
           className="fixed inset-0 bg-black/95 z-[70] flex items-center justify-center"
           onClick={closeGallery}
-          onKeyDown={handleKeyDown}
-          tabIndex={0}
         >
           {/* Close button */}
           <button
