@@ -25,8 +25,8 @@ const { recaptchaMiddleware } = require('../services/recaptchaVerifier');
 
 // Rate limiting for public submission endpoint
 const submissionLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 submissions per 15 minutes per IP
+  windowMs: 30 * 60 * 1000, // 30 minutes
+  max: 5, // 5 submissions per 30 minutes per IP
   message: {
     error: 'Too many submissions',
     message: 'Please try again later'
