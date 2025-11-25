@@ -27,6 +27,7 @@ export default function Inventory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [editFormData, setEditFormData] = useState<Partial<InventoryItem>>({});
   const [page, setPage] = useState(1);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -80,6 +81,23 @@ export default function Inventory() {
     },
     onError: (error: Error) => {
       toast.error(`Failed to update: ${error.message}`);
+    },
+  });
+
+  // Create mutation
+  const createMutation = useMutation({
+    mutationFn: (data: Partial<InventoryItem>) => api.createInventoryItem(data),
+    onSuccess: (newItem) => {
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["inventoryStats"] });
+      toast.success("Vehicle added to inventory successfully");
+      // Keep modal open to allow photo uploads
+      setSelectedItem(newItem);
+      setIsCreating(false);
+      setIsEditing(true);
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to add vehicle: ${error.message}`);
     },
   });
 
@@ -193,11 +211,6 @@ export default function Inventory() {
   };
 
   const handleSaveEdit = () => {
-    if (!selectedItem) return;
-
-    // Check if photo order has changed
-    const photosChanged = JSON.stringify(editFormData.images) !== JSON.stringify(selectedItem.images);
-
     // Clean up the data before sending
     const cleanedData: Partial<InventoryItem> = {
       ...editFormData,
@@ -211,24 +224,59 @@ export default function Inventory() {
       }
     });
 
-    updateMutation.mutate({
-      id: selectedItem.id as number,
-      data: cleanedData,
-    });
+    if (isCreating) {
+      // Creating new vehicle
+      createMutation.mutate(cleanedData);
+    } else {
+      // Updating existing vehicle
+      if (!selectedItem) return;
 
-    // If photo order changed, also update photo order
-    if (photosChanged && editFormData.images) {
-      reorderPhotosMutation.mutate({
+      // Check if photo order has changed
+      const photosChanged = JSON.stringify(editFormData.images) !== JSON.stringify(selectedItem.images);
+
+      updateMutation.mutate({
         id: selectedItem.id as number,
-        imageUrls: editFormData.images
+        data: cleanedData,
       });
+
+      // If photo order changed, also update photo order
+      if (photosChanged && editFormData.images) {
+        reorderPhotosMutation.mutate({
+          id: selectedItem.id as number,
+          imageUrls: editFormData.images
+        });
+      }
     }
   };
 
   const handleCloseModal = () => {
     setSelectedItem(null);
     setIsEditing(false);
+    setIsCreating(false);
     setEditFormData({});
+  };
+
+  const handleAddNewClick = () => {
+    setSelectedItem(null);
+    setIsCreating(true);
+    setIsEditing(false);
+    setEditFormData({
+      year: new Date().getFullYear(),
+      make: '',
+      model: '',
+      trim: '',
+      vin: '',
+      mileage: 0,
+      price: 0,
+      cost: 0,
+      exteriorColor: '',
+      interiorColor: '',
+      transmission: '',
+      fuelType: '',
+      titleStatus: '',
+      description: '',
+      images: [],
+    });
   };
 
   const openGallery = (images: string[], startIndex: number = 0) => {
@@ -459,6 +507,25 @@ export default function Inventory() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Add New Vehicle Card */}
+            <div
+              onClick={handleAddNewClick}
+              className="m3-card overflow-hidden hover:shadow-lg transition-shadow group flex flex-col cursor-pointer border-2 border-dashed border-primary/30 hover:border-primary bg-primary/5 hover:bg-primary/10"
+            >
+              <div className="h-full flex flex-col items-center justify-center p-8 min-h-[400px]">
+                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Plus className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Add New Vehicle
+                </h3>
+                <p className="text-sm text-muted-foreground text-center">
+                  Click to manually add a vehicle to inventory
+                </p>
+              </div>
+            </div>
+
+            {/* Vehicle Cards */}
             {filteredInventory.map((item) => (
               <div
                 key={item.id}
@@ -527,30 +594,44 @@ export default function Inventory() {
                           {item.vin.slice(-8)}
                         </span>
                       </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Exterior:</span>
+                        <span className="font-medium text-foreground">
+                          {item.exteriorColor || item.exterior_color || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Interior:</span>
+                        <span className="font-medium text-foreground">
+                          {item.interiorColor || item.interior_color || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Transmission:</span>
+                        <span className="font-medium text-foreground">
+                          {item.transmission || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Fuel Type:</span>
+                        <span className="font-medium text-foreground">
+                          {item.fuelType || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Title:</span>
+                        <span className="font-medium text-foreground">
+                          {item.titleStatus || item.title_status || 'N/A'}
+                        </span>
+                      </div>
                     </div>
-
-                    {item.description && (
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                        {item.description}
-                      </p>
-                    )}
                   </div>
 
-                  {/* Action Buttons - Always at bottom */}
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      onClick={() => {
-                        setSelectedItem(item);
-                        setIsEditing(false);
-                      }}
-                      className="flex-1 m3-button-outlined text-sm flex items-center justify-center gap-1"
-                    >
-                      <Eye className="w-4 h-4" />
-                      View
-                    </button>
+                  {/* Action Button - Always at bottom */}
+                  <div className="mt-4">
                     <button
                       onClick={() => handleEditClick(item)}
-                      className="flex-1 m3-button-filled text-sm flex items-center justify-center gap-1"
+                      className="w-full m3-button-filled text-sm flex items-center justify-center gap-1"
                     >
                       <Edit className="w-4 h-4" />
                       Edit
@@ -589,7 +670,7 @@ export default function Inventory() {
       </div>
 
       {/* Detail/Edit Modal */}
-      {selectedItem && (
+      {(selectedItem || isCreating) && (
         <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
           onClick={handleCloseModal}
@@ -603,12 +684,19 @@ export default function Inventory() {
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-foreground mb-2">
-                    {isEditing ? "Edit Vehicle" : "Vehicle Details"}
+                    {isCreating ? "Add New Vehicle" : isEditing ? "Edit Vehicle" : "Vehicle Details"}
                   </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedItem.year} {selectedItem.make} {selectedItem.model}
-                    {selectedItem.trim && ` ${selectedItem.trim}`}
-                  </p>
+                  {selectedItem && (
+                    <p className="text-sm text-muted-foreground">
+                      {selectedItem.year} {selectedItem.make} {selectedItem.model}
+                      {selectedItem.trim && ` ${selectedItem.trim}`}
+                    </p>
+                  )}
+                  {isCreating && (
+                    <p className="text-sm text-muted-foreground">
+                      Fill in the vehicle details below
+                    </p>
+                  )}
                 </div>
                 <button
                   onClick={handleCloseModal}
@@ -620,7 +708,7 @@ export default function Inventory() {
             </div>
 
             <div className="p-6 space-y-6">
-              {isEditing ? (
+              {(isEditing || isCreating) ? (
                 <>
                   {/* Edit Form */}
                   <div className="space-y-6">
@@ -836,30 +924,41 @@ export default function Inventory() {
                         Vehicle Photos
                       </label>
 
-                      {/* Upload Button */}
-                      <div className="mb-4">
-                        <input
-                          type="file"
-                          id="photo-upload"
-                          multiple
-                          accept="image/*"
-                          onChange={handlePhotoUpload}
-                          className="hidden"
-                        />
-                        <label
-                          htmlFor="photo-upload"
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg cursor-pointer hover:bg-primary/90 transition-colors"
-                        >
-                          <Upload className="w-4 h-4" />
-                          {uploadPhotosMutation.isPending ? 'Uploading...' : 'Upload Photos'}
-                        </label>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Drag photos to reorder. First photo is the primary image.
-                        </p>
-                      </div>
+                      {isCreating ? (
+                        <div className="bg-muted/50 border border-dashed border-border rounded-lg p-6 text-center">
+                          <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Save the vehicle first, then you can upload photos
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Upload Button */}
+                          <div className="mb-4">
+                            <input
+                              type="file"
+                              id="photo-upload"
+                              multiple
+                              accept="image/*"
+                              onChange={handlePhotoUpload}
+                              className="hidden"
+                            />
+                            <label
+                              htmlFor="photo-upload"
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg cursor-pointer hover:bg-primary/90 transition-colors"
+                            >
+                              <Upload className="w-4 h-4" />
+                              {uploadPhotosMutation.isPending ? 'Uploading...' : 'Upload Photos'}
+                            </label>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Drag photos to reorder. First photo is the primary image.
+                            </p>
+                          </div>
+                        </>
+                      )}
 
                       {/* Photo Grid */}
-                      {displayImages.length > 0 && (
+                      {!isCreating && displayImages.length > 0 && (
                         <div className="grid grid-cols-3 gap-3">
                           {displayImages.map((img, idx) => (
                             <div
@@ -895,7 +994,7 @@ export default function Inventory() {
                         </div>
                       )}
 
-                      {displayImages.length === 0 && (
+                      {!isCreating && displayImages.length === 0 && (
                         <p className="text-sm text-muted-foreground">No photos uploaded yet.</p>
                       )}
                     </div>
@@ -904,62 +1003,69 @@ export default function Inventory() {
                     <div className="flex flex-col gap-3 pt-4 border-t border-border">
                       <button
                         onClick={handleSaveEdit}
-                        disabled={updateMutation.isPending}
+                        disabled={updateMutation.isPending || createMutation.isPending}
                         className="w-full m3-button-filled flex items-center justify-center gap-2"
                       >
                         <Save className="w-5 h-5" />
-                        {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                        {isCreating
+                          ? (createMutation.isPending ? "Adding Vehicle..." : "Add Vehicle")
+                          : (updateMutation.isPending ? "Saving..." : "Save Changes")
+                        }
                       </button>
 
-                      {/* Status Change Buttons */}
-                      <div className="grid grid-cols-3 gap-2">
-                        <button
-                          onClick={() =>
-                            handleStatusChange(selectedItem.id as number, "available")
-                          }
-                          disabled={
-                            updateMutation.isPending ||
-                            selectedItem.status === "available"
-                          }
-                          className="m3-button-outlined bg-green-50 border-green-600 text-green-600 hover:bg-green-100 disabled:opacity-50"
-                        >
-                          Mark Available
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleStatusChange(selectedItem.id as number, "pending")
-                          }
-                          disabled={
-                            updateMutation.isPending ||
-                            selectedItem.status === "pending"
-                          }
-                          className="m3-button-outlined bg-yellow-50 border-yellow-600 text-yellow-600 hover:bg-yellow-100 disabled:opacity-50"
-                        >
-                          Mark Pending
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleStatusChange(selectedItem.id as number, "sold")
-                          }
-                          disabled={
-                            updateMutation.isPending ||
-                            selectedItem.status === "sold"
-                          }
-                          className="m3-button-outlined bg-primary/10 border-primary text-primary hover:bg-primary/20 disabled:opacity-50"
-                        >
-                          Mark Sold
-                        </button>
-                      </div>
+                      {/* Status Change Buttons - Only show when editing */}
+                      {!isCreating && selectedItem && (
+                        <div className="grid grid-cols-3 gap-2">
+                          <button
+                            onClick={() =>
+                              handleStatusChange(selectedItem.id as number, "available")
+                            }
+                            disabled={
+                              updateMutation.isPending ||
+                              selectedItem.status === "available"
+                            }
+                            className="m3-button-outlined bg-green-50 border-green-600 text-green-600 hover:bg-green-100 disabled:opacity-50"
+                          >
+                            Mark Available
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleStatusChange(selectedItem.id as number, "pending")
+                            }
+                            disabled={
+                              updateMutation.isPending ||
+                              selectedItem.status === "pending"
+                            }
+                            className="m3-button-outlined bg-yellow-50 border-yellow-600 text-yellow-600 hover:bg-yellow-100 disabled:opacity-50"
+                          >
+                            Mark Pending
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleStatusChange(selectedItem.id as number, "sold")
+                            }
+                            disabled={
+                              updateMutation.isPending ||
+                              selectedItem.status === "sold"
+                            }
+                            className="m3-button-outlined bg-primary/10 border-primary text-primary hover:bg-primary/20 disabled:opacity-50"
+                          >
+                            Mark Sold
+                          </button>
+                        </div>
+                      )}
 
-                      {/* Delete Button */}
-                      <button
-                        onClick={() => setShowDeleteConfirm(true)}
-                        disabled={deleteMutation.isPending}
-                        className="m3-button-outlined border-red-600 text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-5 h-5 mr-2" />
-                        Delete Vehicle
-                      </button>
+                      {/* Delete Button - Only show when editing */}
+                      {!isCreating && selectedItem && (
+                        <button
+                          onClick={() => setShowDeleteConfirm(true)}
+                          disabled={deleteMutation.isPending}
+                          className="m3-button-outlined border-red-600 text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-5 h-5 mr-2" />
+                          Delete Vehicle
+                        </button>
+                      )}
                     </div>
                   </div>
                 </>
