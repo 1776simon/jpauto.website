@@ -21,7 +21,7 @@ const handleExport = async (req, res, config) => {
     const where = includeAll !== undefined && includeAll !== 'false' ? (includeAll ? {} : { status }) : { status };
     const vehicles = await Inventory.findAll({
       where,
-      order: [['createdAt', 'DESC']]
+      order: [['id', 'DESC']]
     });
 
     if (vehicles.length === 0) {

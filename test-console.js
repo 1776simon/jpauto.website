@@ -123,7 +123,7 @@ const tests = {
         method: 'OPTIONS',
         credentials: 'include'
       });
-      results.push(`Reorder API: ${r1.status === 404 || r1.status === 200 ? '✅' : '❌'} (Status: ${r1.status})`);
+      results.push(`Reorder API: ${r1.status === 204 || r1.status === 200 ? '✅' : '❌'} (Status: ${r1.status})`);
     } catch (e) {
       results.push(`Reorder API: ⚠️ ${e.message}`);
     }
@@ -134,7 +134,7 @@ const tests = {
         method: 'OPTIONS',
         credentials: 'include'
       });
-      results.push(`Delete Photo API: ${r2.status === 404 || r2.status === 200 ? '✅' : '❌'} (Status: ${r2.status})`);
+      results.push(`Delete Photo API: ${r2.status === 204 || r2.status === 200 ? '✅' : '❌'} (Status: ${r2.status})`);
     } catch (e) {
       results.push(`Delete Photo API: ⚠️ ${e.message}`);
     }
