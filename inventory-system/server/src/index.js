@@ -184,6 +184,12 @@ const startServer = async () => {
       await syncDatabase({ alter: true });
     }
 
+    // Schedule DealerCenter exports (daily at 2:00 AM)
+    if (process.env.ENABLE_DEALER_CENTER_EXPORT !== 'false') {
+      const { scheduleDealerCenterExport } = require('./jobs/dealerCenterExport');
+      scheduleDealerCenterExport();
+    }
+
     // Start listening
     app.listen(PORT, () => {
       logger.info('='.repeat(50));

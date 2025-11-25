@@ -12,6 +12,7 @@ import {
   Save,
   ChevronLeft,
   ChevronRight,
+  Upload,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -32,6 +33,8 @@ export default function Inventory() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [tempImages, setTempImages] = useState<string[]>([]);
 
   // Fetch inventory
   const { data, isLoading } = useQuery({
@@ -77,6 +80,57 @@ export default function Inventory() {
     },
     onError: (error: Error) => {
       toast.error(`Failed to update: ${error.message}`);
+    },
+  });
+
+  // Photo upload mutation
+  const uploadPhotosMutation = useMutation({
+    mutationFn: ({ id, files }: { id: number; files: File[] }) =>
+      api.uploadInventoryPhotos(id, files),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      if (selectedItem) {
+        setSelectedItem({ ...selectedItem, images: data.images });
+        setEditFormData({ ...editFormData, images: data.images });
+      }
+      toast.success("Photos uploaded successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to upload photos: ${error.message}`);
+    },
+  });
+
+  // Photo reorder mutation
+  const reorderPhotosMutation = useMutation({
+    mutationFn: ({ id, imageUrls }: { id: number; imageUrls: string[] }) =>
+      api.reorderInventoryPhotos(id, imageUrls),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      if (selectedItem) {
+        setSelectedItem({ ...selectedItem, images: data.images });
+        setEditFormData({ ...editFormData, images: data.images });
+      }
+      toast.success("Photos reordered successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to reorder photos: ${error.message}`);
+    },
+  });
+
+  // Photo delete mutation
+  const deletePhotoMutation = useMutation({
+    mutationFn: ({ id, imageUrl }: { id: number; imageUrl: string }) =>
+      api.deleteInventoryPhoto(id, imageUrl),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      if (selectedItem) {
+        setSelectedItem({ ...selectedItem, images: data.images });
+        setEditFormData({ ...editFormData, images: data.images });
+      }
+      toast.success("Photo deleted successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to delete photo: ${error.message}`);
     },
   });
 
@@ -204,6 +258,68 @@ export default function Inventory() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [galleryOpen, galleryImages.length]);
+
+  // Photo management handlers
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0 || !selectedItem) return;
+
+    uploadPhotosMutation.mutate({
+      id: selectedItem.id as number,
+      files
+    });
+  };
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const images = [...(editFormData.images || [])];
+    const draggedImage = images[draggedIndex];
+    images.splice(draggedIndex, 1);
+    images.splice(index, 0, draggedImage);
+
+    setTempImages(images);
+  };
+
+  const handleDrop = (index: number) => {
+    if (draggedIndex === null || draggedIndex === index) {
+      setDraggedIndex(null);
+      setTempImages([]);
+      return;
+    }
+
+    const images = [...(editFormData.images || [])];
+    const draggedImage = images[draggedIndex];
+    images.splice(draggedIndex, 1);
+    images.splice(index, 0, draggedImage);
+
+    if (selectedItem) {
+      reorderPhotosMutation.mutate({
+        id: selectedItem.id as number,
+        imageUrls: images
+      });
+    }
+
+    setDraggedIndex(null);
+    setTempImages([]);
+  };
+
+  const handleDeletePhoto = (imageUrl: string) => {
+    if (!selectedItem) return;
+    if (!confirm('Are you sure you want to delete this photo?')) return;
+
+    deletePhotoMutation.mutate({
+      id: selectedItem.id as number,
+      imageUrl
+    });
+  };
+
+  const displayImages = tempImages.length > 0 ? tempImages : (editFormData.images || []);
 
   return (
     <AdminLayout
@@ -660,6 +776,22 @@ export default function Inventory() {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-2">
+                            Fuel Type
+                          </label>
+                          <select
+                            value={editFormData.fuelType || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, fuelType: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          >
+                            <option value="">Select...</option>
+                            <option value="Gasoline">Gasoline</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="Electric">Electric</option>
+                            <option value="Hybrid">Hybrid</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
                             Title Status
                           </label>
                           <select
@@ -688,6 +820,76 @@ export default function Inventory() {
                         className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground resize-none"
                         placeholder="Enter vehicle description..."
                       />
+                    </div>
+
+                    {/* Photo Management */}
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-3">
+                        Vehicle Photos
+                      </label>
+
+                      {/* Upload Button */}
+                      <div className="mb-4">
+                        <input
+                          type="file"
+                          id="photo-upload"
+                          multiple
+                          accept="image/*"
+                          onChange={handlePhotoUpload}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="photo-upload"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg cursor-pointer hover:bg-primary/90 transition-colors"
+                        >
+                          <Upload className="w-4 h-4" />
+                          {uploadPhotosMutation.isPending ? 'Uploading...' : 'Upload Photos'}
+                        </label>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Drag photos to reorder. First photo is the primary image.
+                        </p>
+                      </div>
+
+                      {/* Photo Grid */}
+                      {displayImages.length > 0 && (
+                        <div className="grid grid-cols-3 gap-3">
+                          {displayImages.map((img, idx) => (
+                            <div
+                              key={idx}
+                              draggable
+                              onDragStart={() => handleDragStart(idx)}
+                              onDragOver={(e) => handleDragOver(e, idx)}
+                              onDrop={() => handleDrop(idx)}
+                              className={`relative group cursor-move rounded-lg overflow-hidden border-2 ${
+                                idx === 0 ? 'border-primary' : 'border-border'
+                              } ${draggedIndex === idx ? 'opacity-50' : ''}`}
+                            >
+                              <img
+                                src={img}
+                                alt={`Photo ${idx + 1}`}
+                                className="w-full h-24 object-cover"
+                              />
+                              {idx === 0 && (
+                                <div className="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-1 rounded">
+                                  Primary
+                                </div>
+                              )}
+                              <button
+                                onClick={() => handleDeletePhoto(img)}
+                                disabled={deletePhotoMutation.isPending}
+                                className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Delete photo"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {displayImages.length === 0 && (
+                        <p className="text-sm text-muted-foreground">No photos uploaded yet.</p>
+                      )}
                     </div>
 
                     {/* Action Buttons */}

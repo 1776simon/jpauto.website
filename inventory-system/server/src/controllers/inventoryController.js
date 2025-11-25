@@ -283,10 +283,11 @@ const uploadInventoryImages = async (req, res) => {
       finalImages = [...(vehicle.images || []), ...imageUrls];
     }
 
-    // Update vehicle
+    // Update vehicle with latest photo modified timestamp
     await vehicle.update({
       images: finalImages,
       primaryImageUrl: finalImages[0] || null,
+      latestPhotoModified: new Date(),
       updatedBy: req.user.id
     });
 
@@ -300,6 +301,126 @@ const uploadInventoryImages = async (req, res) => {
     console.error('Error uploading images:', error);
     res.status(500).json({
       error: 'Failed to upload images',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * Reorder photos for inventory item
+ * PUT /api/inventory/:id/photos/reorder
+ */
+const reorderPhotos = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { imageUrls } = req.body;
+
+    if (!imageUrls || !Array.isArray(imageUrls)) {
+      return res.status(400).json({
+        error: 'imageUrls array is required'
+      });
+    }
+
+    const vehicle = await Inventory.findByPk(id);
+
+    if (!vehicle) {
+      return res.status(404).json({
+        error: 'Vehicle not found'
+      });
+    }
+
+    // Validate that all URLs exist in the current images
+    const currentImages = vehicle.images || [];
+    const invalidUrls = imageUrls.filter(url => !currentImages.includes(url));
+
+    if (invalidUrls.length > 0) {
+      return res.status(400).json({
+        error: 'Invalid image URLs provided',
+        invalidUrls
+      });
+    }
+
+    // Update vehicle with reordered images and update latestPhotoModified
+    await vehicle.update({
+      images: imageUrls,
+      primaryImageUrl: imageUrls[0] || null,
+      latestPhotoModified: new Date(),
+      updatedBy: req.user.id
+    });
+
+    res.json({
+      message: 'Photos reordered successfully',
+      images: imageUrls
+    });
+  } catch (error) {
+    console.error('Error reordering photos:', error);
+    res.status(500).json({
+      error: 'Failed to reorder photos',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * Delete a photo from inventory item
+ * DELETE /api/inventory/:id/photos
+ */
+const deletePhoto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { imageUrl } = req.body;
+
+    if (!imageUrl) {
+      return res.status(400).json({
+        error: 'imageUrl is required'
+      });
+    }
+
+    const vehicle = await Inventory.findByPk(id);
+
+    if (!vehicle) {
+      return res.status(404).json({
+        error: 'Vehicle not found'
+      });
+    }
+
+    const currentImages = vehicle.images || [];
+
+    if (!currentImages.includes(imageUrl)) {
+      return res.status(404).json({
+        error: 'Image not found in vehicle images'
+      });
+    }
+
+    // Remove image from array
+    const updatedImages = currentImages.filter(url => url !== imageUrl);
+
+    // Delete from R2 storage
+    try {
+      const { deleteFile, extractKeyFromUrl } = require('../services/r2Storage');
+      const imageKey = extractKeyFromUrl(imageUrl);
+      await deleteFile(imageKey);
+    } catch (storageError) {
+      console.error('Error deleting from R2:', storageError);
+      // Continue even if R2 deletion fails
+    }
+
+    // Update vehicle with remaining images and update latestPhotoModified
+    await vehicle.update({
+      images: updatedImages,
+      primaryImageUrl: updatedImages[0] || null,
+      latestPhotoModified: new Date(),
+      updatedBy: req.user.id
+    });
+
+    res.json({
+      message: 'Photo deleted successfully',
+      images: updatedImages
+    });
+  } catch (error) {
+    console.error('Error deleting photo:', error);
+    res.status(500).json({
+      error: 'Failed to delete photo',
       message: error.message
     });
   }
@@ -470,6 +591,8 @@ module.exports = {
   createInventory,
   updateInventory,
   uploadInventoryImages,
+  reorderPhotos,
+  deletePhoto,
   deleteInventory,
   markAsSold,
   toggleFeatured,

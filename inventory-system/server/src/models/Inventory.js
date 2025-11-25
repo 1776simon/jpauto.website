@@ -139,6 +139,11 @@ const Inventory = sequelize.define('Inventory', {
     type: DataTypes.TEXT,
     field: 'primary_image_url'
   },
+  latestPhotoModified: {
+    type: DataTypes.DATE,
+    field: 'latest_photo_modified',
+    comment: 'Timestamp of when vehicle photos were last modified'
+  },
   // History
   previousOwners: {
     type: DataTypes.INTEGER,

@@ -251,6 +251,42 @@ class ApiService {
     return this.request<void>(`/api/inventory/${id}`, { method: 'DELETE' });
   }
 
+  // ===== Photo Management =====
+  async uploadInventoryPhotos(id: number, files: File[]): Promise<{ images: string[] }> {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('images', file);
+    });
+
+    const url = `${API_URL}/api/inventory/${id}/images`;
+    const response = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to upload photos');
+    }
+
+    return response.json();
+  }
+
+  async reorderInventoryPhotos(id: number, imageUrls: string[]): Promise<{ images: string[] }> {
+    return this.request<{ images: string[] }>(`/api/inventory/${id}/photos/reorder`, {
+      method: 'PUT',
+      body: JSON.stringify({ imageUrls }),
+    });
+  }
+
+  async deleteInventoryPhoto(id: number, imageUrl: string): Promise<{ images: string[] }> {
+    return this.request<{ images: string[] }>(`/api/inventory/${id}/photos`, {
+      method: 'DELETE',
+      body: JSON.stringify({ imageUrl }),
+    });
+  }
+
   // ===== Export endpoints =====
   async exportToJekyll(): Promise<void> {
     const url = `${API_URL}/api/exports/jekyll`;

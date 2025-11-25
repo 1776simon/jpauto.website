@@ -507,6 +507,46 @@ export default function Submissions() {
                       {formatDate(selectedSubmission.submittedAt)}
                     </p>
                   </div>
+                  {selectedSubmission.exteriorColor && (
+                    <div>
+                      <span className="text-muted-foreground">Exterior Color:</span>
+                      <p className="font-medium text-foreground">
+                        {selectedSubmission.exteriorColor}
+                      </p>
+                    </div>
+                  )}
+                  {selectedSubmission.interiorColor && (
+                    <div>
+                      <span className="text-muted-foreground">Interior Color:</span>
+                      <p className="font-medium text-foreground">
+                        {selectedSubmission.interiorColor}
+                      </p>
+                    </div>
+                  )}
+                  {selectedSubmission.transmission && (
+                    <div>
+                      <span className="text-muted-foreground">Transmission:</span>
+                      <p className="font-medium text-foreground">
+                        {selectedSubmission.transmission}
+                      </p>
+                    </div>
+                  )}
+                  {selectedSubmission.fuelType && (
+                    <div>
+                      <span className="text-muted-foreground">Fuel Type:</span>
+                      <p className="font-medium text-foreground">
+                        {selectedSubmission.fuelType}
+                      </p>
+                    </div>
+                  )}
+                  {selectedSubmission.titleStatus && (
+                    <div>
+                      <span className="text-muted-foreground">Title Status:</span>
+                      <p className="font-medium text-foreground">
+                        {selectedSubmission.titleStatus}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

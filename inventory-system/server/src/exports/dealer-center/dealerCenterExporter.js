@@ -1,6 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 const { parse } = require('json2csv');
+const dealerCenterConfig = require('../../config/dealerCenter');
 
 /**
  * Export inventory to Dealer Center CSV format
@@ -16,7 +17,7 @@ const exportToDealerCenter = async (vehicles, outputPath = null) => {
     if (!outputPath) {
       const exportDir = path.resolve(__dirname, '../../../exports/dealer-center');
       await fs.mkdir(exportDir, { recursive: true });
-      outputPath = path.join(exportDir, `dealer_center_${Date.now()}.csv`);
+      outputPath = path.join(exportDir, dealerCenterConfig.export.filename);
     }
 
     await fs.writeFile(outputPath, csv, 'utf8');
@@ -34,126 +35,91 @@ const exportToDealerCenter = async (vehicles, outputPath = null) => {
 
 /**
  * Generate Dealer Center CSV
+ * Based on DealerCenter File Import Mapping template
  * @param {Array} vehicles - Array of vehicle objects
  * @returns {string} - CSV string
  */
 const generateDealerCenterCSV = (vehicles) => {
-  // Map vehicles to Dealer Center format
-  const dealerCenterVehicles = vehicles.map(vehicle => ({
-    // Identification
-    'Stock Number': vehicle.stockNumber || '',
-    'VIN': vehicle.vin,
-    'Status': mapStatus(vehicle.status),
+  const { dealer } = dealerCenterConfig;
 
-    // Vehicle Information
-    'Year': vehicle.year,
-    'Make': vehicle.make,
-    'Model': vehicle.model,
-    'Trim': vehicle.trim || '',
-    'Body Style': vehicle.bodyType || '',
+  // Map vehicles to DealerCenter format
+  const dealerCenterVehicles = vehicles.map(vehicle => {
+    // Generate VDP (Vehicle Detail Page) URL
+    const vdpUrl = vehicle.stockNumber
+      ? `https://jpautomotivegroup.com/vehicles/${vehicle.stockNumber.toLowerCase()}`
+      : '';
 
-    // Pricing
-    'Retail Price': Math.round(vehicle.price),
-    'Cost': vehicle.cost ? Math.round(vehicle.cost) : '',
-    'MSRP': vehicle.msrp ? Math.round(vehicle.msrp) : '',
+    // Format photo URLs (pipe-separated as per DMS standard)
+    const photoURLs = vehicle.images && vehicle.images.length > 0
+      ? vehicle.images.join('|')
+      : '';
 
-    // Details
-    'Mileage': vehicle.mileage,
-    'Exterior Color': vehicle.exteriorColor || '',
-    'Interior Color': vehicle.interiorColor || '',
-    'Transmission': vehicle.transmission || '',
-    'Engine': vehicle.engine || '',
-    'Fuel Type': vehicle.fuelType || '',
-    'Drivetrain': vehicle.drivetrain || '',
-    'Doors': vehicle.doors || '',
-    'Title Status': vehicle.titleStatus || 'Clean',
+    // Format latest photo modified date
+    const latestPhotoModified = vehicle.latestPhotoModified
+      ? new Date(vehicle.latestPhotoModified).toISOString().split('T')[0]
+      : '';
 
-    // Performance
-    'MPG City': vehicle.mpgCity || '',
-    'MPG Highway': vehicle.mpgHighway || '',
-    'Horsepower': vehicle.horsepower || '',
+    return {
+      'DealerID': dealer.id,
+      'DealerName': dealer.name,
+      'Address': dealer.address,
+      'City': dealer.city,
+      'State': dealer.state,
+      'Zip': dealer.zip,
+      'Phone': dealer.phone,
+      'StockNumber': vehicle.stockNumber || '',
+      'VIN': vehicle.vin,
+      'Year': vehicle.year,
+      'Make': vehicle.make,
+      'Model': vehicle.model,
+      'Trim': vehicle.trim || '',
+      'Odometer': vehicle.mileage,
+      'Price': Math.round(vehicle.price),
+      'Exterior Color': vehicle.exteriorColor || '',
+      'InteriorColor': vehicle.interiorColor || '',
+      'Transmission': vehicle.transmission || '',
+      'PhotoURLs': photoURLs,
+      'WebAdDescription': generateWebAdDescription(vehicle),
+      'VDP': vdpUrl,
+      'FuelType': vehicle.fuelType || '',
+      'Description': vehicle.description || '',
+      'LatestPhotoModifiedDate': latestPhotoModified
+    };
+  });
 
-    // History
-    'Previous Owners': vehicle.previousOwners || '',
-    'Accident History': vehicle.accidentHistory || 'None',
-    'Service Records': vehicle.serviceRecords || '',
-    'Carfax Available': vehicle.carfaxAvailable ? 'Yes' : 'No',
-    'Carfax URL': vehicle.carfaxUrl || '',
-
-    // Warranty
-    'Warranty': vehicle.warrantyDescription || '',
-
-    // Description
-    'Description': vehicle.description || '',
-    'Marketing Title': vehicle.marketingTitle || '',
-
-    // Features (semicolon-separated)
-    'Features': vehicle.features && vehicle.features.length > 0 ? vehicle.features.join('; ') : '',
-
-    // Images (semicolon-separated URLs)
-    'Primary Image': vehicle.primaryImageUrl || '',
-    'Additional Images': vehicle.images ? vehicle.images.slice(1).join('; ') : '',
-    'Image Count': vehicle.images ? vehicle.images.length : 0,
-
-    // Metadata
-    'Featured': vehicle.featured ? 'Yes' : 'No',
-    'Date Added': vehicle.dateAdded || vehicle.createdAt,
-    'Sold Date': vehicle.soldDate || '',
-
-    // Internal tracking
-    'Source': vehicle.source || 'Manual Entry',
-    'Created At': vehicle.createdAt,
-    'Updated At': vehicle.updatedAt
-  }));
-
-  // Define all CSV fields
-  const fields = [
-    'Stock Number',
-    'VIN',
-    'Status',
-    'Year',
-    'Make',
-    'Model',
-    'Trim',
-    'Body Style',
-    'Retail Price',
-    'Cost',
-    'MSRP',
-    'Mileage',
-    'Exterior Color',
-    'Interior Color',
-    'Transmission',
-    'Engine',
-    'Fuel Type',
-    'Drivetrain',
-    'Doors',
-    'Title Status',
-    'MPG City',
-    'MPG Highway',
-    'Horsepower',
-    'Previous Owners',
-    'Accident History',
-    'Service Records',
-    'Carfax Available',
-    'Carfax URL',
-    'Warranty',
-    'Description',
-    'Marketing Title',
-    'Features',
-    'Primary Image',
-    'Additional Images',
-    'Image Count',
-    'Featured',
-    'Date Added',
-    'Sold Date',
-    'Source',
-    'Created At',
-    'Updated At'
-  ];
+  // Use fields from config
+  const fields = dealerCenterConfig.csvFields;
 
   const csv = parse(dealerCenterVehicles, { fields });
 
   return csv;
+};
+
+/**
+ * Generate web ad description from vehicle data
+ * @param {object} vehicle - Vehicle object
+ * @returns {string} - Formatted description
+ */
+const generateWebAdDescription = (vehicle) => {
+  const parts = [];
+
+  // Basic info
+  parts.push(`${vehicle.year} ${vehicle.make} ${vehicle.model}`);
+  if (vehicle.trim) parts.push(vehicle.trim);
+
+  // Key details
+  if (vehicle.mileage) parts.push(`${vehicle.mileage.toLocaleString()} miles`);
+  if (vehicle.transmission) parts.push(vehicle.transmission);
+  if (vehicle.fuelType) parts.push(vehicle.fuelType);
+  if (vehicle.exteriorColor) parts.push(`${vehicle.exteriorColor} exterior`);
+
+  // Description snippet
+  if (vehicle.description) {
+    const snippet = vehicle.description.substring(0, 100);
+    parts.push(snippet + (vehicle.description.length > 100 ? '...' : ''));
+  }
+
+  return parts.join(' | ');
 };
 
 /**

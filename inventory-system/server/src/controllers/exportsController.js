@@ -233,11 +233,35 @@ const getExportHistory = async (req, res) => {
   }
 };
 
+/**
+ * Export to DealerCenter and upload to FTP
+ * POST /api/exports/dealer-center/upload
+ */
+const exportAndUploadDealerCenter = async (req, res) => {
+  try {
+    const { runDealerCenterExport } = require('../jobs/dealerCenterExport');
+
+    const result = await runDealerCenterExport();
+
+    res.json({
+      message: 'DealerCenter export uploaded successfully',
+      ...result
+    });
+  } catch (error) {
+    console.error('Export and upload failed:', error);
+    res.status(500).json({
+      error: 'Failed to export and upload to DealerCenter',
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   exportJekyll,
   exportDealerCenter,
   exportAutoTrader,
   exportCarGurus,
   exportFacebook,
+  exportAndUploadDealerCenter,
   getExportHistory
 };

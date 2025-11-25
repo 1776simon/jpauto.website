@@ -6,6 +6,7 @@ const {
   exportAutoTrader,
   exportCarGurus,
   exportFacebook,
+  exportAndUploadDealerCenter,
   getExportHistory
 } = require('../controllers/exportsController');
 const { isManagerOrAdmin } = require('../middleware/auth');
@@ -24,6 +25,12 @@ router.post('/jekyll',
 router.post('/dealer-center',
   isManagerOrAdmin,
   exportDealerCenter
+);
+
+// Export to Dealer Center and upload to FTP
+router.post('/dealer-center/upload',
+  isManagerOrAdmin,
+  exportAndUploadDealerCenter
 );
 
 // Export to AutoTrader

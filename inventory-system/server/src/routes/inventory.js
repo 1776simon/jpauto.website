@@ -6,6 +6,8 @@ const {
   createInventory,
   updateInventory,
   uploadInventoryImages,
+  reorderPhotos,
+  deletePhoto,
   deleteInventory,
   markAsSold,
   toggleFeatured,
@@ -74,6 +76,20 @@ router.post('/:id/images',
   validateUUID,
   uploadMultiple,
   uploadInventoryImages
+);
+
+// Reorder photos
+router.put('/:id/photos/reorder',
+  isManagerOrAdmin,
+  validateUUID,
+  reorderPhotos
+);
+
+// Delete a photo
+router.delete('/:id/photos',
+  isManagerOrAdmin,
+  validateUUID,
+  deletePhoto
 );
 
 // Mark as sold
