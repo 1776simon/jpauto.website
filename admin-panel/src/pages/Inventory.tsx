@@ -110,7 +110,7 @@ export default function Inventory() {
         setSelectedItem({ ...selectedItem, images: data.images });
         setEditFormData({ ...editFormData, images: data.images });
       }
-      toast.success("Photos reordered successfully");
+      // No toast message - handled by main update mutation
     },
     onError: (error: Error) => {
       toast.error(`Failed to reorder photos: ${error.message}`);
@@ -195,6 +195,9 @@ export default function Inventory() {
   const handleSaveEdit = () => {
     if (!selectedItem) return;
 
+    // Check if photo order has changed
+    const photosChanged = JSON.stringify(editFormData.images) !== JSON.stringify(selectedItem.images);
+
     // Clean up the data before sending
     const cleanedData: Partial<InventoryItem> = {
       ...editFormData,
@@ -212,6 +215,14 @@ export default function Inventory() {
       id: selectedItem.id as number,
       data: cleanedData,
     });
+
+    // If photo order changed, also update photo order
+    if (photosChanged && editFormData.images) {
+      reorderPhotosMutation.mutate({
+        id: selectedItem.id as number,
+        imageUrls: editFormData.images
+      });
+    }
   };
 
   const handleCloseModal = () => {
@@ -300,15 +311,10 @@ export default function Inventory() {
     images.splice(draggedIndex, 1);
     images.splice(index, 0, draggedImage);
 
-    if (selectedItem) {
-      reorderPhotosMutation.mutate({
-        id: selectedItem.id as number,
-        imageUrls: images
-      });
-    }
-
-    setDraggedIndex(null);
+    // Update local state only - will save when "Save changes" is clicked
+    setEditFormData({ ...editFormData, images });
     setTempImages([]);
+    setDraggedIndex(null);
   };
 
   const handleDeletePhoto = (imageUrl: string) => {
