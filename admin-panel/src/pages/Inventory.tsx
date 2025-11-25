@@ -36,6 +36,8 @@ export default function Inventory() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [tempImages, setTempImages] = useState<string[]>([]);
+  const [vinDecoding, setVinDecoding] = useState(false);
+  const [vinStatus, setVinStatus] = useState<{type: 'success' | 'error' | 'loading' | null, message: string}>({type: null, message: ''});
 
   // Fetch inventory
   const { data, isLoading } = useQuery({
@@ -254,6 +256,7 @@ export default function Inventory() {
     setIsEditing(false);
     setIsCreating(false);
     setEditFormData({});
+    setVinStatus({ type: null, message: '' });
   };
 
   const handleAddNewClick = () => {
@@ -261,14 +264,14 @@ export default function Inventory() {
     setIsCreating(true);
     setIsEditing(false);
     setEditFormData({
-      year: new Date().getFullYear(),
+      year: '' as any,
       make: '',
       model: '',
       trim: '',
       vin: '',
-      mileage: 0,
-      price: 0,
-      cost: 0,
+      mileage: '' as any,
+      price: '' as any,
+      cost: '' as any,
       exteriorColor: '',
       interiorColor: '',
       transmission: '',
@@ -376,6 +379,57 @@ export default function Inventory() {
   };
 
   const displayImages = tempImages.length > 0 ? tempImages : (editFormData.images || []);
+
+  // VIN Decoder Function
+  const decodeVIN = async () => {
+    const vin = (editFormData.vin || '').trim().toUpperCase();
+
+    // Validate VIN length
+    if (vin.length !== 17) {
+      setVinStatus({ type: 'error', message: 'VIN must be exactly 17 characters' });
+      return;
+    }
+
+    setVinDecoding(true);
+    setVinStatus({ type: 'loading', message: 'Decoding VIN from NHTSA database...' });
+
+    try {
+      // Call NHTSA VIN Decoder API
+      const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
+      const data = await response.json();
+
+      if (data.Results && data.Results.length > 0) {
+        // Extract relevant fields
+        const results = data.Results;
+        const getValueByVariable = (variableName: string) => {
+          const item = results.find((r: any) => r.Variable === variableName);
+          return item && item.Value && item.Value !== 'Not Applicable' ? item.Value : null;
+        };
+
+        const year = getValueByVariable('Model Year');
+        const make = getValueByVariable('Make');
+        const model = getValueByVariable('Model');
+        const trim = getValueByVariable('Trim');
+
+        // Auto-fill form fields
+        const updates: Partial<InventoryItem> = {};
+        if (year) updates.year = parseInt(year);
+        if (make) updates.make = make;
+        if (model) updates.model = model;
+        if (trim) updates.trim = trim;
+
+        setEditFormData({ ...editFormData, ...updates });
+        setVinStatus({ type: 'success', message: `✓ Decoded: ${year} ${make} ${model}` });
+      } else {
+        setVinStatus({ type: 'error', message: 'Could not decode VIN. Please fill in details manually.' });
+      }
+    } catch (error) {
+      console.error('VIN decode error:', error);
+      setVinStatus({ type: 'error', message: 'Failed to decode VIN. Please fill in details manually.' });
+    } finally {
+      setVinDecoding(false);
+    }
+  };
 
   return (
     <AdminLayout
@@ -590,8 +644,8 @@ export default function Inventory() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">VIN:</span>
-                        <span className="font-medium text-foreground text-xs">
-                          {item.vin.slice(-8)}
+                        <span className="font-medium text-foreground text-xs font-mono">
+                          {item.vin}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -763,18 +817,40 @@ export default function Inventory() {
                             className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
                           />
                         </div>
-                        <div>
+                        <div className="md:col-span-2">
                           <label className="block text-sm font-medium text-foreground mb-2">
-                            VIN *
+                            VIN * <span className="text-xs text-muted-foreground">(We'll auto-fill details from your VIN)</span>
                           </label>
-                          <input
-                            type="text"
-                            value={editFormData.vin || ''}
-                            onChange={(e) => setEditFormData({ ...editFormData, vin: e.target.value.toUpperCase() })}
-                            maxLength={17}
-                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground font-mono"
-                            required
-                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={editFormData.vin || ''}
+                              onChange={(e) => {
+                                setEditFormData({ ...editFormData, vin: e.target.value.toUpperCase() });
+                                if (vinStatus.type) setVinStatus({ type: null, message: '' });
+                              }}
+                              maxLength={17}
+                              className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-foreground font-mono"
+                              required
+                            />
+                            <button
+                              type="button"
+                              onClick={decodeVIN}
+                              disabled={vinDecoding || (editFormData.vin?.length !== 17)}
+                              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                              {vinDecoding ? 'Decoding...' : 'Decode VIN'}
+                            </button>
+                          </div>
+                          {vinStatus.type && (
+                            <div className={`mt-2 text-sm ${
+                              vinStatus.type === 'success' ? 'text-green-600' :
+                              vinStatus.type === 'error' ? 'text-red-600' :
+                              'text-blue-600'
+                            }`}>
+                              {vinStatus.message}
+                            </div>
+                          )}
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-2">
