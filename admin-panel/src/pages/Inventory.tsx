@@ -134,9 +134,22 @@ export default function Inventory() {
   const handleSaveEdit = () => {
     if (!selectedItem) return;
 
+    // Clean up the data before sending
+    const cleanedData: Partial<InventoryItem> = {
+      ...editFormData,
+    };
+
+    // Remove empty string values and ensure proper types
+    Object.keys(cleanedData).forEach((key) => {
+      const value = cleanedData[key as keyof InventoryItem];
+      if (value === '' || value === null || value === undefined) {
+        delete cleanedData[key as keyof InventoryItem];
+      }
+    });
+
     updateMutation.mutate({
       id: selectedItem.id as number,
-      data: editFormData,
+      data: cleanedData,
     });
   };
 
@@ -451,7 +464,7 @@ export default function Inventory() {
                           <input
                             type="number"
                             value={editFormData.year || ''}
-                            onChange={(e) => setEditFormData({ ...editFormData, year: Number(e.target.value) })}
+                            onChange={(e) => setEditFormData({ ...editFormData, year: e.target.value ? Number(e.target.value) : undefined as any })}
                             className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             required
                           />
@@ -511,7 +524,7 @@ export default function Inventory() {
                           <input
                             type="number"
                             value={editFormData.mileage || ''}
-                            onChange={(e) => setEditFormData({ ...editFormData, mileage: Number(e.target.value) })}
+                            onChange={(e) => setEditFormData({ ...editFormData, mileage: e.target.value ? Number(e.target.value) : undefined as any })}
                             className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
                             required
                           />
@@ -523,7 +536,7 @@ export default function Inventory() {
                           <input
                             type="number"
                             value={editFormData.price || ''}
-                            onChange={(e) => setEditFormData({ ...editFormData, price: Number(e.target.value) })}
+                            onChange={(e) => setEditFormData({ ...editFormData, price: e.target.value ? Number(e.target.value) : undefined as any })}
                             className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             required
                           />
@@ -535,7 +548,7 @@ export default function Inventory() {
                           <input
                             type="number"
                             value={editFormData.cost || ''}
-                            onChange={(e) => setEditFormData({ ...editFormData, cost: Number(e.target.value) })}
+                            onChange={(e) => setEditFormData({ ...editFormData, cost: e.target.value ? Number(e.target.value) : undefined as any })}
                             className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
@@ -632,23 +645,14 @@ export default function Inventory() {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                      <div className="flex gap-3">
-                        <button
-                          onClick={handleSaveEdit}
-                          disabled={updateMutation.isPending}
-                          className="flex-1 m3-button-filled flex items-center justify-center gap-2"
-                        >
-                          <Save className="w-5 h-5" />
-                          {updateMutation.isPending ? "Saving..." : "Save Changes"}
-                        </button>
-                        <button
-                          onClick={() => setIsEditing(false)}
-                          disabled={updateMutation.isPending}
-                          className="flex-1 m3-button-outlined"
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                      <button
+                        onClick={handleSaveEdit}
+                        disabled={updateMutation.isPending}
+                        className="w-full m3-button-filled flex items-center justify-center gap-2"
+                      >
+                        <Save className="w-5 h-5" />
+                        {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                      </button>
 
                       {/* Status Change Buttons */}
                       <div className="grid grid-cols-3 gap-2">
