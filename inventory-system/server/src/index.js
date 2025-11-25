@@ -158,6 +158,7 @@ app.use('/api/submissions', require('./routes/submissions'));
 app.use('/api/inventory', require('./routes/inventory'));
 app.use('/api/exports', require('./routes/exports'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/migrations', require('./routes/migrations'));
 
 // Standardized error handling
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
