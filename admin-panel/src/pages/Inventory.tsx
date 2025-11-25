@@ -26,6 +26,7 @@ export default function Inventory() {
   const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState<Partial<InventoryItem>>({});
   const [page, setPage] = useState(1);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Fetch inventory
   const { data, isLoading } = useQuery({
@@ -50,9 +51,11 @@ export default function Inventory() {
       queryClient.invalidateQueries({ queryKey: ["inventoryStats"] });
       toast.success("Vehicle deleted from inventory");
       setSelectedItem(null);
+      setShowDeleteConfirm(false);
     },
     onError: (error: Error) => {
       toast.error(`Failed to delete: ${error.message}`);
+      setShowDeleteConfirm(false);
     },
   });
 
@@ -316,7 +319,6 @@ export default function Inventory() {
                     </h3>
 
                     <div className="flex items-center gap-2 mb-3">
-                      <DollarSign className="w-4 h-4 text-primary" />
                       <span className="text-xl font-bold text-primary">
                         {formatCurrency(item.price)}
                       </span>
@@ -690,7 +692,7 @@ export default function Inventory() {
 
                       {/* Delete Button */}
                       <button
-                        onClick={() => deleteMutation.mutate(selectedItem.id as number)}
+                        onClick={() => setShowDeleteConfirm(true)}
                         disabled={deleteMutation.isPending}
                         className="m3-button-outlined border-red-600 text-red-600 hover:bg-red-50"
                       >
@@ -747,6 +749,12 @@ export default function Inventory() {
                         </p>
                       </div>
                       <div>
+                        <span className="text-muted-foreground">Cost:</span>
+                        <p className="font-medium text-foreground">
+                          {selectedItem.cost ? formatCurrency(selectedItem.cost) : 'N/A'}
+                        </p>
+                      </div>
+                      <div>
                         <span className="text-muted-foreground">Exterior Color:</span>
                         <p className="font-medium text-foreground">
                           {selectedItem.exteriorColor || selectedItem.exterior_color || 'N/A'}
@@ -792,6 +800,59 @@ export default function Inventory() {
                   )}
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && selectedItem && (
+        <div
+          className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div
+            className="bg-background rounded-lg max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-4 mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Delete Vehicle
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Are you sure you want to delete this vehicle from inventory?
+                </p>
+                <p className="text-sm font-medium text-foreground mt-2">
+                  {selectedItem.year} {selectedItem.make} {selectedItem.model}
+                  {selectedItem.trim && ` ${selectedItem.trim}`}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  VIN: {selectedItem.vin}
+                </p>
+                <p className="text-sm text-red-600 font-medium mt-3">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleteMutation.isPending}
+                className="flex-1 m3-button-outlined"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteMutation.mutate(selectedItem.id as number)}
+                disabled={deleteMutation.isPending}
+                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              </button>
             </div>
           </div>
         </div>
