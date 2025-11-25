@@ -31,6 +31,7 @@ export default function Submissions() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Fetch submissions
   const { data, isLoading } = useQuery({
@@ -74,9 +75,11 @@ export default function Submissions() {
       queryClient.invalidateQueries({ queryKey: ["submissions"] });
       toast.success("Submission deleted");
       setSelectedSubmission(null);
+      setShowDeleteConfirm(false);
     },
     onError: (error: Error) => {
       toast.error(`Failed to delete: ${error.message}`);
+      setShowDeleteConfirm(false);
     },
   });
 
@@ -367,7 +370,10 @@ export default function Submissions() {
                         </>
                       )}
                       <button
-                        onClick={() => deleteMutation.mutate(submission.id)}
+                        onClick={() => {
+                          setSelectedSubmission(submission);
+                          setShowDeleteConfirm(true);
+                        }}
                         disabled={deleteMutation.isPending}
                         className="m3-button-text text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 text-sm"
                       >
@@ -689,6 +695,62 @@ export default function Submissions() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && selectedSubmission && (
+        <div
+          className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div
+            className="bg-background rounded-lg max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-4 mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Delete Submission
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Are you sure you want to delete this vehicle submission?
+                </p>
+                <p className="text-sm font-medium text-foreground mt-2">
+                  {selectedSubmission.year} {selectedSubmission.make} {selectedSubmission.model}
+                  {selectedSubmission.trim && ` ${selectedSubmission.trim}`}
+                </p>
+                <p className="text-sm mt-1">
+                  <span className="text-muted-foreground">VIN:</span> <span className="vin-text text-foreground">{selectedSubmission.vin}</span>
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Submitted by: {selectedSubmission.customerName}
+                </p>
+                <p className="text-sm text-red-600 font-medium mt-3">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleteMutation.isPending}
+                className="flex-1 m3-button-outlined"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteMutation.mutate(selectedSubmission.id)}
+                disabled={deleteMutation.isPending}
+                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </AdminLayout>
