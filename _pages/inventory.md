@@ -1,6 +1,7 @@
 ---
-layout: page
-title: Inventory - Browse Our Vehicles
+layout: default
+title: Inventory
+subtitle: Quality Pre-Owned Vehicles at Unbeatable Prices
 description: Browse our complete inventory of quality pre-owned vehicles. Find your perfect car today.
 permalink: /inventory/
 ---
@@ -14,12 +15,23 @@ permalink: /inventory/
     </div>
   </div>
 
-  <!-- Filters and Results -->
-  <div class="container mx-auto px-4 py-8">
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+  <!-- Breadcrumb -->
+  <div class="bg-gray-100 py-3">
+    <div class="container mx-auto px-4">
+      <nav class="text-sm">
+        <a href="/" class="text-gray-600 hover:text-primary">Home</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <span class="text-gray-900">Inventory</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Filters and Results - FULL WIDTH -->
+  <div class="w-full px-4 lg:px-8 xl:px-12 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[300px_1fr] gap-6 lg:gap-8">
 
       <!-- Sidebar Filters -->
-      <aside class="lg:col-span-1">
+      <aside class="w-full">
         <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-900">Filters</h2>
@@ -103,7 +115,7 @@ permalink: /inventory/
       </aside>
 
       <!-- Vehicle Grid -->
-      <div class="lg:col-span-3">
+      <div class="w-full">
 
         <!-- Results Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
