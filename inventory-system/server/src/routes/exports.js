@@ -15,11 +15,9 @@ const { isManagerOrAdmin } = require('../middleware/auth');
  * All export routes require Manager or Admin role
  */
 
-// Export to Jekyll
-router.post('/jekyll',
-  isManagerOrAdmin,
-  exportJekyll
-);
+// Export to Jekyll (GET for automated sync, POST for manual export)
+router.get('/jekyll', exportJekyll); // Public endpoint for automated sync
+router.post('/jekyll', isManagerOrAdmin, exportJekyll); // Admin-only manual export
 
 // Export to Dealer Center
 router.post('/dealer-center',
