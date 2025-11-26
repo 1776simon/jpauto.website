@@ -116,20 +116,64 @@ description: Sacramento's trusted source for quality pre-owned vehicles. Browse 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
     {% assign featured_vehicles = site.vehicles | where: "featured", true | sort: "date_added" | reverse %}
     {% for vehicle in featured_vehicles limit:6 %}
-    <div class="border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
-      <div class="w-full h-48 bg-gray-300 overflow-hidden">
-        <img src="{{ vehicle.primary_image }}" alt="{{ vehicle.title }}" class="w-full h-full object-cover">
+    <div class="border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300 flex flex-col">
+      <!-- Vehicle Image -->
+      <div class="w-full h-48 bg-gray-300 overflow-hidden relative">
+        {% if vehicle.primary_image %}
+          <img src="{{ vehicle.primary_image }}" alt="{{ vehicle.title }}" class="w-full h-full object-cover" loading="lazy">
+        {% else %}
+          <div class="w-full h-full flex items-center justify-center bg-gray-200">
+            <span class="text-gray-400 text-4xl">🚗</span>
+          </div>
+        {% endif %}
+        <div class="absolute top-2 right-2 bg-primary text-white px-3 py-1 rounded-full text-xs font-bold">
+          FEATURED
+        </div>
       </div>
-      <div class="p-6">
-        <h3 class="text-xl font-bold mb-2">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h3>
-        <p class="text-primary text-3xl font-bold my-4">${{ vehicle.price | divided_by: 1.0 | round | number_with_delimiter }}</p>
-        <ul class="space-y-2 mb-4 text-gray-600">
-          <li>📍 {{ vehicle.mileage | divided_by: 1000 }}K miles</li>
-          <li>⚙️ {{ vehicle.transmission }}</li>
-          <li>⛽ {{ vehicle.mpg_city }}/{{ vehicle.mpg_highway }} MPG</li>
-          <li>✅ {{ vehicle.title_status }} Title</li>
+
+      <!-- Vehicle Info -->
+      <div class="p-6 flex flex-col flex-grow">
+        <!-- Vehicle Title - Fixed height -->
+        <div class="h-16 mb-3">
+          <h3 class="text-lg font-bold text-gray-900 line-clamp-3">
+            {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+            {% if vehicle.trim %}<span class="text-gray-600">{{ vehicle.trim }}</span>{% endif %}
+          </h3>
+        </div>
+
+        <!-- Price -->
+        <p class="text-primary text-2xl font-bold mb-4">
+          ${{ vehicle.price | divided_by: 1.0 | round | number_with_delimiter }}
+        </p>
+
+        <!-- Vehicle Details - Consistent structure -->
+        <ul class="space-y-2 mb-4 text-gray-700 text-sm flex-grow">
+          <li class="flex items-center gap-2">
+            <span class="text-base">📍</span>
+            <span>{{ vehicle.mileage | divided_by: 1000 | round }}K miles</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-base">📄</span>
+            <span class="font-bold">{% if vehicle.title_status %}{{ vehicle.title_status }}{% else %}N/A{% endif %} Title</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-base">⚙️</span>
+            <span>{% if vehicle.transmission %}{{ vehicle.transmission }}{% else %}N/A{% endif %}</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-base">⛽</span>
+            <span>{% if vehicle.fuel_type %}{{ vehicle.fuel_type }}{% else %}N/A{% endif %}</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-base">🎨</span>
+            <span>{% if vehicle.exterior_color %}{{ vehicle.exterior_color }}{% else %}N/A{% endif %}</span>
+          </li>
         </ul>
-        <a href="{{ vehicle.url }}" class="inline-block w-full text-center px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300">View Details</a>
+
+        <!-- View Details Button -->
+        <a href="{{ vehicle.url }}" class="inline-block w-full text-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300 font-semibold mt-auto">
+          View Details
+        </a>
       </div>
     </div>
     {% endfor %}

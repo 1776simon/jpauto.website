@@ -31,20 +31,129 @@ layout: default
 
         <!-- Image Gallery -->
         <div class="mb-8">
-          <div class="bg-gray-200 rounded-lg overflow-hidden mb-4">
-            <img src="{{ page.primary_image }}" alt="{{ page.title }}" class="w-full h-96 object-cover">
+          <!-- Main Display Image -->
+          <div class="bg-gray-200 rounded-lg overflow-hidden mb-4 relative group">
+            <img id="main-image" src="{{ page.primary_image }}" alt="{{ page.title }}" class="w-full h-96 object-cover cursor-pointer" onclick="openLightbox(0)">
+
+            <!-- Navigation Arrows (appear on hover) -->
+            {% if page.images.size > 1 %}
+            <button onclick="previousImage()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </button>
+            <button onclick="nextImage()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+
+            <!-- Image Counter -->
+            <div class="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+              <span id="current-image-num">1</span> / {{ page.images.size }}
+            </div>
+            {% endif %}
           </div>
 
+          <!-- Thumbnail Grid -->
           {% if page.images %}
-          <div class="grid grid-cols-4 gap-2">
-            {% for image in page.images limit:4 %}
-            <div class="bg-gray-200 rounded overflow-hidden cursor-pointer hover:opacity-75 transition">
-              <img src="{{ image }}" alt="{{ page.title }}" class="w-full h-24 object-cover">
+          <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+            {% for image in page.images %}
+            <div class="thumbnail bg-gray-200 rounded overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition border-2 {% if forloop.first %}border-primary{% else %}border-transparent{% endif %}" onclick="changeImage({{ forloop.index0 }})">
+              <img src="{{ image }}" alt="{{ page.title }}" class="w-full h-20 object-cover">
             </div>
             {% endfor %}
           </div>
           {% endif %}
         </div>
+
+        <!-- Lightbox Modal -->
+        <div id="lightbox" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center">
+          <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white hover:text-gray-300 transition">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+
+          <button onclick="previousImage()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+
+          <img id="lightbox-image" src="{{ page.primary_image }}" alt="{{ page.title }}" class="max-h-[90vh] max-w-[90vw] object-contain">
+
+          <button onclick="nextImage()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+
+          <div class="absolute bottom-4 text-white text-lg">
+            <span id="lightbox-counter">1</span> / {{ page.images.size }}
+          </div>
+        </div>
+
+        <script>
+          // Image gallery functionality
+          const images = {{ page.images | jsonify }};
+          let currentIndex = 0;
+
+          function changeImage(index) {
+            currentIndex = index;
+            document.getElementById('main-image').src = images[index];
+            document.getElementById('lightbox-image').src = images[index];
+            document.getElementById('current-image-num').textContent = index + 1;
+            document.getElementById('lightbox-counter').textContent = index + 1;
+
+            // Update thumbnail borders
+            document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+              if (i === index) {
+                thumb.classList.remove('border-transparent');
+                thumb.classList.add('border-primary');
+              } else {
+                thumb.classList.remove('border-primary');
+                thumb.classList.add('border-transparent');
+              }
+            });
+          }
+
+          function nextImage() {
+            currentIndex = (currentIndex + 1) % images.length;
+            changeImage(currentIndex);
+          }
+
+          function previousImage() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            changeImage(currentIndex);
+          }
+
+          function openLightbox(index) {
+            currentIndex = index;
+            changeImage(index);
+            document.getElementById('lightbox').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+          }
+
+          function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+          }
+
+          // Keyboard navigation
+          document.addEventListener('keydown', (e) => {
+            if (document.getElementById('lightbox').classList.contains('hidden')) return;
+
+            if (e.key === 'ArrowLeft') previousImage();
+            if (e.key === 'ArrowRight') nextImage();
+            if (e.key === 'Escape') closeLightbox();
+          });
+
+          // Close lightbox when clicking outside image
+          document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') closeLightbox();
+          });
+        </script>
 
         <!-- Vehicle Description -->
         <div class="mb-8">

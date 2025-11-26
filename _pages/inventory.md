@@ -128,7 +128,7 @@ permalink: /inventory/
         </div>
 
         <!-- Vehicle Cards Grid -->
-        <div id="vehicle-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-8">
+        <div id="vehicle-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 mb-8">
           {% assign all_vehicles = site.vehicles | where: "status", "available" | sort: "date_added" | reverse %}
           {% for vehicle in all_vehicles %}
           <div class="vehicle-card border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
@@ -163,49 +163,56 @@ permalink: /inventory/
             </div>
 
             <!-- Vehicle Info -->
-            <div class="p-6">
-              <h3 class="text-xl font-bold mb-2 text-gray-900">
-                {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
-                {% if vehicle.trim %}<span class="text-gray-600 text-lg">{{ vehicle.trim }}</span>{% endif %}
-              </h3>
+            <div class="p-6 flex flex-col">
+              <!-- Vehicle Title - Fixed height for up to 4 lines -->
+              <div class="h-24 mb-3">
+                <h3 class="text-lg font-bold text-gray-900 line-clamp-4">
+                  {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+                  {% if vehicle.trim %}<span class="text-gray-600">{{ vehicle.trim }}</span>{% endif %}
+                </h3>
+              </div>
 
-              <p class="text-primary text-3xl font-bold my-4">
+              <!-- Price - Always shown -->
+              <p class="text-primary text-2xl font-bold mb-4">
                 ${{ vehicle.price | divided_by: 1.0 | round | number_with_delimiter }}
               </p>
 
-              <ul class="space-y-2 mb-4 text-gray-600 text-sm">
+              <!-- Vehicle Details - Fixed structure, always 6 lines -->
+              <ul class="space-y-2 mb-4 text-gray-700 text-sm flex-grow">
+                <!-- 1. Mileage - Always shown -->
                 <li class="flex items-center gap-2">
-                  <span>📍</span>
+                  <span class="text-base">📍</span>
                   <span>{{ vehicle.mileage | divided_by: 1000 | round }}K miles</span>
                 </li>
-                {% if vehicle.transmission %}
+
+                <!-- 2. Title Status - Always shown, document icon, bold -->
                 <li class="flex items-center gap-2">
-                  <span>⚙️</span>
-                  <span>{{ vehicle.transmission }}</span>
+                  <span class="text-base">📄</span>
+                  <span class="font-bold">{% if vehicle.title_status %}{{ vehicle.title_status }}{% else %}N/A{% endif %} Title</span>
                 </li>
-                {% endif %}
-                {% if vehicle.fuel_type %}
+
+                <!-- 3. Transmission - Always shown -->
                 <li class="flex items-center gap-2">
-                  <span>⛽</span>
-                  <span>{{ vehicle.fuel_type }}</span>
+                  <span class="text-base">⚙️</span>
+                  <span>{% if vehicle.transmission %}{{ vehicle.transmission }}{% else %}N/A{% endif %}</span>
                 </li>
-                {% endif %}
-                {% if vehicle.exterior_color %}
+
+                <!-- 4. Fuel Type - Always shown -->
                 <li class="flex items-center gap-2">
-                  <span>🎨</span>
-                  <span>{{ vehicle.exterior_color }}</span>
+                  <span class="text-base">⛽</span>
+                  <span>{% if vehicle.fuel_type %}{{ vehicle.fuel_type }}{% else %}N/A{% endif %}</span>
                 </li>
-                {% endif %}
-                {% if vehicle.title_status %}
+
+                <!-- 5. Exterior Color - Always shown -->
                 <li class="flex items-center gap-2">
-                  <span>✅</span>
-                  <span>{{ vehicle.title_status }} Title</span>
+                  <span class="text-base">🎨</span>
+                  <span>{% if vehicle.exterior_color %}{{ vehicle.exterior_color }}{% else %}N/A{% endif %}{% if vehicle.interior_color %} / {{ vehicle.interior_color }}{% endif %}</span>
                 </li>
-                {% endif %}
               </ul>
 
+              <!-- View Details Button -->
               <a href="{{ vehicle.url }}"
-                 class="inline-block w-full text-center px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300 font-semibold">
+                 class="inline-block w-full text-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300 font-semibold mt-auto">
                 View Details
               </a>
             </div>
