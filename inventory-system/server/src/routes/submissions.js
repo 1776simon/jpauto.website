@@ -11,6 +11,9 @@ const {
   deleteSubmission
 } = require('../controllers/submissionsController');
 const {
+  verifySubmissionImages
+} = require('../controllers/imageVerificationController');
+const {
   isAuthenticated,
   isManagerOrAdmin,
   isAdmin
@@ -90,6 +93,13 @@ router.delete('/:id',
   isAdmin,
   validateUUID,
   deleteSubmission
+);
+
+// Verify images for specific submission
+router.post('/:id/verify-images',
+  isAdmin,
+  validateUUID,
+  verifySubmissionImages
 );
 
 module.exports = router;

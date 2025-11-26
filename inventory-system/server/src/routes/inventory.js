@@ -14,6 +14,10 @@ const {
   getInventoryStats
 } = require('../controllers/inventoryController');
 const {
+  verifyInventoryImages,
+  verifyAllInventoryImages
+} = require('../controllers/imageVerificationController');
+const {
   isAuthenticated,
   isManagerOrAdmin,
   isAdmin,
@@ -115,6 +119,23 @@ router.delete('/:id',
   isAdmin,
   validateUUID,
   deleteInventory
+);
+
+/**
+ * Image Verification Routes
+ */
+
+// Verify all inventory images
+router.post('/verify-all-images',
+  isAdmin,
+  verifyAllInventoryImages
+);
+
+// Verify images for specific vehicle
+router.post('/:id/verify-images',
+  isAdmin,
+  validateUUID,
+  verifyInventoryImages
 );
 
 module.exports = router;
