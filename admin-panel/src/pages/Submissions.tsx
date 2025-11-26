@@ -702,7 +702,10 @@ export default function Submissions() {
       {showDeleteConfirm && selectedSubmission && (
         <div
           className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4"
-          onClick={() => setShowDeleteConfirm(false)}
+          onClick={() => {
+            setShowDeleteConfirm(false);
+            setSelectedSubmission(null);
+          }}
         >
           <div
             className="bg-background rounded-lg max-w-md w-full p-6"
@@ -736,7 +739,10 @@ export default function Submissions() {
             </div>
             <div className="flex gap-3">
               <button
-                onClick={() => setShowDeleteConfirm(false)}
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setSelectedSubmission(null);
+                }}
                 disabled={deleteMutation.isPending}
                 className="flex-1 m3-button-outlined"
               >
