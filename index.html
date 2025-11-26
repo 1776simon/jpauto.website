@@ -118,7 +118,7 @@ description: Sacramento's trusted source for quality pre-owned vehicles. Browse 
     {% for vehicle in featured_vehicles limit:6 %}
     <div class="border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300 flex flex-col">
       <!-- Vehicle Image -->
-      <div class="w-full h-56 bg-gray-300 overflow-hidden relative">
+      <div class="w-full h-64 bg-gray-300 overflow-hidden relative">
         {% if vehicle.primary_image %}
           <img src="{{ vehicle.primary_image }}" alt="{{ vehicle.title }}" class="w-full h-full object-cover" loading="lazy">
         {% else %}
@@ -134,8 +134,8 @@ description: Sacramento's trusted source for quality pre-owned vehicles. Browse 
       <!-- Vehicle Info -->
       <div class="p-6 flex flex-col flex-grow">
         <!-- Vehicle Title - Fixed height -->
-        <div class="h-16 mb-3">
-          <h3 class="text-lg font-bold text-gray-900 line-clamp-3">
+        <div class="h-12 mb-3">
+          <h3 class="text-lg font-bold text-gray-900 line-clamp-2">
             {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
             {% if vehicle.trim %}<span class="text-gray-600">{{ vehicle.trim }}</span>{% endif %}
           </h3>
