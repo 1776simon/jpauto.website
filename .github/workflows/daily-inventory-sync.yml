@@ -1,0 +1,200 @@
+name: Daily Inventory Sync
+
+# Sync inventory from backend to Jekyll website
+# Runs daily at 2 AM UTC and can be triggered manually
+
+on:
+  schedule:
+    # Run daily at 2:00 AM UTC (6:00 PM PST / 7:00 PM PDT)
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering from GitHub UI or API
+
+jobs:
+  sync-inventory:
+    name: Sync Inventory to Website
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # Required to commit and push changes
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Call Jekyll Export API
+        id: export
+        run: |
+          echo "📥 Fetching inventory from backend API..."
+
+          # Call the Jekyll export endpoint
+          HTTP_CODE=$(curl -X GET \
+            "${{ secrets.BACKEND_API_URL }}/api/exports/jekyll" \
+            -H "Accept: application/zip" \
+            -o inventory-export.zip \
+            -w "%{http_code}" \
+            -s)
+
+          echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Successfully fetched inventory export (HTTP $HTTP_CODE)"
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Failed to fetch inventory (HTTP $HTTP_CODE)"
+            echo "success=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Extract vehicle files
+        if: steps.export.outputs.success == 'true'
+        run: |
+          echo "📦 Extracting vehicle markdown files..."
+
+          # Create temporary directory
+          mkdir -p temp-export
+
+          # Extract zip file
+          unzip -q inventory-export.zip -d temp-export
+
+          # Count files
+          FILE_COUNT=$(find temp-export -name "*.md" | wc -l)
+          echo "Found $FILE_COUNT vehicle files"
+          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
+
+          if [ "$FILE_COUNT" -eq 0 ]; then
+            echo "⚠️ No vehicle files found in export"
+            exit 1
+          fi
+
+      - name: Update vehicle directory
+        id: update
+        if: steps.export.outputs.success == 'true'
+        run: |
+          echo "🔄 Updating _vehicles directory..."
+
+          # Backup current directory (in case of rollback needed)
+          if [ -d "_vehicles" ]; then
+            cp -r _vehicles _vehicles.backup
+          else
+            mkdir -p _vehicles
+          fi
+
+          # Clear current vehicles (only .md files, preserve any other files)
+          find _vehicles -name "*.md" -delete
+
+          # Copy new vehicle files
+          if [ -d "temp-export" ]; then
+            find temp-export -name "*.md" -exec cp {} _vehicles/ \;
+          fi
+
+          # Count final files
+          NEW_COUNT=$(find _vehicles -name "*.md" | wc -l)
+          echo "✅ Updated _vehicles directory with $NEW_COUNT files"
+          echo "vehicle_count=$NEW_COUNT" >> $GITHUB_OUTPUT
+
+          # Clean up
+          rm -rf temp-export inventory-export.zip
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet _vehicles/; then
+            echo "No changes detected in inventory"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in inventory"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          echo "💾 Committing inventory updates..."
+
+          # Configure git
+          git config user.name "JP Auto Inventory Bot"
+          git config user.email "noreply@jpautomotivegroup.com"
+
+          # Stage changes
+          git add _vehicles/
+
+          # Get vehicle count for commit message
+          VEHICLE_COUNT=$(find _vehicles -name "*.md" | wc -l)
+
+          # Commit
+          git commit -m "$(cat <<EOF
+          Automated inventory sync - $(date +%Y-%m-%d)
+
+          Updated vehicle inventory from backend system.
+
+          Total vehicles: $VEHICLE_COUNT
+          Sync time: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+          🤖 Automated sync via GitHub Actions
+          EOF
+          )"
+
+          # Push changes
+          git push
+
+          echo "✅ Changes committed and pushed"
+          echo "🚀 Jekyll rebuild will be triggered automatically"
+
+      - name: No changes summary
+        if: steps.check_changes.outputs.has_changes == 'false'
+        run: |
+          echo "ℹ️ Inventory sync completed - no changes detected"
+          echo "Current vehicle count: $(find _vehicles -name '*.md' | wc -l)"
+
+      - name: Sync summary
+        if: always()
+        run: |
+          echo "=================================================="
+          echo "📊 Daily Inventory Sync Summary"
+          echo "=================================================="
+          echo "⏰ Sync Time: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "📁 Vehicle Files: $(find _vehicles -name '*.md' | wc -l 2>/dev/null || echo 'N/A')"
+          echo "🔄 Changes: ${{ steps.check_changes.outputs.has_changes }}"
+          echo "✅ Status: ${{ job.status }}"
+          echo "=================================================="
+
+      - name: Cleanup on failure
+        if: failure()
+        run: |
+          echo "🔄 Cleaning up after failure..."
+
+          # Remove temporary files
+          rm -f inventory-export.zip
+          rm -rf temp-export
+
+          # Restore backup if exists
+          if [ -d "_vehicles.backup" ]; then
+            echo "Restoring from backup..."
+            rm -rf _vehicles
+            mv _vehicles.backup _vehicles
+          fi
+
+          echo "Cleanup completed"
+
+      - name: Remove backup on success
+        if: success()
+        run: |
+          if [ -d "_vehicles.backup" ]; then
+            rm -rf _vehicles.backup
+          fi
+
+  # Optional: Notify on failure (can be extended with Slack, Discord, etc.)
+  notify-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [sync-inventory]
+    if: failure()
+
+    steps:
+      - name: Log failure
+        run: |
+          echo "❌ Inventory sync failed"
+          echo "Check workflow logs for details"
+          echo "Manual sync may be required"

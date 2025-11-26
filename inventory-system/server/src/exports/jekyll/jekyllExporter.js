@@ -1,6 +1,8 @@
 const fs = require('fs').promises;
 const path = require('path');
 const matter = require('gray-matter');
+const archiver = require('archiver');
+const { createWriteStream } = require('fs');
 
 /**
  * Export inventory to Jekyll markdown files
@@ -229,8 +231,97 @@ const clearJekyllDirectory = async (outputPath = '../../../_vehicles') => {
   }
 };
 
+/**
+ * Export inventory to Jekyll markdown files as ZIP
+ * @param {Array} vehicles - Array of vehicle objects from database
+ * @returns {Promise<object>} - Export results with file path
+ */
+const exportToJekyllZip = async (vehicles) => {
+  try {
+    const results = {
+      success: [],
+      errors: [],
+      total: vehicles.length,
+      filePath: null
+    };
+
+    // Create temporary directory for markdown files
+    const tempDir = path.resolve(__dirname, '../../../temp-jekyll-export');
+    const zipPath = path.resolve(__dirname, '../../../jekyll-inventory-export.zip');
+
+    // Ensure temp directory exists
+    try {
+      await fs.access(tempDir);
+      // Clear existing files
+      const files = await fs.readdir(tempDir);
+      for (const file of files) {
+        await fs.unlink(path.join(tempDir, file));
+      }
+    } catch {
+      await fs.mkdir(tempDir, { recursive: true });
+    }
+
+    // Generate markdown files
+    for (const vehicle of vehicles) {
+      try {
+        const markdown = generateVehicleMarkdown(vehicle);
+        const fileName = generateFileName(vehicle);
+        const filePath = path.join(tempDir, fileName);
+
+        await fs.writeFile(filePath, markdown, 'utf8');
+
+        results.success.push({
+          vin: vehicle.vin,
+          fileName
+        });
+      } catch (error) {
+        results.errors.push({
+          vin: vehicle.vin,
+          error: error.message
+        });
+      }
+    }
+
+    // Create ZIP file
+    await new Promise((resolve, reject) => {
+      const output = createWriteStream(zipPath);
+      const archive = archiver('zip', {
+        zlib: { level: 9 } // Maximum compression
+      });
+
+      output.on('close', () => {
+        results.filePath = zipPath;
+        resolve();
+      });
+
+      archive.on('error', (err) => {
+        reject(err);
+      });
+
+      archive.pipe(output);
+
+      // Add all markdown files to zip
+      archive.directory(tempDir, false);
+
+      archive.finalize();
+    });
+
+    // Clean up temp directory
+    const files = await fs.readdir(tempDir);
+    for (const file of files) {
+      await fs.unlink(path.join(tempDir, file));
+    }
+    await fs.rmdir(tempDir);
+
+    return results;
+  } catch (error) {
+    throw new Error(`Jekyll ZIP export failed: ${error.message}`);
+  }
+};
+
 module.exports = {
   exportToJekyll,
+  exportToJekyllZip,
   generateVehicleMarkdown,
   generateFileName,
   deleteVehicleFile,

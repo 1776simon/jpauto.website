@@ -1,5 +1,5 @@
 const { Inventory } = require('../models');
-const { exportToJekyll } = require('../exports/jekyll/jekyllExporter');
+const { exportToJekyll, exportToJekyllZip } = require('../exports/jekyll/jekyllExporter');
 const { exportToDealerCenter } = require('../exports/dealer-center/dealerCenterExporter');
 const { exportToAutoTrader } = require('../exports/autotrader/autotraderExporter');
 const { exportToCarGurus } = require('../exports/cargurus/cargurusExporter');
@@ -82,17 +82,32 @@ const handleExport = async (req, res, config) => {
 
 /**
  * Export inventory to Jekyll
- * POST /api/exports/jekyll
+ * GET /api/exports/jekyll
  */
 const exportJekyll = async (req, res) => {
-  const outputPath = process.env.JEKYLL_EXPORT_PATH || path.resolve(__dirname, '../../../_vehicles');
-  return handleExport(req, res, {
-    exportFunction: (vehiclesData) => exportToJekyll(vehiclesData, outputPath),
-    exportType: 'jekyll',
-    displayName: 'Jekyll',
-    fieldPrefix: 'Jekyll',
-    downloadable: false
-  });
+  const { format = 'zip' } = req.query;
+
+  if (format === 'zip') {
+    // ZIP export for automated sync and manual download
+    return handleExport(req, res, {
+      exportFunction: exportToJekyllZip,
+      exportType: 'jekyll',
+      displayName: 'Jekyll',
+      fieldPrefix: 'Jekyll',
+      downloadable: true,
+      downloadFilename: `inventory-${new Date().toISOString().split('T')[0]}.zip`
+    });
+  } else {
+    // Direct file export (original functionality)
+    const outputPath = process.env.JEKYLL_EXPORT_PATH || path.resolve(__dirname, '../../../_vehicles');
+    return handleExport(req, res, {
+      exportFunction: (vehiclesData) => exportToJekyll(vehiclesData, outputPath),
+      exportType: 'jekyll',
+      displayName: 'Jekyll',
+      fieldPrefix: 'Jekyll',
+      downloadable: false
+    });
+  }
 };
 
 /**
