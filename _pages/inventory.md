@@ -154,7 +154,7 @@ permalink: /inventory/
                data-date="{{ vehicle.date_added }}">
 
             <!-- Vehicle Image -->
-            <div class="w-full h-48 bg-gray-300 overflow-hidden relative">
+            <div class="w-full h-56 bg-gray-300 overflow-hidden relative">
               {% if vehicle.primary_image %}
                 <img src="{{ vehicle.primary_image }}"
                      alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}"
@@ -176,9 +176,9 @@ permalink: /inventory/
 
             <!-- Vehicle Info -->
             <div class="p-6 flex flex-col">
-              <!-- Vehicle Title - Fixed height for up to 4 lines -->
-              <div class="h-24 mb-3">
-                <h3 class="text-lg font-bold text-gray-900 line-clamp-4">
+              <!-- Vehicle Title - Fixed height for up to 3 lines -->
+              <div class="h-16 mb-3">
+                <h3 class="text-lg font-bold text-gray-900 line-clamp-3">
                   {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
                   {% if vehicle.trim %}<span class="text-gray-600">{{ vehicle.trim }}</span>{% endif %}
                 </h3>
