@@ -1,5 +1,5 @@
 const { Inventory, PendingSubmission, User } = require('../models');
-const { uploadFile, deleteMultipleFiles, extractKeyFromUrl } = require('../services/r2Storage');
+const { uploadFile, deleteMultipleFiles, extractKeyFromUrl, uploadFileWithVerification } = require('../services/r2Storage');
 const { processVehicleImages, scanForVirus } = require('../services/imageProcessor');
 const { Op } = require('sequelize');
 
@@ -250,21 +250,29 @@ const uploadInventoryImages = async (req, res) => {
     const processedImages = await processVehicleImages(req.files, vehicle.vin);
 
     const imageUrls = [];
+    const failedUploads = [];
 
-    // Upload full-size images to R2
+    // Upload full-size images to R2 with verification
     for (const image of processedImages.fullSize) {
       // Optional: Scan for virus
       if (process.env.ENABLE_VIRUS_SCAN === 'true') {
         await scanForVirus(image.buffer);
       }
 
-      const url = await uploadFile(
+      const result = await uploadFileWithVerification(
         image.buffer,
         image.path,
         'image/jpeg'
       );
 
-      imageUrls.push(url);
+      if (result.success) {
+        imageUrls.push(result.url);
+      } else {
+        failedUploads.push({
+          fileName: image.fileName,
+          error: result.error
+        });
+      }
     }
 
     // Append to existing images or replace
@@ -291,12 +299,21 @@ const uploadInventoryImages = async (req, res) => {
       updatedBy: req.user.id
     });
 
-    res.json({
-      message: 'Images uploaded successfully',
+    const response = {
+      message: failedUploads.length > 0
+        ? `${imageUrls.length} images uploaded successfully, ${failedUploads.length} failed`
+        : 'Images uploaded and verified successfully',
       imageCount: imageUrls.length,
       totalImages: finalImages.length,
       images: finalImages
-    });
+    };
+
+    if (failedUploads.length > 0) {
+      response.failedUploads = failedUploads;
+      response.warning = 'Some images failed to upload after multiple retries';
+    }
+
+    res.json(response);
   } catch (error) {
     console.error('Error uploading images:', error);
     res.status(500).json({
