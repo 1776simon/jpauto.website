@@ -113,7 +113,7 @@ description: Sacramento's trusted source for quality pre-owned vehicles. Browse 
 <!-- Featured Vehicles -->
 <section id="inventory" class="container mx-auto my-16 px-4">
   <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Featured Vehicles</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  <div class="grid gap-6" style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));">
     {% assign featured_vehicles = site.vehicles | where: "featured", true | sort: "date_added" | reverse %}
     {% for vehicle in featured_vehicles limit:6 %}
     <div class="border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300 flex flex-col">

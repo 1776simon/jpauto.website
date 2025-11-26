@@ -128,7 +128,7 @@ permalink: /inventory/
         </div>
 
         <!-- Vehicle Cards Grid -->
-        <div id="vehicle-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 mb-8">
+        <div id="vehicle-grid" class="grid gap-6 mb-8" style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));">
           {% assign all_vehicles = site.vehicles | where: "status", "available" | sort: "date_added" | reverse %}
           {% for vehicle in all_vehicles %}
           <div class="vehicle-card border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
