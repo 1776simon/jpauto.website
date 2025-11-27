@@ -730,9 +730,12 @@ permalink: /financing/
       // Here you would normally send to your backend
       console.log('Form submitted:', Object.fromEntries(formData));
 
-      // Show success message
-      document.querySelector('.max-w-4xl').innerHTML = document.getElementById('successMessage').innerHTML;
-      document.getElementById('successMessage').classList.remove('hidden');
+      // Hide form and show success message
+      const formContainer = document.querySelector('.max-w-4xl > .bg-white');
+      const successMessage = document.getElementById('successMessage');
+
+      formContainer.style.display = 'none';
+      successMessage.classList.remove('hidden');
 
       // Scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
