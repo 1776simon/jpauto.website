@@ -664,7 +664,15 @@ permalink: /financing/
   const sameResidenceCheckbox = document.getElementById('sameResidence');
   const form = document.getElementById('financing-form');
 
-  // Define functions first
+  // Add active class styling first
+  const style = document.createElement('style');
+  style.textContent = `
+    .form-step { display: none; }
+    .form-step.active { display: block; }
+  `;
+  document.head.appendChild(style);
+
+  // Define functions
   function showStep(step) {
     // Hide all steps
     formSteps.forEach(s => s.classList.remove('active'));
@@ -903,14 +911,6 @@ permalink: /financing/
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
-
-  // Add active class styling
-  const style = document.createElement('style');
-  style.textContent = `
-    .form-step { display: none; }
-    .form-step.active { display: block; }
-  `;
-  document.head.appendChild(style);
 
   // ======================
   // VEHICLE FILTER SYSTEM
