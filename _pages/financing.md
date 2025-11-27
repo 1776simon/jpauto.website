@@ -684,13 +684,11 @@ document.addEventListener('DOMContentLoaded', function() {
       stepElement.classList.add('active');
     }
 
-    // Update buttons
+    // Update buttons (basic visibility, override function handles specifics)
     prevBtn.classList.toggle('hidden', step === 1);
 
-    // Check if we're on the last step (step 5 is always the vehicle/final step)
-    const isLastStep = step === 5;
-    nextBtn.classList.toggle('hidden', isLastStep);
-    submitBtn.classList.toggle('hidden', !isLastStep);
+    // Show Next button by default (override function will hide it when needed)
+    nextBtn.classList.remove('hidden');
 
     // Update progress indicators
     updateStepIndicators();
@@ -1114,25 +1112,30 @@ document.addEventListener('DOMContentLoaded', function() {
   const originalShowStep = showStep;
   showStep = function(step) {
     originalShowStep(step);
-    if (step === 5) {
-      populateVehicleFilters();
-      // Update button visibility
-      if (selectedVehicleData) {
-        nextBtn.classList.add('hidden');
-        reviewBtn.classList.remove('hidden');
-      } else {
-        reviewBtn.classList.add('hidden');
-      }
-    }
+
+    // Handle step-specific button visibility
     if (step === 6) {
+      // Review page: only show Back and Submit buttons
+      nextBtn.classList.add('hidden');
       reviewBtn.classList.add('hidden');
       submitBtn.classList.remove('hidden');
-    } else if (step === 5 && selectedVehicleData) {
-      nextBtn.classList.add('hidden');
-      reviewBtn.classList.remove('hidden');
+    } else if (step === 5) {
+      // Vehicle selection page
+      populateVehicleFilters();
+      if (selectedVehicleData) {
+        // Vehicle selected: show Back and Review Information buttons
+        nextBtn.classList.add('hidden');
+        reviewBtn.classList.remove('hidden');
+        submitBtn.classList.add('hidden');
+      } else {
+        // No vehicle selected: hide Review and Submit buttons
+        reviewBtn.classList.add('hidden');
+        submitBtn.classList.add('hidden');
+      }
     } else {
-      submitBtn.classList.add('hidden');
+      // Steps 1-4: only show Back and Next buttons
       reviewBtn.classList.add('hidden');
+      submitBtn.classList.add('hidden');
     }
   };
 
