@@ -664,6 +664,104 @@ permalink: /financing/
   const sameResidenceCheckbox = document.getElementById('sameResidence');
   const form = document.getElementById('financing-form');
 
+  // Define functions first
+  function showStep(step) {
+    // Hide all steps
+    formSteps.forEach(s => s.classList.remove('active'));
+
+    // Show current step
+    const actualStep = hasCoApplicant ? step : (step === 5 ? 5 : step);
+    const stepElement = document.querySelector(`.form-step[data-step="${actualStep}"]`);
+    if (stepElement) {
+      stepElement.classList.add('active');
+    }
+
+    // Update buttons
+    prevBtn.classList.toggle('hidden', step === 1);
+
+    // Check if we're on the last step (step 5 is always the vehicle/final step)
+    const isLastStep = step === 5;
+    nextBtn.classList.toggle('hidden', isLastStep);
+    submitBtn.classList.toggle('hidden', !isLastStep);
+
+    // Update progress indicators
+    updateStepIndicators();
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateStepIndicators() {
+    stepIndicators.forEach((indicator, index) => {
+      const indicatorStep = parseInt(indicator.dataset.step);
+      const circle = indicator.querySelector('div');
+      const text = indicator.querySelector('p');
+
+      // Skip step 4 if no co-applicant
+      if (indicatorStep === 4 && !hasCoApplicant) {
+        return;
+      }
+
+      if (indicatorStep < currentStep || (indicatorStep === 4 && currentStep === 5 && !hasCoApplicant)) {
+        circle.classList.remove('bg-gray-300', 'text-gray-600', 'bg-primary', 'text-white');
+        circle.classList.add('bg-green-500', 'text-white');
+        text.classList.remove('text-gray-600');
+        text.classList.add('text-green-600', 'font-semibold');
+      } else if (indicatorStep === currentStep) {
+        circle.classList.remove('bg-gray-300', 'text-gray-600', 'bg-green-500');
+        circle.classList.add('bg-primary', 'text-white');
+        text.classList.remove('text-gray-600', 'text-green-600');
+        text.classList.add('font-semibold');
+      } else {
+        circle.classList.remove('bg-primary', 'text-white', 'bg-green-500');
+        circle.classList.add('bg-gray-300', 'text-gray-600');
+        text.classList.remove('font-semibold', 'text-green-600');
+        text.classList.add('text-gray-600');
+      }
+    });
+  }
+
+  function updateFinalStepLabels() {
+    const finalStepNum = hasCoApplicant ? '5' : '4';
+    document.querySelectorAll('.final-step-num').forEach(el => {
+      el.textContent = finalStepNum;
+    });
+    document.querySelectorAll('.final-step-text').forEach(el => {
+      el.textContent = `Step ${finalStepNum}`;
+    });
+  }
+
+  function validateStep(step) {
+    const stepElement = document.querySelector(`.form-step[data-step="${step}"].active`);
+    if (!stepElement) return true;
+
+    const requiredFields = stepElement.querySelectorAll('[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+      // Skip disabled fields
+      if (field.disabled) return;
+
+      if (!field.value.trim()) {
+        isValid = false;
+        field.classList.add('border-red-500');
+
+        // Remove error styling on input
+        field.addEventListener('input', function() {
+          this.classList.remove('border-red-500');
+        }, { once: true });
+      } else {
+        field.classList.remove('border-red-500');
+      }
+    });
+
+    if (!isValid) {
+      alert('Please fill in all required fields.');
+    }
+
+    return isValid;
+  }
+
   // Initialize
   showStep(1);
 
@@ -805,103 +903,6 @@ permalink: /financing/
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
-
-  function showStep(step) {
-    // Hide all steps
-    formSteps.forEach(s => s.classList.remove('active'));
-
-    // Show current step
-    const actualStep = hasCoApplicant ? step : (step === 5 ? 5 : step);
-    const stepElement = document.querySelector(`.form-step[data-step="${actualStep}"]`);
-    if (stepElement) {
-      stepElement.classList.add('active');
-    }
-
-    // Update buttons
-    prevBtn.classList.toggle('hidden', step === 1);
-
-    // Check if we're on the last step (step 5 is always the vehicle/final step)
-    const isLastStep = step === 5;
-    nextBtn.classList.toggle('hidden', isLastStep);
-    submitBtn.classList.toggle('hidden', !isLastStep);
-
-    // Update progress indicators
-    updateStepIndicators();
-
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function updateStepIndicators() {
-    stepIndicators.forEach((indicator, index) => {
-      const indicatorStep = parseInt(indicator.dataset.step);
-      const circle = indicator.querySelector('div');
-      const text = indicator.querySelector('p');
-
-      // Skip step 4 if no co-applicant
-      if (indicatorStep === 4 && !hasCoApplicant) {
-        return;
-      }
-
-      if (indicatorStep < currentStep || (indicatorStep === 4 && currentStep === 5 && !hasCoApplicant)) {
-        circle.classList.remove('bg-gray-300', 'text-gray-600', 'bg-primary', 'text-white');
-        circle.classList.add('bg-green-500', 'text-white');
-        text.classList.remove('text-gray-600');
-        text.classList.add('text-green-600', 'font-semibold');
-      } else if (indicatorStep === currentStep) {
-        circle.classList.remove('bg-gray-300', 'text-gray-600', 'bg-green-500');
-        circle.classList.add('bg-primary', 'text-white');
-        text.classList.remove('text-gray-600', 'text-green-600');
-        text.classList.add('font-semibold');
-      } else {
-        circle.classList.remove('bg-primary', 'text-white', 'bg-green-500');
-        circle.classList.add('bg-gray-300', 'text-gray-600');
-        text.classList.remove('font-semibold', 'text-green-600');
-        text.classList.add('text-gray-600');
-      }
-    });
-  }
-
-  function updateFinalStepLabels() {
-    const finalStepNum = hasCoApplicant ? '5' : '4';
-    document.querySelectorAll('.final-step-num').forEach(el => {
-      el.textContent = finalStepNum;
-    });
-    document.querySelectorAll('.final-step-text').forEach(el => {
-      el.textContent = `Step ${finalStepNum}`;
-    });
-  }
-
-  function validateStep(step) {
-    const stepElement = document.querySelector(`.form-step[data-step="${step}"].active`);
-    if (!stepElement) return true;
-
-    const requiredFields = stepElement.querySelectorAll('[required]');
-    let isValid = true;
-
-    requiredFields.forEach(field => {
-      // Skip disabled fields
-      if (field.disabled) return;
-
-      if (!field.value.trim()) {
-        isValid = false;
-        field.classList.add('border-red-500');
-
-        // Remove error styling on input
-        field.addEventListener('input', function() {
-          this.classList.remove('border-red-500');
-        }, { once: true });
-      } else {
-        field.classList.remove('border-red-500');
-      }
-    });
-
-    if (!isValid) {
-      alert('Please fill in all required fields.');
-    }
-
-    return isValid;
-  }
 
   // Add active class styling
   const style = document.createElement('style');
