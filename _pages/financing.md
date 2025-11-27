@@ -756,8 +756,9 @@ permalink: /financing/
     // Update buttons
     prevBtn.classList.toggle('hidden', step === 1);
 
-    const isLastStep = (!hasCoApplicant && step === 4) || (hasCoApplicant && step === 5);
-    nextBtn.classList.toggle('hidden', step === (hasCoApplicant ? 5 : 4));
+    // Check if we're on the last step (step 5 is always the vehicle/final step)
+    const isLastStep = step === 5;
+    nextBtn.classList.toggle('hidden', isLastStep);
     submitBtn.classList.toggle('hidden', !isLastStep);
 
     // Update progress indicators
