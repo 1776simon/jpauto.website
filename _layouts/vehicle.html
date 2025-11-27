@@ -33,7 +33,13 @@ layout: default
         <div class="mb-8">
           <!-- Main Display Image -->
           <div class="bg-gray-200 rounded-lg overflow-hidden mb-4 relative group">
+            {% if page.primary_image and page.primary_image != "" %}
             <img id="main-image" src="{{ page.primary_image }}" alt="{{ page.title }}" class="w-full h-96 object-cover cursor-pointer" onclick="openLightbox(0)">
+            {% else %}
+            <div class="w-full h-96 flex items-center justify-center bg-gray-200">
+              <span class="text-gray-400 text-6xl">🚗</span>
+            </div>
+            {% endif %}
 
             <!-- Navigation Arrows (appear on hover) -->
             {% if page.images.size > 1 %}
@@ -59,9 +65,11 @@ layout: default
           {% if page.images %}
           <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
             {% for image in page.images %}
+            {% if image and image != "" %}
             <div class="thumbnail bg-gray-200 rounded overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition border-2 {% if forloop.first %}border-primary{% else %}border-transparent{% endif %}" onclick="changeImage({{ forloop.index0 }})">
               <img src="{{ image }}" alt="{{ page.title }}" class="w-full h-20 object-cover">
             </div>
+            {% endif %}
             {% endfor %}
           </div>
           {% endif %}
@@ -81,7 +89,13 @@ layout: default
             </svg>
           </button>
 
+          {% if page.primary_image and page.primary_image != "" %}
           <img id="lightbox-image" src="{{ page.primary_image }}" alt="{{ page.title }}" class="max-h-[90vh] max-w-[90vw] object-contain">
+          {% else %}
+          <div class="max-h-[90vh] max-w-[90vw] flex items-center justify-center">
+            <span class="text-gray-400 text-9xl">🚗</span>
+          </div>
+          {% endif %}
 
           <button onclick="nextImage()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -303,7 +317,13 @@ layout: default
         {% assign similar = site.vehicles | where_exp: "vehicle", "vehicle.make == page.make" | where_exp: "vehicle", "vehicle.url != page.url" | limit: 3 %}
         {% for vehicle in similar %}
         <a href="{{ vehicle.url }}" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+          {% if vehicle.primary_image and vehicle.primary_image != "" %}
           <img src="{{ vehicle.primary_image }}" alt="{{ vehicle.title }}" class="w-full h-48 object-cover">
+          {% else %}
+          <div class="w-full h-48 flex items-center justify-center bg-gray-200">
+            <span class="text-gray-400 text-4xl">🚗</span>
+          </div>
+          {% endif %}
           <div class="p-4">
             <h3 class="font-bold text-lg text-gray-900">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h3>
             <p class="text-2xl font-bold text-primary mt-2">${{ vehicle.price | divided_by: 1.0 | round | number_with_delimiter }}</p>
