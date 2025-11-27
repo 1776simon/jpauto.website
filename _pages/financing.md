@@ -812,58 +812,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Vehicle dropdowns - populate from inventory
-  const vehicleYearSelect = document.getElementById('vehicleYear');
-  const vehicleMakeSelect = document.getElementById('vehicleMake');
-  const vehicleModelSelect = document.getElementById('vehicleModel');
-
-  // Populate makes from inventory
-  function populateVehicleMakes() {
-    const makes = new Set();
-    vehicleDataItems.forEach(item => {
-      const make = item.dataset.make;
-      if (make) makes.add(make);
-    });
-
-    Array.from(makes).sort().forEach(make => {
-      const option = document.createElement('option');
-      option.value = make;
-      option.textContent = make;
-      vehicleMakeSelect.appendChild(option);
-    });
-  }
-
-  // Update models based on make
-  vehicleMakeSelect.addEventListener('change', function() {
-    const selectedMake = this.value;
-    vehicleModelSelect.innerHTML = '<option value="">Select Model...</option>';
-
-    if (!selectedMake) {
-      vehicleModelSelect.disabled = true;
-      return;
-    }
-
-    const models = new Set();
-    vehicleDataItems.forEach(item => {
-      if (item.dataset.make === selectedMake) {
-        const model = item.dataset.model;
-        if (model) models.add(model);
-      }
-    });
-
-    Array.from(models).sort().forEach(model => {
-      const option = document.createElement('option');
-      option.value = model;
-      option.textContent = model;
-      vehicleModelSelect.appendChild(option);
-    });
-
-    vehicleModelSelect.disabled = false;
-  });
-
-  // Initialize vehicle dropdowns
-  populateVehicleMakes();
-
   // Navigation
   nextBtn.addEventListener('click', function() {
     if (validateStep(currentStep)) {
