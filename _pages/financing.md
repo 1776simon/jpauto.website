@@ -667,8 +667,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Add active class styling first
   const style = document.createElement('style');
   style.textContent = `
-    .form-step { display: none; }
-    .form-step.active { display: block; }
+    .form-step { display: none !important; }
+    .form-step.active { display: block !important; }
   `;
   document.head.appendChild(style);
 
