@@ -493,53 +493,114 @@ permalink: /financing/
 
           <!-- Step 5: Vehicle Selection -->
           <div class="form-step" data-step="5">
-            <h2 class="text-2xl font-bold mb-6"><span class="final-step-text">Step 4</span>: Vehicle Selection</h2>
+            <h2 class="text-2xl font-bold mb-6"><span class="final-step-text">Step 4</span>: Choose Vehicle</h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div>
-                <label class="block text-sm font-semibold mb-2">Year</label>
-                <select name="vehicleYear" id="vehicleYear" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                  <option value="">Select Year...</option>
-                  <option value="2025">2025</option>
-                  <option value="2024">2024</option>
-                  <option value="2023">2023</option>
-                  <option value="2022">2022</option>
-                  <option value="2021">2021</option>
-                  <option value="2020">2020</option>
-                  <option value="2019">2019</option>
-                  <option value="2018">2018</option>
-                  <option value="2017">2017</option>
-                  <option value="2016">2016</option>
-                  <option value="2015">2015</option>
-                </select>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- Left: Filters -->
+              <div class="lg:col-span-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2">Year</label>
+                    <select name="vehicleYear" id="vehicleYear" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                      <option value="">Year</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2">Make</label>
+                    <select name="vehicleMake" id="vehicleMake" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                      <option value="">Make</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2">Model</label>
+                    <select name="vehicleModel" id="vehicleModel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                      <option value="">Model</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button type="button" id="resetVehicleSearch" class="mb-4 text-sm text-gray-600 hover:text-primary">Reset Search</button>
+
+                <!-- Vehicle List -->
+                <div id="vehicleList" class="space-y-3 max-h-96 overflow-y-auto">
+                  <!-- Will be populated by JavaScript -->
+                </div>
+
+                <div id="noVehiclesMessage" class="hidden text-center py-8 text-gray-500">
+                  No vehicles match your search criteria.
+                </div>
+
+                <div class="mt-6">
+                  <label class="block text-sm font-semibold mb-2">Down Payment ($)</label>
+                  <input type="number" name="downPayment" id="downPayment" placeholder="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+
+                <div class="mt-6">
+                  <label class="block text-sm font-semibold mb-2">Additional Comments</label>
+                  <textarea name="comments" id="comments" rows="4" placeholder="Any additional information you'd like to share..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                </div>
               </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Make</label>
-                <select name="vehicleMake" id="vehicleMake" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                  <option value="">Select Make...</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Model</label>
-                <select name="vehicleModel" id="vehicleModel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                  <option value="">Select Model...</option>
-                </select>
+
+              <!-- Right: Selected Vehicle Preview -->
+              <div class="lg:col-span-1">
+                <div class="bg-gray-50 rounded-lg p-4 sticky top-4">
+                  <h3 class="text-lg font-semibold mb-4">Selected Vehicle</h3>
+                  <div id="selectedVehiclePreview" class="text-center text-gray-500">
+                    <p class="mb-2">No vehicle selected</p>
+                    <p class="text-sm">Select a vehicle from the list</p>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
 
-            <div class="mb-6">
-              <label class="block text-sm font-semibold mb-2">Down Payment</label>
-              <input type="number" name="downPayment" placeholder="$" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          <!-- Step 6: Review Information -->
+          <div class="form-step" data-step="6">
+            <h2 class="text-2xl font-bold mb-6">Review Your Information</h2>
+
+            <!-- Personal Information Summary -->
+            <div class="bg-white border rounded-lg p-6 mb-4">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Personal Information</h3>
+                <button type="button" class="edit-btn text-primary hover:text-primary-dark font-semibold" data-step="1">Edit</button>
+              </div>
+              <div id="reviewPersonal" class="grid grid-cols-2 gap-4 text-sm"></div>
             </div>
 
-            <div id="vehicleDetails" class="bg-gray-50 p-6 rounded-lg mb-6 hidden">
-              <h3 class="text-lg font-semibold mb-4">Selected Vehicle</h3>
-              <div id="vehicleInfo"></div>
+            <!-- Residence Summary -->
+            <div class="bg-white border rounded-lg p-6 mb-4">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Residence Information</h3>
+                <button type="button" class="edit-btn text-primary hover:text-primary-dark font-semibold" data-step="2">Edit</button>
+              </div>
+              <div id="reviewResidence" class="grid grid-cols-2 gap-4 text-sm"></div>
             </div>
 
-            <div class="mb-6">
-              <label class="block text-sm font-semibold mb-2">Additional Comments</label>
-              <textarea name="comments" rows="4" placeholder="Any additional information you'd like to share..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+            <!-- Employment Summary -->
+            <div class="bg-white border rounded-lg p-6 mb-4">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Employment Information</h3>
+                <button type="button" class="edit-btn text-primary hover:text-primary-dark font-semibold" data-step="3">Edit</button>
+              </div>
+              <div id="reviewEmployment" class="grid grid-cols-2 gap-4 text-sm"></div>
+            </div>
+
+            <!-- Co-Applicant Summary (if applicable) -->
+            <div id="reviewCoApplicantSection" class="bg-white border rounded-lg p-6 mb-4 hidden">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Co-Applicant Information</h3>
+                <button type="button" class="edit-btn text-primary hover:text-primary-dark font-semibold" data-step="4">Edit</button>
+              </div>
+              <div id="reviewCoApplicant" class="grid grid-cols-2 gap-4 text-sm"></div>
+            </div>
+
+            <!-- Vehicle Summary -->
+            <div class="bg-white border rounded-lg p-6 mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Vehicle Selection</h3>
+                <button type="button" class="edit-btn text-primary hover:text-primary-dark font-semibold" data-step="5">Edit</button>
+              </div>
+              <div id="reviewVehicle" class="grid grid-cols-2 gap-4 text-sm"></div>
             </div>
 
             <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
@@ -556,6 +617,9 @@ permalink: /financing/
             </button>
             <button type="button" id="nextBtn" class="ml-auto px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
               Next &gt;
+            </button>
+            <button type="button" id="reviewBtn" class="ml-auto px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold hidden">
+              Review Information &gt;
             </button>
             <button type="submit" id="submitBtn" class="ml-auto px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold hidden">
               Submit Application &gt;
@@ -846,6 +910,283 @@ permalink: /financing/
     .form-step.active { display: block; }
   `;
   document.head.appendChild(style);
+
+  // ======================
+  // VEHICLE FILTER SYSTEM
+  // ======================
+
+  let selectedVehicleData = null;
+  let allVehicles = [];
+  const vehicleYearSelect = document.getElementById('vehicleYear');
+  const vehicleMakeSelect = document.getElementById('vehicleMake');
+  const vehicleModelSelect = document.getElementById('vehicleModel');
+  const vehicleList = document.getElementById('vehicleList');
+  const selectedVehiclePreview = document.getElementById('selectedVehiclePreview');
+  const noVehiclesMessage = document.getElementById('noVehiclesMessage');
+  const resetVehicleSearch = document.getElementById('resetVehicleSearch');
+  const reviewBtn = document.getElementById('reviewBtn');
+
+  // Parse vehicle data
+  vehicleDataItems.forEach(item => {
+    allVehicles.push({
+      year: item.dataset.year,
+      make: item.dataset.make,
+      model: item.dataset.model,
+      trim: item.dataset.trim || '',
+      price: parseFloat(item.dataset.price) || 0,
+      mileage: parseInt(item.dataset.mileage) || 0,
+      transmission: item.dataset.transmission || '',
+      fuelType: item.dataset.fuelType || '',
+      image: item.dataset.image || '',
+      url: item.dataset.url || ''
+    });
+  });
+
+  // Populate initial filters with counts
+  function populateVehicleFilters() {
+    const filters = getCurrentFilters();
+    const filteredVehicles = filterVehicles(filters);
+
+    // Populate Year
+    const years = {};
+    filteredVehicles.forEach(v => {
+      years[v.year] = (years[v.year] || 0) + 1;
+    });
+
+    vehicleYearSelect.innerHTML = '<option value="">Year</option>';
+    Object.keys(years).sort((a, b) => b - a).forEach(year => {
+      const option = document.createElement('option');
+      option.value = year;
+      option.textContent = `${year} (${years[year]})`;
+      if (filters.year === year) option.selected = true;
+      vehicleYearSelect.appendChild(option);
+    });
+
+    // Populate Make
+    const makes = {};
+    filteredVehicles.forEach(v => {
+      makes[v.make] = (makes[v.make] || 0) + 1;
+    });
+
+    vehicleMakeSelect.innerHTML = '<option value="">Make</option>';
+    Object.keys(makes).sort().forEach(make => {
+      const option = document.createElement('option');
+      option.value = make;
+      option.textContent = `${make} (${makes[make]})`;
+      if (filters.make === make) option.selected = true;
+      vehicleMakeSelect.appendChild(option);
+    });
+
+    // Populate Model
+    const models = {};
+    filteredVehicles.forEach(v => {
+      models[v.model] = (models[v.model] || 0) + 1;
+    });
+
+    vehicleModelSelect.innerHTML = '<option value="">Model</option>';
+    Object.keys(models).sort().forEach(model => {
+      const option = document.createElement('option');
+      option.value = model;
+      option.textContent = `${model} (${models[model]})`;
+      if (filters.model === model) option.selected = true;
+      vehicleModelSelect.appendChild(option);
+    });
+
+    displayVehicleList(filteredVehicles);
+  }
+
+  function getCurrentFilters() {
+    return {
+      year: vehicleYearSelect.value,
+      make: vehicleMakeSelect.value,
+      model: vehicleModelSelect.value
+    };
+  }
+
+  function filterVehicles(filters) {
+    return allVehicles.filter(v => {
+      if (filters.year && v.year !== filters.year) return false;
+      if (filters.make && v.make !== filters.make) return false;
+      if (filters.model && v.model !== filters.model) return false;
+      return true;
+    });
+  }
+
+  function displayVehicleList(vehicles) {
+    if (vehicles.length === 0) {
+      vehicleList.classList.add('hidden');
+      noVehiclesMessage.classList.remove('hidden');
+      return;
+    }
+
+    vehicleList.classList.remove('hidden');
+    noVehiclesMessage.classList.add('hidden');
+
+    vehicleList.innerHTML = vehicles.map((v, index) => `
+      <div class="vehicle-item border rounded-lg p-4 cursor-pointer hover:border-primary transition ${selectedVehicleData && selectedVehicleData.year === v.year && selectedVehicleData.make === v.make && selectedVehicleData.model === v.model && selectedVehicleData.trim === v.trim ? 'border-primary bg-primary/5' : ''}"
+           data-index="${index}">
+        <div class="flex gap-4">
+          <div class="w-24 h-16 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+            ${v.image ? `<img src="${v.image}" alt="${v.year} ${v.make} ${v.model}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-gray-400">🚗</div>'}
+          </div>
+          <div class="flex-1">
+            <h4 class="font-semibold">${v.year} ${v.make} ${v.model}${v.trim ? ' ' + v.trim : ''}</h4>
+            <p class="text-primary font-bold">$${v.price.toLocaleString()}</p>
+            <p class="text-sm text-gray-600">${(v.mileage / 1000).toFixed(0)}K miles • ${v.transmission}</p>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // Add click handlers
+    vehicleList.querySelectorAll('.vehicle-item').forEach((item, index) => {
+      item.addEventListener('click', () => selectVehicle(vehicles[index]));
+    });
+  }
+
+  function selectVehicle(vehicle) {
+    selectedVehicleData = vehicle;
+
+    // Update preview
+    selectedVehiclePreview.innerHTML = `
+      <div class="text-left">
+        ${vehicle.image ? `<img src="${vehicle.image}" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}" class="w-full h-32 object-cover rounded mb-3">` : '<div class="w-full h-32 bg-gray-200 rounded mb-3 flex items-center justify-center text-gray-400 text-3xl">🚗</div>'}
+        <h4 class="font-semibold mb-2">${vehicle.year} ${vehicle.make} ${vehicle.model}</h4>
+        ${vehicle.trim ? `<p class="text-sm text-gray-600 mb-2">${vehicle.trim}</p>` : ''}
+        <p class="text-primary font-bold text-xl mb-3">$${vehicle.price.toLocaleString()}</p>
+        <div class="text-sm text-gray-700 space-y-1">
+          <p>📍 ${(vehicle.mileage / 1000).toFixed(0)}K miles</p>
+          <p>⚙️ ${vehicle.transmission}</p>
+          <p>⛽ ${vehicle.fuelType}</p>
+        </div>
+      </div>
+    `;
+
+    // Refresh list to show selection
+    displayVehicleList(filterVehicles(getCurrentFilters()));
+
+    // Show review button instead of next
+    nextBtn.classList.add('hidden');
+    reviewBtn.classList.remove('hidden');
+  }
+
+  // Filter change handlers
+  vehicleYearSelect.addEventListener('change', populateVehicleFilters);
+  vehicleMakeSelect.addEventListener('change', populateVehicleFilters);
+  vehicleModelSelect.addEventListener('change', populateVehicleFilters);
+
+  // Reset search
+  resetVehicleSearch.addEventListener('click', () => {
+    vehicleYearSelect.value = '';
+    vehicleMakeSelect.value = '';
+    vehicleModelSelect.value = '';
+    selectedVehicleData = null;
+    selectedVehiclePreview.innerHTML = '<p class="mb-2">No vehicle selected</p><p class="text-sm">Select a vehicle from the list</p>';
+    reviewBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+    populateVehicleFilters();
+  });
+
+  // Review button handler
+  reviewBtn.addEventListener('click', () => {
+    if (selectedVehicleData) {
+      currentStep = 6;
+      populateReviewPage();
+      showStep(6);
+    }
+  });
+
+  // Populate review page
+  function populateReviewPage() {
+    const formData = new FormData(form);
+
+    // Personal Info
+    document.getElementById('reviewPersonal').innerHTML = `
+      <div><strong>Name:</strong> ${formData.get('firstName')} ${formData.get('middleInitial') || ''} ${formData.get('lastName')} ${formData.get('suffix') || ''}</div>
+      <div><strong>Email:</strong> ${formData.get('email')}</div>
+      <div><strong>Phone:</strong> ${formData.get('mobileNumber')}</div>
+      <div><strong>SSN:</strong> ***-**-${formData.get('ssn')?.slice(-4) || '****'}</div>
+      <div><strong>Driver's License:</strong> ${formData.get('driversLicense')}</div>
+      <div><strong>Birth Date:</strong> ${formData.get('birthDate')}</div>
+    `;
+
+    // Residence
+    document.getElementById('reviewResidence').innerHTML = `
+      <div><strong>Address:</strong> ${formData.get('currentAddress')}${formData.get('currentApt') ? ' ' + formData.get('currentApt') : ''}</div>
+      <div><strong>City, State, Zip:</strong> ${formData.get('currentCity')}, ${formData.get('currentState')} ${formData.get('currentZip')}</div>
+      <div><strong>Status:</strong> ${formData.get('residenceStatus')}</div>
+      <div><strong>Monthly Payment:</strong> $${formData.get('monthlyPayment')}</div>
+      <div><strong>Time at Residence:</strong> ${formData.get('yearsAtResidence')} years, ${formData.get('monthsAtResidence')} months</div>
+    `;
+
+    // Employment
+    document.getElementById('reviewEmployment').innerHTML = `
+      <div><strong>Employer:</strong> ${formData.get('companyName')}</div>
+      <div><strong>Phone:</strong> ${formData.get('employerPhone')}</div>
+      <div><strong>Job Title:</strong> ${formData.get('jobTitle')}</div>
+      <div><strong>Time at Company:</strong> ${formData.get('yearsAtCompany')} years, ${formData.get('monthsAtCompany')} months</div>
+      <div><strong>Monthly Income:</strong> $${formData.get('grossMonthlyIncome')}</div>
+    `;
+
+    // Co-Applicant
+    if (hasCoApplicant) {
+      document.getElementById('reviewCoApplicantSection').classList.remove('hidden');
+      document.getElementById('reviewCoApplicant').innerHTML = `
+        <div><strong>Name:</strong> ${formData.get('coFirstName')} ${formData.get('coMiddleInitial') || ''} ${formData.get('coLastName')}</div>
+        <div><strong>Email:</strong> ${formData.get('coEmail')}</div>
+        <div><strong>Phone:</strong> ${formData.get('coMobileNumber')}</div>
+        <div><strong>Employer:</strong> ${formData.get('coCompanyName')}</div>
+        <div><strong>Monthly Income:</strong> $${formData.get('coGrossMonthlyIncome')}</div>
+      `;
+    }
+
+    // Vehicle
+    if (selectedVehicleData) {
+      document.getElementById('reviewVehicle').innerHTML = `
+        <div><strong>Vehicle:</strong> ${selectedVehicleData.year} ${selectedVehicleData.make} ${selectedVehicleData.model} ${selectedVehicleData.trim}</div>
+        <div><strong>Price:</strong> $${selectedVehicleData.price.toLocaleString()}</div>
+        <div><strong>Mileage:</strong> ${(selectedVehicleData.mileage / 1000).toFixed(0)}K miles</div>
+        <div><strong>Down Payment:</strong> $${formData.get('downPayment') || '0'}</div>
+        ${formData.get('comments') ? `<div class="col-span-2"><strong>Comments:</strong> ${formData.get('comments')}</div>` : ''}
+      `;
+    }
+  }
+
+  // Edit button handlers
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetStep = parseInt(btn.dataset.step);
+      currentStep = targetStep;
+      showStep(targetStep);
+    });
+  });
+
+  // Initialize vehicle filters on step 5
+  const originalShowStep = showStep;
+  showStep = function(step) {
+    originalShowStep(step);
+    if (step === 5) {
+      populateVehicleFilters();
+      // Update button visibility
+      if (selectedVehicleData) {
+        nextBtn.classList.add('hidden');
+        reviewBtn.classList.remove('hidden');
+      } else {
+        reviewBtn.classList.add('hidden');
+      }
+    }
+    if (step === 6) {
+      reviewBtn.classList.add('hidden');
+      submitBtn.classList.remove('hidden');
+    } else if (step === 5 && selectedVehicleData) {
+      nextBtn.classList.add('hidden');
+      reviewBtn.classList.remove('hidden');
+    } else {
+      submitBtn.classList.add('hidden');
+      reviewBtn.classList.add('hidden');
+    }
+  };
+
 })();
 </script>
 
@@ -854,8 +1195,16 @@ permalink: /financing/
   {% assign all_vehicles = site.vehicles | where: "status", "available" %}
   {% for vehicle in all_vehicles %}
   <div class="vehicle-data-item"
+       data-year="{{ vehicle.year }}"
        data-make="{{ vehicle.make }}"
-       data-model="{{ vehicle.model }}">
+       data-model="{{ vehicle.model }}"
+       data-trim="{{ vehicle.trim }}"
+       data-price="{{ vehicle.price }}"
+       data-mileage="{{ vehicle.mileage }}"
+       data-transmission="{{ vehicle.transmission }}"
+       data-fuel-type="{{ vehicle.fuel_type }}"
+       data-image="{{ vehicle.primary_image }}"
+       data-url="{{ vehicle.url }}">
   </div>
   {% endfor %}
 </div>
