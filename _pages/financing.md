@@ -645,7 +645,7 @@ permalink: /financing/
 
 <!-- Multi-Step Form JavaScript -->
 <script>
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
   'use strict';
 
   let currentStep = 1;
@@ -1188,7 +1188,7 @@ permalink: /financing/
     }
   };
 
-})();
+});
 </script>
 
 <!-- Include vehicle data for dropdowns -->
