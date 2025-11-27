@@ -13,8 +13,7 @@ description: Sacramento's trusted source for quality pre-owned vehicles. Browse 
     <div class="absolute inset-0 z-10 bg-black/30 flex items-center justify-center text-center text-white px-4">
       <div>
         <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">Find Your Perfect Ride</h2>
-        <p class="text-lg md:text-xl lg:text-2xl mb-8 drop-shadow-md">Quality Pre-Owned Vehicles at Unbeatable Prices</p>
-        <a href="/inventory" class="inline-block px-8 py-4 bg-primary text-white rounded-lg text-lg font-semibold hover:bg-primary-dark transition-colors duration-300 shadow-lg">Browse Inventory</a>
+        <p class="text-lg md:text-xl lg:text-2xl drop-shadow-md">Quality Pre-Owned Vehicles at Unbeatable Prices</p>
       </div>
     </div>
   </div>
@@ -28,40 +27,140 @@ description: Sacramento's trusted source for quality pre-owned vehicles. Browse 
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label class="block text-sm font-semibold mb-2">Make</label>
-          <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-            <option>All Makes</option>
-            <option>Honda</option>
-            <option>Toyota</option>
-            <option>Ford</option>
-            <option>Chevrolet</option>
-            <option>Nissan</option>
+          <select id="home-filter-make" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="">All Makes</option>
           </select>
         </div>
         <div>
           <label class="block text-sm font-semibold mb-2">Model</label>
-          <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-            <option>All Models</option>
+          <select id="home-filter-model" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
+            <option value="">All Models</option>
           </select>
         </div>
         <div>
           <label class="block text-sm font-semibold mb-2">Price Range</label>
-          <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-            <option>Any Price</option>
-            <option>Under $15,000</option>
-            <option>$15,000 - $25,000</option>
-            <option>$25,000 - $35,000</option>
-            <option>Over $35,000</option>
+          <select id="home-filter-price" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="">Any Price</option>
+            <option value="0-15000">Under $15,000</option>
+            <option value="15000-25000">$15,000 - $25,000</option>
+            <option value="25000-35000">$25,000 - $35,000</option>
+            <option value="35000-50000">$35,000 - $50,000</option>
+            <option value="50000-999999">Over $50,000</option>
           </select>
         </div>
         <div class="flex items-end">
-          <a href="/inventory" class="w-full px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors duration-300 text-center">
+          <button id="home-search-btn" class="w-full px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors duration-300 text-center">
             Search Vehicles
-          </a>
+          </button>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<!-- Hidden vehicle data for filter population -->
+<div id="vehicle-data" style="display: none;">
+  {% assign all_vehicles = site.vehicles | where: "status", "available" %}
+  {% for vehicle in all_vehicles %}
+  <div class="vehicle-data-item"
+       data-make="{{ vehicle.make }}"
+       data-model="{{ vehicle.model }}"
+       data-price="{{ vehicle.price }}">
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Home Page Search Filter Script -->
+<script>
+(function() {
+  'use strict';
+
+  // Get all vehicle data
+  const vehicleDataItems = document.querySelectorAll('.vehicle-data-item');
+
+  // Filter elements
+  const filterMake = document.getElementById('home-filter-make');
+  const filterModel = document.getElementById('home-filter-model');
+  const filterPrice = document.getElementById('home-filter-price');
+  const searchBtn = document.getElementById('home-search-btn');
+
+  // Populate filter dropdowns from actual vehicle data
+  function populateFilters() {
+    const makes = new Set();
+
+    vehicleDataItems.forEach(item => {
+      const make = item.dataset.make;
+      if (make) makes.add(make);
+    });
+
+    // Populate Make dropdown
+    Array.from(makes).sort().forEach(make => {
+      const option = document.createElement('option');
+      option.value = make;
+      option.textContent = make;
+      filterMake.appendChild(option);
+    });
+  }
+
+  // Update model dropdown based on selected make
+  function updateModelFilter() {
+    const selectedMake = filterMake.value;
+    filterModel.innerHTML = '<option value="">All Models</option>';
+
+    if (!selectedMake) {
+      filterModel.disabled = true;
+      return;
+    }
+
+    const models = new Set();
+    vehicleDataItems.forEach(item => {
+      if (item.dataset.make === selectedMake) {
+        const model = item.dataset.model;
+        if (model) models.add(model);
+      }
+    });
+
+    Array.from(models).sort().forEach(model => {
+      const option = document.createElement('option');
+      option.value = model;
+      option.textContent = model;
+      filterModel.appendChild(option);
+    });
+
+    filterModel.disabled = false;
+  }
+
+  // Navigate to inventory page with filters
+  function searchVehicles() {
+    const params = new URLSearchParams();
+
+    if (filterMake.value) params.set('make', filterMake.value);
+    if (filterModel.value) params.set('model', filterModel.value);
+    if (filterPrice.value) params.set('price', filterPrice.value);
+
+    const queryString = params.toString();
+    const url = queryString ? `/inventory?${queryString}` : '/inventory';
+
+    window.location.href = url;
+  }
+
+  // Event listeners
+  filterMake.addEventListener('change', updateModelFilter);
+  searchBtn.addEventListener('click', searchVehicles);
+
+  // Allow Enter key to trigger search
+  [filterMake, filterModel, filterPrice].forEach(element => {
+    element.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchVehicles();
+      }
+    });
+  });
+
+  // Initialize
+  populateFilters();
+})();
+</script>
 
 <!-- Quick Links Section -->
 <section class="py-16 bg-gray-50">
