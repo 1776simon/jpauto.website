@@ -34,8 +34,8 @@ export default function Inventory() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [tempImages, setTempImages] = useState<string[]>([]);
+  const [isReordering, setIsReordering] = useState(false);
+  const [selectedPhotos, setSelectedPhotos] = useState<{url: string, order: number}[]>([]);
   const [vinDecoding, setVinDecoding] = useState(false);
   const [vinStatus, setVinStatus] = useState<{type: 'success' | 'error' | 'loading' | null, message: string}>({type: null, message: ''});
 
@@ -257,6 +257,8 @@ export default function Inventory() {
     setIsCreating(false);
     setEditFormData({});
     setVinStatus({ type: null, message: '' });
+    setIsReordering(false);
+    setSelectedPhotos([]);
   };
 
   const handleAddNewClick = () => {
@@ -334,38 +336,59 @@ export default function Inventory() {
     });
   };
 
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
+  const handleStartReordering = () => {
+    setIsReordering(true);
+    setSelectedPhotos([]);
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === index) return;
-
-    const images = [...(editFormData.images || [])];
-    const draggedImage = images[draggedIndex];
-    images.splice(draggedIndex, 1);
-    images.splice(index, 0, draggedImage);
-
-    setTempImages(images);
+  const handleCancelReordering = () => {
+    setIsReordering(false);
+    setSelectedPhotos([]);
   };
 
-  const handleDrop = (index: number) => {
-    if (draggedIndex === null || draggedIndex === index) {
-      setDraggedIndex(null);
-      setTempImages([]);
+  const handlePhotoClick = (imageUrl: string) => {
+    if (!isReordering) return;
+
+    const existingIndex = selectedPhotos.findIndex(p => p.url === imageUrl);
+
+    if (existingIndex !== -1) {
+      // Photo is already selected - deselect it and adjust order
+      const newSelected = selectedPhotos
+        .filter(p => p.url !== imageUrl)
+        .map((p, idx) => ({ url: p.url, order: idx + 1 }));
+      setSelectedPhotos(newSelected);
+    } else {
+      // Photo not selected - add it with next order number
+      const nextOrder = selectedPhotos.length + 1;
+      setSelectedPhotos([...selectedPhotos, { url: imageUrl, order: nextOrder }]);
+    }
+  };
+
+  const handleSavePhotoOrder = () => {
+    if (selectedPhotos.length === 0) {
+      toast.error('Please select photos in your desired order');
       return;
     }
 
-    const images = [...(editFormData.images || [])];
-    const draggedImage = images[draggedIndex];
-    images.splice(draggedIndex, 1);
-    images.splice(index, 0, draggedImage);
+    // Get current images
+    const currentImages = editFormData.images || [];
 
-    // Update local state only - will save when "Save changes" is clicked
-    setEditFormData({ ...editFormData, images });
-    setTempImages([]);
-    setDraggedIndex(null);
+    // Create ordered array: selected photos in order, then unselected photos
+    const selectedUrls = selectedPhotos
+      .sort((a, b) => a.order - b.order)
+      .map(p => p.url);
+
+    const unselectedUrls = currentImages.filter(url => !selectedUrls.includes(url));
+    const newImageOrder = [...selectedUrls, ...unselectedUrls];
+
+    // Update local state
+    setEditFormData({ ...editFormData, images: newImageOrder });
+
+    // Exit reordering mode
+    setIsReordering(false);
+    setSelectedPhotos([]);
+
+    toast.success('Photo order updated. Click "Save Changes" to persist.');
   };
 
   const handleDeletePhoto = (imageUrl: string) => {
@@ -378,7 +401,7 @@ export default function Inventory() {
     });
   };
 
-  const displayImages = tempImages.length > 0 ? tempImages : (editFormData.images || []);
+  const displayImages = editFormData.images || [];
 
   // VIN Decoder Function
   const decodeVIN = async () => {
@@ -1009,25 +1032,63 @@ export default function Inventory() {
                         </div>
                       ) : (
                         <>
-                          {/* Upload Button */}
+                          {/* Upload and Reorder Buttons */}
                           <div className="mb-4">
-                            <input
-                              type="file"
-                              id="photo-upload"
-                              multiple
-                              accept="image/*"
-                              onChange={handlePhotoUpload}
-                              className="hidden"
-                            />
-                            <label
-                              htmlFor="photo-upload"
-                              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg cursor-pointer hover:bg-primary/90 transition-colors"
-                            >
-                              <Upload className="w-4 h-4" />
-                              {uploadPhotosMutation.isPending ? 'Uploading...' : 'Upload Photos'}
-                            </label>
-                            <p className="text-xs text-muted-foreground mt-2">
-                              Drag photos to reorder. First photo is the primary image.
+                            <div className="flex items-center gap-3 mb-2">
+                              <input
+                                type="file"
+                                id="photo-upload"
+                                multiple
+                                accept="image/*"
+                                onChange={handlePhotoUpload}
+                                className="hidden"
+                              />
+                              <label
+                                htmlFor="photo-upload"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg cursor-pointer hover:bg-primary/90 transition-colors"
+                              >
+                                <Upload className="w-4 h-4" />
+                                {uploadPhotosMutation.isPending ? 'Uploading...' : 'Upload Photos'}
+                              </label>
+
+                              {!isReordering && displayImages.length > 1 && (
+                                <button
+                                  onClick={handleStartReordering}
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
+                                >
+                                  Click to Reorder
+                                </button>
+                              )}
+                            </div>
+
+                            {isReordering && (
+                              <div className="flex items-center gap-3 mb-2">
+                                <button
+                                  onClick={handleSavePhotoOrder}
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                >
+                                  <Save className="w-4 h-4" />
+                                  Save Order
+                                </button>
+                                <button
+                                  onClick={handleCancelReordering}
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                  Cancel
+                                </button>
+                                <span className="text-sm text-muted-foreground">
+                                  {selectedPhotos.length > 0
+                                    ? `${selectedPhotos.length} photo${selectedPhotos.length !== 1 ? 's' : ''} selected`
+                                    : 'Click photos in your desired order'}
+                                </span>
+                              </div>
+                            )}
+
+                            <p className="text-xs text-muted-foreground">
+                              {isReordering
+                                ? 'Click photos in the order you want them. Click again to deselect.'
+                                : 'First photo is the primary image.'}
                             </p>
                           </div>
                         </>
@@ -1036,37 +1097,56 @@ export default function Inventory() {
                       {/* Photo Grid */}
                       {!isCreating && displayImages.length > 0 && (
                         <div className="grid grid-cols-3 gap-3">
-                          {displayImages.map((img, idx) => (
-                            <div
-                              key={idx}
-                              draggable
-                              onDragStart={() => handleDragStart(idx)}
-                              onDragOver={(e) => handleDragOver(e, idx)}
-                              onDrop={() => handleDrop(idx)}
-                              className={`relative group cursor-move rounded-lg overflow-hidden border-2 ${
-                                idx === 0 ? 'border-primary' : 'border-border'
-                              } ${draggedIndex === idx ? 'opacity-50' : ''}`}
-                            >
-                              <img
-                                src={img}
-                                alt={`Photo ${idx + 1}`}
-                                className="w-full h-24 object-cover"
-                              />
-                              {idx === 0 && (
-                                <div className="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-1 rounded">
-                                  Primary
-                                </div>
-                              )}
-                              <button
-                                onClick={() => handleDeletePhoto(img)}
-                                disabled={deletePhotoMutation.isPending}
-                                className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                title="Delete photo"
+                          {displayImages.map((img, idx) => {
+                            const selectedPhoto = selectedPhotos.find(p => p.url === img);
+                            const isSelected = !!selectedPhoto;
+                            const orderNumber = selectedPhoto?.order;
+
+                            return (
+                              <div
+                                key={idx}
+                                onClick={() => isReordering ? handlePhotoClick(img) : undefined}
+                                className={`relative group rounded-lg overflow-hidden border-2 transition-all ${
+                                  isReordering ? 'cursor-pointer' : ''
+                                } ${
+                                  isSelected
+                                    ? 'border-green-500 ring-2 ring-green-500 ring-offset-2'
+                                    : idx === 0
+                                    ? 'border-primary'
+                                    : 'border-border'
+                                } ${isReordering && !isSelected ? 'opacity-60 hover:opacity-80' : ''}`}
                               >
-                                <X className="w-4 h-4" />
-                              </button>
-                            </div>
-                          ))}
+                                <img
+                                  src={img}
+                                  alt={`Photo ${idx + 1}`}
+                                  className="w-full h-24 object-cover"
+                                />
+                                {idx === 0 && !isReordering && (
+                                  <div className="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-1 rounded">
+                                    Primary
+                                  </div>
+                                )}
+                                {isReordering && isSelected && (
+                                  <div className="absolute top-1 left-1 bg-green-600 text-white text-sm font-bold w-7 h-7 rounded-full flex items-center justify-center shadow-lg">
+                                    {orderNumber}
+                                  </div>
+                                )}
+                                {!isReordering && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeletePhoto(img);
+                                    }}
+                                    disabled={deletePhotoMutation.isPending}
+                                    className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                    title="Delete photo"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
 
