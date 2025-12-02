@@ -252,27 +252,62 @@ const uploadInventoryImages = async (req, res) => {
     const imageUrls = [];
     const failedUploads = [];
 
-    // Upload full-size images to R2 with verification
-    for (const image of processedImages.fullSize) {
-      // Optional: Scan for virus
-      if (process.env.ENABLE_VIRUS_SCAN === 'true') {
-        await scanForVirus(image.buffer);
-      }
+    // Upload full-size images to R2 in parallel batches
+    const UPLOAD_BATCH_SIZE = 10; // Upload 10 images at a time
 
-      const result = await uploadFileWithVerification(
-        image.buffer,
-        image.path,
-        'image/jpeg'
+    for (let i = 0; i < processedImages.fullSize.length; i += UPLOAD_BATCH_SIZE) {
+      const batch = processedImages.fullSize.slice(i, i + UPLOAD_BATCH_SIZE);
+
+      const uploadResults = await Promise.all(
+        batch.map(async (image) => {
+          try {
+            // Optional: Scan for virus
+            if (process.env.ENABLE_VIRUS_SCAN === 'true') {
+              await scanForVirus(image.buffer);
+            }
+
+            const result = await uploadFileWithVerification(
+              image.buffer,
+              image.path,
+              'image/jpeg'
+            );
+
+            return {
+              success: result.success,
+              url: result.url,
+              fileName: image.fileName,
+              error: result.error
+            };
+          } catch (error) {
+            return {
+              success: false,
+              fileName: image.fileName,
+              error: error.message
+            };
+          }
+        })
       );
 
-      if (result.success) {
-        imageUrls.push(result.url);
-      } else {
-        failedUploads.push({
-          fileName: image.fileName,
-          error: result.error
-        });
-      }
+      // Collect results
+      uploadResults.forEach(result => {
+        if (result.success) {
+          imageUrls.push(result.url);
+        } else {
+          failedUploads.push({
+            fileName: result.fileName,
+            error: result.error
+          });
+        }
+      });
+    }
+
+    // Validate that at least some images uploaded successfully
+    if (imageUrls.length === 0 && processedImages.fullSize.length > 0) {
+      return res.status(500).json({
+        error: 'All image uploads failed',
+        message: 'Unable to upload any images. Please try again.',
+        failedUploads
+      });
     }
 
     // Append to existing images or replace

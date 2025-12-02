@@ -494,17 +494,52 @@
                         imageFormData.append('images', file);
                     });
 
-                    const imageResponse = await fetch(`${API_URL}/api/submissions/${submissionId}/images`, {
-                        method: 'POST',
-                        body: imageFormData
+                    // Use XMLHttpRequest for upload progress tracking
+                    await new Promise((resolve, reject) => {
+                        const xhr = new XMLHttpRequest();
+
+                        // Track upload progress
+                        xhr.upload.addEventListener('progress', (e) => {
+                            if (e.lengthComputable) {
+                                const uploadPercent = Math.round((e.loaded / e.total) * 100);
+                                const progressValue = 50 + (uploadPercent * 0.4); // 50% to 90%
+                                progressBar.style.width = `${progressValue}%`;
+                                progressText.textContent = `Uploading ${selectedFiles.length} photos... ${uploadPercent}%`;
+                            }
+                        });
+
+                        // Handle completion
+                        xhr.addEventListener('load', () => {
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                progressBar.style.width = '90%';
+                                progressText.textContent = 'Processing images on server...';
+
+                                // Wait a moment to show processing message
+                                setTimeout(() => {
+                                    progressBar.style.width = '100%';
+                                    progressText.textContent = 'Upload complete!';
+                                    resolve();
+                                }, 500);
+                            } else {
+                                console.error('Image upload failed, but submission was successful');
+                                progressBar.style.width = '100%';
+                                progressText.textContent = 'Submission complete (images failed)';
+                                resolve(); // Continue anyway
+                            }
+                        });
+
+                        // Handle errors
+                        xhr.addEventListener('error', () => {
+                            console.error('Upload error, but submission was successful');
+                            progressBar.style.width = '100%';
+                            progressText.textContent = 'Submission complete (images failed)';
+                            resolve(); // Continue anyway
+                        });
+
+                        // Send request
+                        xhr.open('POST', `${API_URL}/api/submissions/${submissionId}/images`);
+                        xhr.send(imageFormData);
                     });
-
-                    if (!imageResponse.ok) {
-                        console.error('Image upload failed, but submission was successful');
-                    }
-
-                    progressBar.style.width = '100%';
-                    progressText.textContent = 'Upload complete!';
                 } else {
                     progressBar.style.width = '100%';
                     progressText.textContent = 'Submission complete!';

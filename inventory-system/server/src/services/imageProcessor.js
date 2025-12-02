@@ -134,34 +134,56 @@ const processVehicleImages = async (files, vin) => {
       thumbnails: []
     };
 
-    for (const file of files) {
-      // Validate image
-      await validateImage(file.buffer, file.mimetype);
+    // Process images in parallel batches of 5 to avoid memory issues
+    const BATCH_SIZE = 5;
 
-      // Generate unique filename
-      const fileExt = path.extname(file.originalname).toLowerCase() || '.jpg';
-      const fileName = `${uuidv4()}${fileExt}`;
+    for (let i = 0; i < files.length; i += BATCH_SIZE) {
+      const batch = files.slice(i, i + BATCH_SIZE);
 
-      // Process full-size image
-      const fullSize = await processImage(file.buffer, {
-        maxWidth: MAX_WIDTH,
-        quality: IMAGE_QUALITY
-      });
+      // Process batch in parallel
+      const batchResults = await Promise.all(
+        batch.map(async (file) => {
+          try {
+            // Validate image
+            await validateImage(file.buffer, file.mimetype);
 
-      // Create thumbnail
-      const thumbnailBuffer = await createThumbnail(file.buffer);
+            // Generate unique filename
+            const fileExt = path.extname(file.originalname).toLowerCase() || '.jpg';
+            const fileName = `${uuidv4()}${fileExt}`;
 
-      processedImages.fullSize.push({
-        fileName,
-        buffer: fullSize.buffer,
-        metadata: fullSize.metadata,
-        path: `vehicles/${vin}/full/${fileName}`
-      });
+            // Process full-size and thumbnail in parallel
+            const [fullSize, thumbnailBuffer] = await Promise.all([
+              processImage(file.buffer, {
+                maxWidth: MAX_WIDTH,
+                quality: IMAGE_QUALITY
+              }),
+              createThumbnail(file.buffer)
+            ]);
 
-      processedImages.thumbnails.push({
-        fileName: `thumb_${fileName}`,
-        buffer: thumbnailBuffer,
-        path: `vehicles/${vin}/thumbnails/thumb_${fileName}`
+            return {
+              fullSize: {
+                fileName,
+                buffer: fullSize.buffer,
+                metadata: fullSize.metadata,
+                path: `vehicles/${vin}/full/${fileName}`
+              },
+              thumbnail: {
+                fileName: `thumb_${fileName}`,
+                buffer: thumbnailBuffer,
+                path: `vehicles/${vin}/thumbnails/thumb_${fileName}`
+              }
+            };
+          } catch (error) {
+            console.error(`Error processing image ${file.originalname}:`, error);
+            throw error;
+          }
+        })
+      );
+
+      // Add batch results to processedImages
+      batchResults.forEach(result => {
+        processedImages.fullSize.push(result.fullSize);
+        processedImages.thumbnails.push(result.thumbnail);
       });
     }
 
