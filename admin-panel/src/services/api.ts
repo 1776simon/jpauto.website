@@ -88,12 +88,14 @@ export interface InventoryItem {
   primary_image_url?: string; // Alias
 
   // History
-  previousOwners?: number;
-  previous_owners?: number; // Alias
-  accidentHistory?: string;
+  previousOwners?: string; // Changed to string for "1", "2", "3", "4+"
+  previous_owners?: string; // Alias
+  accidentHistory?: string; // Values: "No accidents", "1", "2", "3", "4+ accidents"
   accident_history?: string; // Alias
-  serviceRecords?: string;
-  service_records?: string; // Alias
+  serviceRecordsOnFile?: string; // Renamed: "Less than 5", "5-10", "10-20", "20+ records"
+  service_records_on_file?: string; // Alias
+  serviceRecords?: string; // Deprecated - backward compatibility
+  service_records?: string; // Deprecated - backward compatibility
   carfaxAvailable?: boolean;
   carfax_available?: boolean; // Alias
   carfaxUrl?: string;
@@ -409,6 +411,26 @@ class ApiService {
     a.click();
     window.URL.revokeObjectURL(downloadUrl);
     document.body.removeChild(a);
+  }
+
+  async decodeVIN(vin: string): Promise<any> {
+    const url = `${API_URL}/api/vin/decode`;
+    const response = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ vin }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to decode VIN');
+    }
+
+    const result = await response.json();
+    return result.data;
   }
 }
 

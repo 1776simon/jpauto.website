@@ -110,7 +110,10 @@ const PendingSubmission = sequelize.define('PendingSubmission', {
     field: 'fuel_type'
   },
   drivetrain: {
-    type: DataTypes.STRING(20)
+    type: DataTypes.STRING(20),
+    validate: {
+      isIn: [['AWD', 'RWD', 'FWD', null]]
+    }
   },
   bodyType: {
     type: DataTypes.STRING(50),

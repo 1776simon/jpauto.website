@@ -99,7 +99,10 @@ const Inventory = sequelize.define('Inventory', {
     field: 'fuel_type'
   },
   drivetrain: {
-    type: DataTypes.STRING(20)
+    type: DataTypes.STRING(20),
+    validate: {
+      isIn: [['AWD', 'RWD', 'FWD', null]]
+    }
   },
   bodyType: {
     type: DataTypes.STRING(50),
@@ -146,16 +149,25 @@ const Inventory = sequelize.define('Inventory', {
   },
   // History
   previousOwners: {
-    type: DataTypes.INTEGER,
-    field: 'previous_owners'
+    type: DataTypes.STRING(10),
+    field: 'previous_owners',
+    validate: {
+      isIn: [['1', '2', '3', '4+', null]]
+    }
   },
   accidentHistory: {
-    type: DataTypes.TEXT,
-    field: 'accident_history'
+    type: DataTypes.STRING(50),
+    field: 'accident_history',
+    validate: {
+      isIn: [['No accidents', '1', '2', '3', '4+ accidents', null]]
+    }
   },
-  serviceRecords: {
-    type: DataTypes.TEXT,
-    field: 'service_records'
+  serviceRecordsOnFile: {
+    type: DataTypes.STRING(50),
+    field: 'service_records_on_file',
+    validate: {
+      isIn: [['Less than 5', '5-10', '10-20', '20+ records', null]]
+    }
   },
   carfaxAvailable: {
     type: DataTypes.BOOLEAN,

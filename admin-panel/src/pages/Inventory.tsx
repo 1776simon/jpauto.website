@@ -399,7 +399,7 @@ export default function Inventory() {
 
   const displayImages = editFormData.images || [];
 
-  // VIN Decoder Function
+  // VIN Decoder Function (using Auto.dev API)
   const decodeVIN = async () => {
     const vin = (editFormData.vin || '').trim().toUpperCase();
 
@@ -410,41 +410,34 @@ export default function Inventory() {
     }
 
     setVinDecoding(true);
-    setVinStatus({ type: 'loading', message: 'Decoding VIN from NHTSA database...' });
+    setVinStatus({ type: 'loading', message: 'Decoding VIN from Auto.dev...' });
 
     try {
-      // Call NHTSA VIN Decoder API
-      const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
-      const data = await response.json();
+      // Call Auto.dev VIN Decoder API via our backend
+      const vehicleData = await api.decodeVIN(vin);
 
-      if (data.Results && data.Results.length > 0) {
-        // Extract relevant fields
-        const results = data.Results;
-        const getValueByVariable = (variableName: string) => {
-          const item = results.find((r: any) => r.Variable === variableName);
-          return item && item.Value && item.Value !== 'Not Applicable' ? item.Value : null;
-        };
+      // Auto-fill form fields with decoded data
+      const updates: Partial<InventoryItem> = {};
+      if (vehicleData.year) updates.year = vehicleData.year;
+      if (vehicleData.make) updates.make = vehicleData.make;
+      if (vehicleData.model) updates.model = vehicleData.model;
+      if (vehicleData.trim) updates.trim = vehicleData.trim;
 
-        const year = getValueByVariable('Model Year');
-        const make = getValueByVariable('Make');
-        const model = getValueByVariable('Model');
-        const trim = getValueByVariable('Trim');
+      // New fields from Auto.dev
+      if (vehicleData.engine) updates.engine = vehicleData.engine;
+      if (vehicleData.drivetrain) updates.drivetrain = vehicleData.drivetrain;
+      if (vehicleData.mpgCity) updates.mpgCity = vehicleData.mpgCity;
+      if (vehicleData.mpgHighway) updates.mpgHighway = vehicleData.mpgHighway;
+      if (vehicleData.transmission) updates.transmission = vehicleData.transmission;
+      if (vehicleData.fuelType) updates.fuelType = vehicleData.fuelType;
+      if (vehicleData.bodyType) updates.bodyType = vehicleData.bodyType;
+      if (vehicleData.horsepower) updates.horsepower = vehicleData.horsepower;
 
-        // Auto-fill form fields
-        const updates: Partial<InventoryItem> = {};
-        if (year) updates.year = parseInt(year);
-        if (make) updates.make = make;
-        if (model) updates.model = model;
-        if (trim) updates.trim = trim;
-
-        setEditFormData({ ...editFormData, ...updates });
-        setVinStatus({ type: 'success', message: `✓ Decoded: ${year} ${make} ${model}` });
-      } else {
-        setVinStatus({ type: 'error', message: 'Could not decode VIN. Please fill in details manually.' });
-      }
-    } catch (error) {
+      setEditFormData({ ...editFormData, ...updates });
+      setVinStatus({ type: 'success', message: `✓ Decoded: ${vehicleData.year} ${vehicleData.make} ${vehicleData.model}` });
+    } catch (error: any) {
       console.error('VIN decode error:', error);
-      setVinStatus({ type: 'error', message: 'Failed to decode VIN. Please fill in details manually.' });
+      setVinStatus({ type: 'error', message: error.message || 'Failed to decode VIN. Please fill in details manually.' });
     } finally {
       setVinDecoding(false);
     }
