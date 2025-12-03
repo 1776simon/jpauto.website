@@ -203,7 +203,7 @@ layout: default
             </div>
             <div class="bg-gray-50 p-4 rounded-lg">
               <p class="text-sm text-gray-600">MPG</p>
-              <p class="text-lg font-semibold text-gray-900">{{ page.mpg_city }}/{{ page.mpg_highway }}</p>
+              <p class="text-lg font-semibold text-gray-900">City: {{ page.mpg_city }} / Highway: {{ page.mpg_highway }}</p>
             </div>
           </div>
         </div>
@@ -242,8 +242,8 @@ layout: default
               <span class="font-semibold text-gray-900">{{ page.accident_history }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-600">Service Records:</span>
-              <span class="font-semibold text-gray-900">{{ page.service_records }}</span>
+              <span class="text-gray-600">Service Records on File:</span>
+              <span class="font-semibold text-gray-900">{{ page.service_records_on_file }}</span>
             </div>
             {% if page.carfax_available %}
             <div class="pt-4 border-t border-gray-200">

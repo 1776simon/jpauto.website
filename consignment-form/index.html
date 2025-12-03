@@ -177,6 +177,25 @@
                             </select>
                         </div>
                         <div>
+                            <label for="drivetrain" class="block text-sm font-medium text-gray-700 mb-2">
+                                Drivetrain (Optional)
+                            </label>
+                            <select id="drivetrain" name="drivetrain"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="">Select...</option>
+                                <option value="AWD">AWD</option>
+                                <option value="RWD">RWD</option>
+                                <option value="FWD">FWD</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="engine" class="block text-sm font-medium text-gray-700 mb-2">
+                                Engine (Optional)
+                            </label>
+                            <input type="text" id="engine" name="engine" placeholder="e.g., 2.0L 4-Cylinder Turbo"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
                             <label for="fuelType" class="block text-sm font-medium text-gray-700 mb-2">
                                 Fuel Type
                             </label>
@@ -289,6 +308,8 @@
         const yearInput = document.getElementById('year');
         const makeInput = document.getElementById('make');
         const modelInput = document.getElementById('model');
+        const drivetrainInput = document.getElementById('drivetrain');
+        const engineInput = document.getElementById('engine');
 
         let selectedFiles = [];
 
@@ -301,7 +322,7 @@
             successMessage.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // VIN Decoder Function
+        // VIN Decoder Function (using Auto.dev API via backend)
         async function decodeVIN() {
             const vin = vinInput.value.trim().toUpperCase();
 
@@ -314,44 +335,44 @@
             // Disable button and show loading
             decodeVinBtn.disabled = true;
             decodeVinBtn.textContent = 'Decoding...';
-            showVinStatus('loading', 'Decoding VIN from NHTSA database...');
+            showVinStatus('loading', 'Decoding VIN from Auto.dev...');
 
             try {
-                // Call NHTSA VIN Decoder API
-                const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
-                const data = await response.json();
+                // Call Auto.dev VIN Decoder API via our backend
+                const response = await fetch(`${API_URL}/api/vin/decode`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ vin })
+                });
 
-                if (data.Results && data.Results.length > 0) {
-                    // Extract relevant fields
-                    const results = data.Results;
-                    const year = getValueByVariable(results, 'Model Year');
-                    const make = getValueByVariable(results, 'Make');
-                    const model = getValueByVariable(results, 'Model');
-                    const trim = getValueByVariable(results, 'Trim');
-
-                    // Auto-fill form fields
-                    if (year) yearInput.value = year;
-                    if (make) makeInput.value = make;
-                    if (model) modelInput.value = model;
-                    if (trim) document.getElementById('trim').value = trim;
-
-                    showVinStatus('success', `✓ Decoded: ${year} ${make} ${model}`);
-                } else {
-                    showVinStatus('error', 'Could not decode VIN. Please fill in details manually.');
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to decode VIN');
                 }
+
+                const result = await response.json();
+                const vehicleData = result.data;
+
+                // Auto-fill form fields with decoded data
+                if (vehicleData.year) yearInput.value = vehicleData.year;
+                if (vehicleData.make) makeInput.value = vehicleData.make;
+                if (vehicleData.model) modelInput.value = vehicleData.model;
+                if (vehicleData.trim) document.getElementById('trim').value = vehicleData.trim;
+
+                // Auto-fill new optional fields
+                if (vehicleData.drivetrain) drivetrainInput.value = vehicleData.drivetrain;
+                if (vehicleData.engine) engineInput.value = vehicleData.engine;
+
+                showVinStatus('success', `✓ Decoded: ${vehicleData.year} ${vehicleData.make} ${vehicleData.model}`);
             } catch (error) {
                 console.error('VIN decode error:', error);
-                showVinStatus('error', 'Failed to decode VIN. Please fill in details manually.');
+                showVinStatus('error', error.message || 'Failed to decode VIN. Please fill in details manually.');
             } finally {
                 decodeVinBtn.disabled = false;
                 decodeVinBtn.textContent = 'Decode VIN';
             }
-        }
-
-        // Helper function to extract value from NHTSA results
-        function getValueByVariable(results, variableName) {
-            const item = results.find(r => r.Variable === variableName);
-            return item && item.Value && item.Value !== 'Not Applicable' ? item.Value : null;
         }
 
         // Show VIN status message

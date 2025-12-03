@@ -205,7 +205,14 @@ export default function Inventory() {
       interiorColor: item.interiorColor || item.interior_color || '',
       transmission: item.transmission || '',
       fuelType: item.fuelType || '',
+      drivetrain: item.drivetrain || '',
+      engine: item.engine || '',
+      mpgCity: item.mpgCity || item.mpg_city || undefined,
+      mpgHighway: item.mpgHighway || item.mpg_highway || undefined,
       titleStatus: item.titleStatus || item.title_status || '',
+      previousOwners: item.previousOwners || item.previous_owners || '',
+      accidentHistory: item.accidentHistory || item.accident_history || '',
+      serviceRecordsOnFile: item.serviceRecordsOnFile || item.service_records_on_file || '',
       description: item.description || '',
       images: item.images || [],
     });
@@ -301,7 +308,14 @@ export default function Inventory() {
       interiorColor: '',
       transmission: '',
       fuelType: '',
+      drivetrain: '',
+      engine: '',
+      mpgCity: undefined,
+      mpgHighway: undefined,
       titleStatus: '',
+      previousOwners: '',
+      accidentHistory: '',
+      serviceRecordsOnFile: '',
       description: '',
       images: [],
     });
@@ -976,6 +990,57 @@ export default function Inventory() {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-2">
+                            Drivetrain
+                          </label>
+                          <select
+                            value={editFormData.drivetrain || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, drivetrain: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          >
+                            <option value="">Select...</option>
+                            <option value="AWD">AWD</option>
+                            <option value="RWD">RWD</option>
+                            <option value="FWD">FWD</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Engine
+                          </label>
+                          <input
+                            type="text"
+                            value={editFormData.engine || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, engine: e.target.value })}
+                            placeholder="e.g., 2.0L 4-Cylinder Turbo"
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            MPG City
+                          </label>
+                          <input
+                            type="number"
+                            value={editFormData.mpgCity || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, mpgCity: parseInt(e.target.value) || undefined })}
+                            placeholder="City MPG"
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            MPG Highway
+                          </label>
+                          <input
+                            type="number"
+                            value={editFormData.mpgHighway || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, mpgHighway: parseInt(e.target.value) || undefined })}
+                            placeholder="Highway MPG"
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
                             Title Status
                           </label>
                           <select
@@ -987,6 +1052,62 @@ export default function Inventory() {
                             <option value="Clean">Clean</option>
                             <option value="Salvage">Salvage</option>
                             <option value="Junk">Junk</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Vehicle History Section */}
+                    <div className="border-t border-border pt-6">
+                      <h3 className="text-lg font-semibold text-foreground mb-4">Vehicle History</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Previous Owners
+                          </label>
+                          <select
+                            value={editFormData.previousOwners || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, previousOwners: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          >
+                            <option value="">Select...</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4+">4+</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Accident History
+                          </label>
+                          <select
+                            value={editFormData.accidentHistory || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, accidentHistory: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          >
+                            <option value="">Select...</option>
+                            <option value="No accidents">No accidents</option>
+                            <option value="1">1 accident</option>
+                            <option value="2">2 accidents</option>
+                            <option value="3">3 accidents</option>
+                            <option value="4+ accidents">4+ accidents</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Service Records on File
+                          </label>
+                          <select
+                            value={editFormData.serviceRecordsOnFile || ''}
+                            onChange={(e) => setEditFormData({ ...editFormData, serviceRecordsOnFile: e.target.value })}
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                          >
+                            <option value="">Select...</option>
+                            <option value="Less than 5">Less than 5</option>
+                            <option value="5-10">5-10 records</option>
+                            <option value="10-20">10-20 records</option>
+                            <option value="20+ records">20+ records</option>
                           </select>
                         </div>
                       </div>

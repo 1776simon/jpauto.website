@@ -102,7 +102,7 @@ const generateVehicleMarkdown = (vehicle) => {
     // History
     previous_owners: vehicle.previousOwners,
     accident_history: vehicle.accidentHistory || 'None',
-    service_records: vehicle.serviceRecords || 'Available',
+    service_records_on_file: vehicle.serviceRecordsOnFile || 'Available',
     carfax_available: vehicle.carfaxAvailable,
     carfax_url: vehicle.carfaxUrl || null,
 
