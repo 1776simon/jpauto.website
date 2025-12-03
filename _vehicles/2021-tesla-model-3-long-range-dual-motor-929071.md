@@ -13,8 +13,13 @@ featured: false
 exterior_color: Black
 interior_color: Black
 transmission: Automatic
+engine: Electric
 fuel_type: Electric
+drivetrain: AWD
+body_type: Sedan/Saloon
 title_status: Salvage
+mpg_city: 100
+mpg_highway: 100
 features: []
 images:
   - >-
@@ -89,8 +94,9 @@ images:
     https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/5YJ3E1EB1MF929071/full/2e301141-6e0c-4275-ad76-f6949d30b32f.jpg
 primary_image: >-
   https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/5YJ3E1EB1MF929071/full/ef5496ba-094e-4386-a48b-4bc2a10fc3ec.jpg
-accident_history: None
-service_records: Available
+previous_owners: '2'
+accident_history: No accidents
+service_records_on_file: 5-10
 carfax_available: false
 date_added: '2025-12-03'
 ---

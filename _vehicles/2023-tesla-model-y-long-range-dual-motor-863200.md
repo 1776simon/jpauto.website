@@ -13,8 +13,12 @@ featured: false
 exterior_color: Black
 interior_color: Black
 transmission: Automatic
+engine: Electric
 fuel_type: Electric
+drivetrain: AWD
 title_status: Salvage
+mpg_city: 100
+mpg_highway: 100
 features: []
 images:
   - >-
@@ -47,8 +51,9 @@ images:
     https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/3247a581-9251-4e0d-84c0-b1cd78fc9f95.jpg
 primary_image: >-
   https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/bb04ebac-5134-40b6-b298-6ea169114eed.jpg
-accident_history: None
-service_records: Available
+previous_owners: '2'
+accident_history: '1'
+service_records_on_file: 10-20
 carfax_available: false
 date_added: '2025-12-03'
 ---

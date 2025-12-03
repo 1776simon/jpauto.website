@@ -13,8 +13,13 @@ featured: false
 exterior_color: White
 interior_color: Black
 transmission: Automatic
+engine: Electric
 fuel_type: Electric
+drivetrain: RWD
+body_type: Sedan/Saloon
 title_status: Clean
+mpg_city: 100
+mpg_highway: 100
 features: []
 images:
   - >-
@@ -69,8 +74,9 @@ images:
     https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/5YJ3E1EA4LF597570/full/aad5bdf3-954b-43c4-8cb1-8f00837514cc.jpeg
 primary_image: >-
   https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/5YJ3E1EA4LF597570/full/c383ddd6-368e-42ec-8747-268c88fd04cd.jpeg
-accident_history: None
-service_records: Available
+previous_owners: '1'
+accident_history: '1'
+service_records_on_file: 10-20
 carfax_available: false
 date_added: '2025-12-01'
 ---
