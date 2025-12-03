@@ -213,9 +213,32 @@ export default function Inventory() {
   };
 
   const handleSaveEdit = () => {
+    // Auto-apply photo order if user is in reordering mode
+    let dataToSave = editFormData;
+
+    if (isReordering) {
+      if (selectedPhotos.length > 0) {
+        // User selected photos - apply the new order
+        const currentImages = editFormData.images || [];
+        const selectedUrls = selectedPhotos
+          .sort((a, b) => a.order - b.order)
+          .map(p => p.url);
+        const unselectedUrls = currentImages.filter(url => !selectedUrls.includes(url));
+        const newImageOrder = [...selectedUrls, ...unselectedUrls];
+
+        // Update local data with new order
+        dataToSave = { ...editFormData, images: newImageOrder };
+        setEditFormData(dataToSave);
+      }
+
+      // Exit reordering mode regardless
+      setIsReordering(false);
+      setSelectedPhotos([]);
+    }
+
     // Clean up the data before sending
     const cleanedData: Partial<InventoryItem> = {
-      ...editFormData,
+      ...dataToSave,
     };
 
     // Remove empty string values and ensure proper types
@@ -233,8 +256,8 @@ export default function Inventory() {
       // Updating existing vehicle
       if (!selectedItem) return;
 
-      // Check if photo order has changed
-      const photosChanged = JSON.stringify(editFormData.images) !== JSON.stringify(selectedItem.images);
+      // Check if photo order has changed (use dataToSave since it has the latest order)
+      const photosChanged = JSON.stringify(dataToSave.images) !== JSON.stringify(selectedItem.images);
 
       updateMutation.mutate({
         id: selectedItem.id as number,
@@ -242,10 +265,10 @@ export default function Inventory() {
       });
 
       // If photo order changed, also update photo order
-      if (photosChanged && editFormData.images) {
+      if (photosChanged && dataToSave.images) {
         reorderPhotosMutation.mutate({
           id: selectedItem.id as number,
-          imageUrls: editFormData.images
+          imageUrls: dataToSave.images
         });
       }
     }
@@ -362,33 +385,6 @@ export default function Inventory() {
       const nextOrder = selectedPhotos.length + 1;
       setSelectedPhotos([...selectedPhotos, { url: imageUrl, order: nextOrder }]);
     }
-  };
-
-  const handleSavePhotoOrder = () => {
-    if (selectedPhotos.length === 0) {
-      toast.error('Please select photos in your desired order');
-      return;
-    }
-
-    // Get current images
-    const currentImages = editFormData.images || [];
-
-    // Create ordered array: selected photos in order, then unselected photos
-    const selectedUrls = selectedPhotos
-      .sort((a, b) => a.order - b.order)
-      .map(p => p.url);
-
-    const unselectedUrls = currentImages.filter(url => !selectedUrls.includes(url));
-    const newImageOrder = [...selectedUrls, ...unselectedUrls];
-
-    // Update local state
-    setEditFormData({ ...editFormData, images: newImageOrder });
-
-    // Exit reordering mode
-    setIsReordering(false);
-    setSelectedPhotos([]);
-
-    toast.success('Photo order updated. Click "Save Changes" to persist.');
   };
 
   const handleDeletePhoto = (imageUrl: string) => {
@@ -1064,13 +1060,6 @@ export default function Inventory() {
                             {isReordering && (
                               <div className="flex items-center gap-3 mb-2">
                                 <button
-                                  onClick={handleSavePhotoOrder}
-                                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                                >
-                                  <Save className="w-4 h-4" />
-                                  Save Order
-                                </button>
-                                <button
                                   onClick={handleCancelReordering}
                                   className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
                                 >
@@ -1079,7 +1068,7 @@ export default function Inventory() {
                                 </button>
                                 <span className="text-sm text-muted-foreground">
                                   {selectedPhotos.length > 0
-                                    ? `${selectedPhotos.length} photo${selectedPhotos.length !== 1 ? 's' : ''} selected`
+                                    ? `${selectedPhotos.length} photo${selectedPhotos.length !== 1 ? 's' : ''} selected - scroll down and click "Save Changes"`
                                     : 'Click photos in your desired order'}
                                 </span>
                               </div>
