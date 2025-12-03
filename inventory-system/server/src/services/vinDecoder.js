@@ -74,10 +74,14 @@ class VINDecoderService {
 
       const data = await response.json();
 
+      // Log the raw response for debugging
+      logger.info(`Raw Auto.dev response for VIN ${cleanVIN}:`, JSON.stringify(data, null, 2));
+
       // Extract and normalize the relevant fields
       const decodedData = this.normalizeVehicleData(data);
 
       logger.info(`Successfully decoded VIN: ${cleanVIN} - ${decodedData.year} ${decodedData.make} ${decodedData.model}`);
+      logger.info(`Extracted data:`, JSON.stringify(decodedData, null, 2));
 
       return decodedData;
     } catch (error) {
