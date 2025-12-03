@@ -994,7 +994,7 @@ export default function Inventory() {
                           </label>
                           <select
                             value={editFormData.drivetrain || ''}
-                            onChange={(e) => setEditFormData({ ...editFormData, drivetrain: e.target.value })}
+                            onChange={(e) => setEditFormData({ ...editFormData, drivetrain: e.target.value || null })}
                             className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
                           >
                             <option value="">Select...</option>
