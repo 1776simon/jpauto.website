@@ -1,19 +1,21 @@
 /**
- * VIN Decoder Service using NHTSA API
+ * VIN Decoder Service using NHTSA API + EPA Fuel Economy API
  *
  * This service decodes VINs and retrieves vehicle specifications including:
- * - Year, Make, Model, Trim
- * - Engine specifications (displacement, cylinders)
- * - Drivetrain type
- * - Body type, Transmission, Fuel type
+ * - Year, Make, Model, Trim (from NHTSA)
+ * - Engine specifications (displacement, cylinders) (from NHTSA)
+ * - Drivetrain type (from NHTSA)
+ * - Body type, Transmission, Fuel type (from NHTSA)
+ * - MPG City/Highway (from EPA FuelEconomy.gov)
  *
- * API: NHTSA Vehicle Product Information Catalog (vPIC)
- * Endpoint: https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/{VIN}?format=json
- * Documentation: https://vpic.nhtsa.dot.gov/api/
- * Rate Limit: None (free, unlimited)
+ * APIs:
+ * - NHTSA vPIC: https://vpic.nhtsa.dot.gov/api/
+ * - EPA FuelEconomy.gov: https://www.fueleconomy.gov/feg/ws/
+ * Rate Limit: None (both free, unlimited)
  */
 
 const logger = require('../config/logger');
+const epaService = require('./epaFuelEconomy');
 
 class VINDecoderService {
   constructor() {
@@ -59,11 +61,32 @@ class VINDecoderService {
       // Log the raw response for debugging
       logger.info(`Raw NHTSA response for VIN ${cleanVIN}:`, JSON.stringify(data, null, 2));
 
-      // Extract and normalize the relevant fields
+      // Extract and normalize the relevant fields from NHTSA
       const decodedData = this.normalizeVehicleData(data.Results);
 
       logger.info(`Successfully decoded VIN: ${cleanVIN} - ${decodedData.year} ${decodedData.make} ${decodedData.model}`);
-      logger.info(`Extracted data:`, JSON.stringify(decodedData, null, 2));
+
+      // Try to get MPG data from EPA (if year/make/model are available)
+      if (decodedData.year && decodedData.make && decodedData.model) {
+        try {
+          const mpgData = await epaService.getMPG({
+            year: decodedData.year,
+            make: decodedData.make,
+            model: decodedData.model,
+            engine: decodedData.engine
+          });
+
+          // Merge MPG data into decoded data
+          decodedData.mpgCity = mpgData.mpgCity;
+          decodedData.mpgHighway = mpgData.mpgHighway;
+        } catch (epaError) {
+          // Log EPA error but don't fail the entire decode
+          logger.warn(`EPA lookup failed for ${decodedData.year} ${decodedData.make} ${decodedData.model}:`, epaError.message);
+          // MPG values will remain null (already set in normalizeVehicleData)
+        }
+      }
+
+      logger.info(`Final decoded data:`, JSON.stringify(decodedData, null, 2));
 
       return decodedData;
     } catch (error) {
