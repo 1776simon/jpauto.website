@@ -273,7 +273,12 @@ layout: default
 
           <!-- Contact Buttons -->
           <div class="space-y-3">
-            <a href="tel:+19166187197" class="block w-full bg-primary text-white text-center py-3 rounded-lg hover:bg-primary-dark transition font-semibold">
+            <!-- Desktop: Show phone number -->
+            <div class="hidden md:block w-full bg-primary text-white text-center py-3 rounded-lg font-semibold">
+              📞 (916) 618-7197
+            </div>
+            <!-- Mobile: Click-to-call -->
+            <a href="tel:+19166187197" class="block md:hidden w-full bg-primary text-white text-center py-3 rounded-lg hover:bg-primary-dark transition font-semibold">
               📞 Call Now
             </a>
             <a href="/contact?vehicle={{ page.title | url_encode }}" class="block w-full bg-gray-900 text-white text-center py-3 rounded-lg hover:bg-gray-800 transition font-semibold">
@@ -290,22 +295,29 @@ layout: default
           <!-- Payment Estimator -->
           <div class="mt-6 pt-6 border-t border-gray-200">
             <p class="text-sm text-gray-600 mb-2">Estimated Monthly Payment</p>
-            <p class="text-2xl font-bold text-gray-900 mb-2">$<span id="monthly-payment">{{ page.price | divided_by: 60 | round }}</span>/mo</p>
-            <p class="text-xs text-gray-500">Based on 60 months @ 6.9% APR with $0 down</p>
+            <p class="text-2xl font-bold text-gray-900 mb-2">$<span id="monthly-payment"></span>/mo</p>
+            <p class="text-xs text-gray-500">Based on 60 months @ 11% APR with $2,000 down</p>
             <a href="/financing?vehicle={{ page.title | url_encode }}" class="block mt-4 text-center text-primary hover:text-primary-dark font-semibold text-sm">
               Get Pre-Approved →
             </a>
           </div>
 
-          <!-- Share -->
-          <div class="mt-6 pt-6 border-t border-gray-200">
-            <p class="text-sm text-gray-600 mb-3">Share this vehicle:</p>
-            <div class="flex gap-2">
-              <a href="#" class="flex-1 bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700 transition">Facebook</a>
-              <a href="#" class="flex-1 bg-sky-500 text-white text-center py-2 rounded hover:bg-sky-600 transition">Twitter</a>
-              <a href="#" class="flex-1 bg-gray-600 text-white text-center py-2 rounded hover:bg-gray-700 transition">Email</a>
-            </div>
-          </div>
+          <script>
+            // Calculate monthly payment using loan amortization formula
+            (function() {
+              const price = {{ page.price }};
+              const downPayment = 2000;
+              const principal = price - downPayment;
+              const annualRate = 0.11; // 11% APR
+              const monthlyRate = annualRate / 12;
+              const numPayments = 60;
+
+              // Monthly payment formula: M = P * [r(1 + r)^n] / [(1 + r)^n - 1]
+              const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+
+              document.getElementById('monthly-payment').textContent = Math.round(monthlyPayment).toLocaleString();
+            })();
+          </script>
         </div>
       </div>
     </div>
