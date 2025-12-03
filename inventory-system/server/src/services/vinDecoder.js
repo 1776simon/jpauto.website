@@ -88,7 +88,8 @@ class VINDecoderService {
       // Engine & Performance
       engine: this.buildEngineDescription(results),
       drivetrain: this.normalizeDrivetrain(
-        this.getValueByVariable(results, 'Drive Type')
+        this.getValueByVariable(results, 'Drive Type'),
+        results
       ),
       transmission: this.getValueByVariable(results, 'Transmission Style') ||
                      this.getValueByVariable(results, 'Transmission Speeds'),
@@ -179,9 +180,10 @@ class VINDecoderService {
    * Normalize drivetrain to standard values (AWD, RWD, FWD)
    * Note: 4WD is converted to AWD as they are functionally equivalent for our purposes
    * @param {string} drivetrain - Raw drivetrain value from NHTSA
+   * @param {Array} results - Full NHTSA Results array (for context when drivetrain is "4x2")
    * @returns {string|null} Normalized drivetrain
    */
-  normalizeDrivetrain(drivetrain) {
+  normalizeDrivetrain(drivetrain, results = []) {
     if (!drivetrain) return null;
 
     const normalized = drivetrain.toUpperCase();
@@ -196,6 +198,22 @@ class VINDecoderService {
       return 'RWD';
     } else if (normalized.includes('FWD') || normalized.includes('FRONT-WHEEL') || normalized.includes('FRONT WHEEL')) {
       return 'FWD';
+    } else if (normalized === '4X2') {
+      // 4x2 means 2-wheel drive, but doesn't specify which wheels
+      // Use vehicle type to make educated guess:
+      // - Trucks/Pickups are typically RWD
+      // - Cars/SUVs/Crossovers are typically FWD
+      const bodyClass = this.getValueByVariable(results, 'Body Class');
+      const vehicleType = this.getValueByVariable(results, 'Vehicle Type');
+
+      if (bodyClass && bodyClass.toUpperCase().includes('PICKUP')) {
+        return 'RWD';
+      } else if (vehicleType && vehicleType.toUpperCase().includes('TRUCK')) {
+        return 'RWD';
+      } else {
+        // Default to FWD for cars, SUVs, crossovers, hybrids
+        return 'FWD';
+      }
     }
 
     return drivetrain; // Return original if no match
