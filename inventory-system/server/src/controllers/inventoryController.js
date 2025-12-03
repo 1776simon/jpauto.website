@@ -595,6 +595,7 @@ const getInventoryStats = async (req, res) => {
       soldInventory,
       pendingSubmissions,
       totalValueResult,
+      totalCostResult,
       averagePrice,
       averageMileage
     ] = await Promise.all([
@@ -604,6 +605,11 @@ const getInventoryStats = async (req, res) => {
       PendingSubmission.count({ where: { submissionStatus: 'pending' } }),
       Inventory.findOne({
         attributes: [[Inventory.sequelize.fn('SUM', Inventory.sequelize.col('price')), 'totalValue']],
+        where: { status: 'available' },
+        raw: true
+      }),
+      Inventory.findOne({
+        attributes: [[Inventory.sequelize.fn('SUM', Inventory.sequelize.col('cost')), 'totalCost']],
         where: { status: 'available' },
         raw: true
       }),
@@ -625,6 +631,7 @@ const getInventoryStats = async (req, res) => {
       sold: soldInventory,
       pending: pendingSubmissions,
       totalValue: parseFloat(totalValueResult?.totalValue || 0),
+      totalCost: parseFloat(totalCostResult?.totalCost || 0),
       averagePrice: parseFloat(averagePrice?.avgPrice || 0),
       averageMileage: parseInt(averageMileage?.avgMileage || 0)
     });
