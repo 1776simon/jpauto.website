@@ -1022,7 +1022,10 @@ export default function Inventory() {
                           <input
                             type="number"
                             value={editFormData.mpgCity || ''}
-                            onChange={(e) => setEditFormData({ ...editFormData, mpgCity: parseInt(e.target.value) || undefined })}
+                            onChange={(e) => {
+                              const value = e.target.value === '' ? undefined : parseInt(e.target.value);
+                              setEditFormData({ ...editFormData, mpgCity: value });
+                            }}
                             placeholder="City MPG"
                             className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
@@ -1034,7 +1037,10 @@ export default function Inventory() {
                           <input
                             type="number"
                             value={editFormData.mpgHighway || ''}
-                            onChange={(e) => setEditFormData({ ...editFormData, mpgHighway: parseInt(e.target.value) || undefined })}
+                            onChange={(e) => {
+                              const value = e.target.value === '' ? undefined : parseInt(e.target.value);
+                              setEditFormData({ ...editFormData, mpgHighway: value });
+                            }}
                             placeholder="Highway MPG"
                             className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
