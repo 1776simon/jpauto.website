@@ -1,7 +1,6 @@
 import { AdminLayout } from "@/components/AdminLayout";
 import {
   Download,
-  Globe,
   FileText,
   Facebook,
   Building2,
@@ -36,18 +35,6 @@ export default function Export() {
   };
 
   const exportOptions = [
-    {
-      id: "jekyll",
-      name: "Jekyll Website",
-      description:
-        "Export inventory to Jekyll markdown files for your public website",
-      icon: Globe,
-      color: "text-red-600",
-      bgColor: "bg-red-50",
-      borderColor: "border-red-200",
-      exportFn: () => api.exportToJekyll(),
-      fileFormat: "ZIP",
-    },
     {
       id: "autotrader",
       name: "AutoTrader",
@@ -188,18 +175,6 @@ export default function Export() {
           <h3 className="font-semibold text-foreground mb-4">Export Guide</h3>
 
           <div className="space-y-4 text-sm">
-            <div>
-              <h4 className="font-medium text-foreground mb-2">
-                Jekyll Website
-              </h4>
-              <p className="text-muted-foreground">
-                Downloads a ZIP file containing markdown files and images for
-                each vehicle. Extract and copy to your Jekyll site's{" "}
-                <code className="bg-muted px-1 py-0.5 rounded">_vehicles/</code>{" "}
-                directory.
-              </p>
-            </div>
-
             <div>
               <h4 className="font-medium text-foreground mb-2">AutoTrader</h4>
               <p className="text-muted-foreground">
