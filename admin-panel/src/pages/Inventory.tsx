@@ -444,7 +444,7 @@ export default function Inventory() {
       if (vehicleData.mpgHighway) updates.mpgHighway = vehicleData.mpgHighway;
       if (vehicleData.transmission) updates.transmission = vehicleData.transmission;
       if (vehicleData.fuelType) updates.fuelType = vehicleData.fuelType;
-      if (vehicleData.bodyType) updates.bodyType = vehicleData.bodyType;
+      // Note: bodyType excluded - not displayed in UI and can exceed VARCHAR(50) limit
       if (vehicleData.horsepower) updates.horsepower = vehicleData.horsepower;
 
       setEditFormData({ ...editFormData, ...updates });
