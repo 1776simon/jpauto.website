@@ -248,6 +248,9 @@ export default function Inventory() {
       ...dataToSave,
     };
 
+    // Remove bodyType - not displayed in UI and can exceed VARCHAR(50) limit
+    delete cleanedData.bodyType;
+
     // Remove empty string values and ensure proper types
     Object.keys(cleanedData).forEach((key) => {
       const value = cleanedData[key as keyof InventoryItem];
