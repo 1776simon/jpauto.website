@@ -1,0 +1,100 @@
+---
+layout: vehicle
+title: 2023 TESLA Model Y Long Range Dual Motor
+year: 2023
+make: TESLA
+model: Model Y
+trim: Long Range Dual Motor
+price: '26500.00'
+mileage: 34500
+vin: 7SAYGDEE2PF863200
+status: available
+featured: false
+exterior_color: Black
+interior_color: Black
+transmission: Automatic
+fuel_type: Electric
+title_status: Salvage
+features: []
+images:
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/bb04ebac-5134-40b6-b298-6ea169114eed.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/a5de0373-441c-4777-907b-a949555278a9.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/0dece9c5-675f-49cb-81a6-23bab09c326d.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/4bb862c9-538b-40a1-886c-800b826ac055.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/9a553c85-0836-48c6-934e-e6e61a8b8fa4.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/ed6cf7ce-d342-4fc3-bd6a-31171ab439e1.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/e203a466-cd42-4dfa-b064-d1724f8413c2.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/98d8a1b9-6660-4803-b75c-dee6eb8cc252.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/d731e2d6-79ef-433f-be01-818be3baa571.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/125c42e8-b9a7-4300-b935-3b61e856d5b2.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/c1d74492-2c8a-4e18-9c76-c7e82cdc69f6.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/76faec1b-5534-4ba4-b491-16655a2b657f.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/7c847a9c-4b60-45ab-b251-ecab0743c6c7.jpg
+  - >-
+    https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/3247a581-9251-4e0d-84c0-b1cd78fc9f95.jpg
+primary_image: >-
+  https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev/vehicles/7SAYGDEE2PF863200/full/bb04ebac-5134-40b6-b298-6ea169114eed.jpg
+accident_history: None
+service_records: Available
+carfax_available: false
+date_added: '2025-12-03'
+---
+## Performance
+- **Powertrain:** Dual Electric Motors (Front + Rear)
+- **Total Output:** 384 hp
+- **Torque:** 376 lb-ft (instant)
+- **0-60 MPH:** 4.4 seconds
+- **Quarter Mile:** 12.7 seconds @ 115 mph
+- **Top Speed:** 135 mph (electronically limited)
+- **Transmission:** Single-Speed Direct Drive
+
+## Battery & Range
+- **Battery Capacity:** ~82 kWh Lithium-Ion
+- **EPA Estimated Range:** 330 miles
+- **Emissions:** Zero Direct Emissions
+
+## Charging
+- **Supercharger:** Up to 200 miles of range in 15 minutes
+- **Tesla Wall Connector:** 44 miles of range per hour
+- **Supercharger Network:** Full access included
+
+## Dimensions
+- **Wheelbase:** 113.8 in
+- **Length:** 187.0 in
+- **Width:** 75.6 in
+- **Height:** 63.9 in
+- **Curb Weight:** 4,337 lbs
+- **Seating:** 5 adults standard (optional 7-seat configuration)
+- **Cargo Capacity:** 76 cu ft (seats folded)
+
+## Highlights
+- Dual Motor All-Wheel Drive standard
+- 15-inch center touchscreen
+- All-glass panoramic roof
+- Over-the-air software updates
+- Autopilot standard
+- Keyless entry and start
+- Heat pump for improved cold-weather range
+- Towing capacity: 3,500 lbs
+
+---
+
+## The Driving Experience
+Step on the accelerator and the Model Y responds with instant, seamless thrust—376 lb-ft of torque delivered the moment you ask for it. The dual-motor AWD system provides confident grip in any condition while the low-mounted battery pack keeps the center of gravity planted, allowing the crossover to carve corners with surprising agility. Steering is quick and precise, rewarding drivers who push through twisty roads. The cabin remains remarkably quiet at highway speeds, with only subtle wind noise as a companion. Tesla's minimalist interior puts everything at your fingertips through the expansive 15-inch touchscreen, while the all-glass roof floods the cabin with natural light. Whether navigating city traffic or cruising on a long road trip, the Model Y delivers effortless, refined performance wrapped in practical SUV versatility.
+
+---
+
+**Ready to go electric? Schedule your test drive today and experience what 330 miles of range and instant torque feel like behind the wheel.**

@@ -74,6 +74,49 @@ service_records: Available
 carfax_available: false
 date_added: '2025-12-01'
 ---
-This 2020 TESLA Model 3 Standard Range Plus is now available at JP Auto. With 122,100 miles, this vehicle comes with a clean title. 
+## Performance
+- **Powertrain:** Single Permanent Magnet Electric Motor
+- **Output:** 271 hp
+- **Torque:** 310 lb-ft (instant)
+- **0-60 MPH:** 5.3 seconds
+- **Top Speed:** 140 mph
+- **Transmission:** Single-Speed Direct Drive
 
-**Schedule a test drive today!**
+## Battery & Range
+- **Battery Capacity:** 54 kWh Lithium-Ion
+- **EPA Estimated Range:** 250 miles
+- **Emissions:** Zero Direct Emissions
+
+## Charging
+- **Supercharger:** Up to 180 miles of range in 15 minutes
+- **Tesla Wall Connector:** 44 miles of range per hour
+- **Supercharger Network:** Full access included
+
+## Dimensions
+- **Wheelbase:** 113.2 in
+- **Length:** 184.8 in
+- **Width:** 72.8 in
+- **Height:** 56.8 in
+- **Curb Weight:** 3,552 lbs
+- **Seating:** 5 adults
+- **Cargo Capacity:** 15 cu ft (rear trunk + front trunk)
+
+## Highlights
+- Rear-Wheel Drive
+- 15-inch center touchscreen
+- All-glass panoramic roof
+- Over-the-air software updates
+- Autopilot standard
+- Heated front seats
+- Premium audio system
+- Keyless entry and start
+- Navigation included
+
+---
+
+## The Driving Experience
+The Model 3 Standard Range Plus proves that accessible doesn't mean ordinary. Tap the accelerator and 310 lb-ft of instant torque launches you forward with the smooth, linear power delivery that defines the Tesla experience. The rear-wheel-drive layout and low-mounted battery pack create a balanced, nimble chassis that darts through corners with sports-car precision. Steering is quick and direct, responding to inputs with immediate feedback. The cabin is whisper-quiet at speed, free from engine noise and vibration—only subtle road and wind sounds accompany your drive. Inside, the minimalist interior centers around a single 15-inch touchscreen that controls everything from climate to music, while the all-glass roof opens up the space with natural light. It's a sedan that makes every commute feel like an event.
+
+---
+
+**Ready to join the electric revolution? Schedule your test drive today and discover why the Model 3 redefined what an electric car can be.**
