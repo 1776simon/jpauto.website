@@ -76,11 +76,11 @@ export default function Dashboard() {
       icon: DollarSign,
     },
     {
-      title: "Pending Submissions",
-      value: statsLoading ? "..." : (stats?.pending ?? 0).toString(),
+      title: "Potential Profit",
+      value: statsLoading ? "..." : formatCurrency((stats?.totalValue ?? 0) - (stats?.totalCost ?? 0)),
       change: "",
-      isPositive: false,
-      icon: Clock,
+      isPositive: true,
+      icon: TrendingUp,
     },
   ];
 

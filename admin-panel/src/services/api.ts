@@ -123,6 +123,7 @@ export interface InventoryStats {
   sold: number;
   pending: number;
   totalValue: number;
+  totalCost: number;
 }
 
 export interface PaginatedResponse<T> {
