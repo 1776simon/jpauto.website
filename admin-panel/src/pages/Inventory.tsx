@@ -1024,7 +1024,7 @@ export default function Inventory() {
                             value={editFormData.mpgCity || ''}
                             onChange={(e) => setEditFormData({ ...editFormData, mpgCity: parseInt(e.target.value) || undefined })}
                             placeholder="City MPG"
-                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                         <div>
@@ -1036,7 +1036,7 @@ export default function Inventory() {
                             value={editFormData.mpgHighway || ''}
                             onChange={(e) => setEditFormData({ ...editFormData, mpgHighway: parseInt(e.target.value) || undefined })}
                             placeholder="Highway MPG"
-                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                         <div>
