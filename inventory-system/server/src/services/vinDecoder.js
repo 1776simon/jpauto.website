@@ -49,7 +49,7 @@ class VINDecoderService {
       logger.info(`Decoding VIN: ${cleanVIN}`);
 
       // Call Auto.dev VIN Decoder API
-      const response = await fetch(`${this.baseURL}/v1/vin/${cleanVIN}`, {
+      const response = await fetch(`${this.baseURL}/vin/${cleanVIN}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -92,34 +92,35 @@ class VINDecoderService {
    * @returns {Object} Normalized vehicle data
    */
   normalizeVehicleData(apiData) {
-    // Auto.dev API response structure may vary, adjust as needed
-    // This is based on common Auto.dev API response format
+    // Auto.dev v2 API response structure
+    // The API may return data directly or nested in a 'data' property
+    const data = apiData.data || apiData;
 
     return {
       // Basic Information
-      year: this.extractValue(apiData, ['year', 'model_year']),
-      make: this.extractValue(apiData, ['make', 'manufacturer']),
-      model: this.extractValue(apiData, ['model']),
-      trim: this.extractValue(apiData, ['trim', 'trim_level']),
+      year: this.extractValue(data, ['year', 'model_year', 'years.year']),
+      make: this.extractValue(data, ['make', 'manufacturer', 'makes.name']),
+      model: this.extractValue(data, ['model', 'models.name']),
+      trim: this.extractValue(data, ['trim', 'trim_level', 'trims.name']),
 
       // Engine & Performance
-      engine: this.extractEngineDescription(apiData),
+      engine: this.extractEngineDescription(data),
       drivetrain: this.normalizeDrivetrain(
-        this.extractValue(apiData, ['drivetrain', 'drive_type', 'drive'])
+        this.extractValue(data, ['drivetrain', 'drive_type', 'drive', 'driveType'])
       ),
-      transmission: this.extractValue(apiData, ['transmission', 'transmission_type']),
-      horsepower: this.extractValue(apiData, ['horsepower', 'hp']),
+      transmission: this.extractValue(data, ['transmission', 'transmission_type', 'transmissionType']),
+      horsepower: this.extractValue(data, ['horsepower', 'hp', 'horsePower']),
 
       // Fuel Economy
-      mpgCity: this.extractValue(apiData, ['mpg_city', 'city_mpg', 'fuel_economy.city']),
-      mpgHighway: this.extractValue(apiData, ['mpg_highway', 'highway_mpg', 'fuel_economy.highway']),
-      fuelType: this.extractValue(apiData, ['fuel_type', 'fuel']),
+      mpgCity: this.extractValue(data, ['mpg_city', 'city_mpg', 'fuel_economy.city', 'fuelEconomy.city', 'cityMpg']),
+      mpgHighway: this.extractValue(data, ['mpg_highway', 'highway_mpg', 'fuel_economy.highway', 'fuelEconomy.highway', 'highwayMpg']),
+      fuelType: this.extractValue(data, ['fuel_type', 'fuel', 'fuelType']),
 
       // Physical Attributes
-      bodyType: this.extractValue(apiData, ['body_type', 'body_style', 'style']),
-      exteriorColor: this.extractValue(apiData, ['exterior_color', 'color']),
-      interiorColor: this.extractValue(apiData, ['interior_color']),
-      doors: this.extractValue(apiData, ['doors', 'door_count']),
+      bodyType: this.extractValue(data, ['body_type', 'body_style', 'style', 'bodyType']),
+      exteriorColor: this.extractValue(data, ['exterior_color', 'color', 'exteriorColor']),
+      interiorColor: this.extractValue(data, ['interior_color', 'interiorColor']),
+      doors: this.extractValue(data, ['doors', 'door_count', 'doorCount']),
 
       // Raw data for debugging
       _rawData: apiData
@@ -162,10 +163,10 @@ class VINDecoderService {
    */
   extractEngineDescription(apiData) {
     // Try to build a comprehensive engine description
-    const displacement = this.extractValue(apiData, ['engine_displacement', 'displacement', 'engine_size']);
-    const cylinders = this.extractValue(apiData, ['cylinders', 'cylinder_count', 'engine_cylinders']);
-    const engineType = this.extractValue(apiData, ['engine_type', 'engine']);
-    const aspiration = this.extractValue(apiData, ['aspiration', 'turbo', 'supercharged']);
+    const displacement = this.extractValue(apiData, ['engine_displacement', 'displacement', 'engine_size', 'engineDisplacement', 'engineSize']);
+    const cylinders = this.extractValue(apiData, ['cylinders', 'cylinder_count', 'engine_cylinders', 'cylinderCount', 'engineCylinders']);
+    const engineType = this.extractValue(apiData, ['engine_type', 'engine', 'engineType', 'engine_description', 'engineDescription']);
+    const aspiration = this.extractValue(apiData, ['aspiration', 'turbo', 'supercharged', 'turbocharged']);
 
     // Build description from available parts
     let description = '';
