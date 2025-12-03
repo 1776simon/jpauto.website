@@ -253,7 +253,8 @@ const uploadInventoryImages = async (req, res) => {
     const failedUploads = [];
 
     // Upload full-size images to R2 in parallel batches
-    const UPLOAD_BATCH_SIZE = 10; // Upload 10 images at a time
+    // Conservative limit: 12 concurrent uploads (minimal RAM impact)
+    const UPLOAD_BATCH_SIZE = 12;
 
     for (let i = 0; i < processedImages.fullSize.length; i += UPLOAD_BATCH_SIZE) {
       const batch = processedImages.fullSize.slice(i, i + UPLOAD_BATCH_SIZE);

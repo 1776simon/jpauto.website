@@ -134,8 +134,9 @@ const processVehicleImages = async (files, vin) => {
       thumbnails: []
     };
 
-    // Process images in parallel batches of 5 to avoid memory issues
-    const BATCH_SIZE = 5;
+    // Process images in parallel batches of 7 to avoid memory issues
+    // Conservative limit safe for Railway Hobby plan (512MB)
+    const BATCH_SIZE = 7;
 
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
       const batch = files.slice(i, i + BATCH_SIZE);

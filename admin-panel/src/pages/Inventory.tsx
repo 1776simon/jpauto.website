@@ -38,6 +38,7 @@ export default function Inventory() {
   const [selectedPhotos, setSelectedPhotos] = useState<{url: string, order: number}[]>([]);
   const [vinDecoding, setVinDecoding] = useState(false);
   const [vinStatus, setVinStatus] = useState<{type: 'success' | 'error' | 'loading' | null, message: string}>({type: null, message: ''});
+  const [uploadProgress, setUploadProgress] = useState<{current: number, total: number, percentage: number} | null>(null);
 
   // Fetch inventory
   const { data, isLoading } = useQuery({
@@ -292,6 +293,7 @@ export default function Inventory() {
     setVinStatus({ type: null, message: '' });
     setIsReordering(false);
     setSelectedPhotos([]);
+    setUploadProgress(null);
   };
 
   const handleAddNewClick = () => {
@@ -366,14 +368,28 @@ export default function Inventory() {
   }, [galleryOpen, galleryImages.length]);
 
   // Photo management handlers
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0 || !selectedItem) return;
 
-    uploadPhotosMutation.mutate({
-      id: selectedItem.id as number,
-      files
-    });
+    // Reset progress
+    setUploadProgress({ current: 0, total: files.length, percentage: 0 });
+
+    try {
+      // Upload all files at once (backend handles batching)
+      await uploadPhotosMutation.mutateAsync({
+        id: selectedItem.id as number,
+        files
+      });
+    } catch (error) {
+      // Error handled by mutation
+    } finally {
+      // Clear progress after completion
+      setTimeout(() => setUploadProgress(null), 1000);
+    }
+
+    // Reset file input
+    e.target.value = '';
   };
 
   const handleStartReordering = () => {
@@ -1161,10 +1177,15 @@ export default function Inventory() {
                                 accept="image/*"
                                 onChange={handlePhotoUpload}
                                 className="hidden"
+                                disabled={uploadPhotosMutation.isPending}
                               />
                               <label
                                 htmlFor="photo-upload"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg cursor-pointer hover:bg-primary/90 transition-colors"
+                                className={`inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg transition-colors ${
+                                  uploadPhotosMutation.isPending
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : 'cursor-pointer hover:bg-primary/90'
+                                }`}
                               >
                                 <Upload className="w-4 h-4" />
                                 {uploadPhotosMutation.isPending ? 'Uploading...' : 'Upload Photos'}
@@ -1202,6 +1223,33 @@ export default function Inventory() {
                                 ? 'Click photos in the order you want them. Click again to deselect.'
                                 : 'First photo is the primary image.'}
                             </p>
+
+                            {/* Upload Progress Indicator */}
+                            {uploadProgress && uploadProgress.total > 0 && (
+                              <div className="mt-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-sm font-medium text-foreground">
+                                    Processing {uploadProgress.total} photo{uploadProgress.total !== 1 ? 's' : ''}...
+                                  </span>
+                                  <span className="text-sm font-semibold text-primary">
+                                    {uploadPhotosMutation.isPending ? 'In progress...' : 'Complete!'}
+                                  </span>
+                                </div>
+                                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                                  <div
+                                    className="h-full bg-primary transition-all duration-300 ease-out"
+                                    style={{
+                                      width: uploadPhotosMutation.isPending ? '75%' : '100%'
+                                    }}
+                                  />
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  {uploadPhotosMutation.isPending
+                                    ? 'Please wait while images are being processed and uploaded...'
+                                    : 'Upload complete! Images will appear below.'}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </>
                       )}
