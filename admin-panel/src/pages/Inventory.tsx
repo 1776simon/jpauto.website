@@ -413,7 +413,7 @@ export default function Inventory() {
 
   const displayImages = editFormData.images || [];
 
-  // VIN Decoder Function (using Auto.dev API)
+  // VIN Decoder Function (using NHTSA API)
   const decodeVIN = async () => {
     const vin = (editFormData.vin || '').trim().toUpperCase();
 
@@ -424,10 +424,10 @@ export default function Inventory() {
     }
 
     setVinDecoding(true);
-    setVinStatus({ type: 'loading', message: 'Decoding VIN from Auto.dev...' });
+    setVinStatus({ type: 'loading', message: 'Decoding VIN from NHTSA database...' });
 
     try {
-      // Call Auto.dev VIN Decoder API via our backend
+      // Call NHTSA VIN Decoder API via our backend
       const vehicleData = await api.decodeVIN(vin);
 
       // Auto-fill form fields with decoded data
@@ -437,7 +437,7 @@ export default function Inventory() {
       if (vehicleData.model) updates.model = vehicleData.model;
       if (vehicleData.trim) updates.trim = vehicleData.trim;
 
-      // New fields from Auto.dev
+      // New fields from NHTSA
       if (vehicleData.engine) updates.engine = vehicleData.engine;
       if (vehicleData.drivetrain) updates.drivetrain = vehicleData.drivetrain;
       if (vehicleData.mpgCity) updates.mpgCity = vehicleData.mpgCity;

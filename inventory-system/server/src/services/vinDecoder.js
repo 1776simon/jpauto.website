@@ -1,30 +1,27 @@
 /**
- * VIN Decoder Service using Auto.dev API
+ * VIN Decoder Service using NHTSA API
  *
  * This service decodes VINs and retrieves vehicle specifications including:
  * - Year, Make, Model, Trim
- * - Engine specifications
+ * - Engine specifications (displacement, cylinders)
  * - Drivetrain type
- * - MPG (City/Highway)
  * - Body type, Transmission, Fuel type
  *
- * API Documentation: https://docs.auto.dev
+ * API: NHTSA Vehicle Product Information Catalog (vPIC)
+ * Endpoint: https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/{VIN}?format=json
+ * Documentation: https://vpic.nhtsa.dot.gov/api/
+ * Rate Limit: None (free, unlimited)
  */
 
 const logger = require('../config/logger');
 
 class VINDecoderService {
   constructor() {
-    this.apiKey = process.env.AUTO_DEV_API_KEY;
-    this.baseURL = 'https://api.auto.dev';
-
-    if (!this.apiKey) {
-      logger.warn('AUTO_DEV_API_KEY not configured. VIN decoding will not be available.');
-    }
+    this.baseURL = 'https://vpic.nhtsa.dot.gov/api/vehicles';
   }
 
   /**
-   * Decode a VIN using Auto.dev API
+   * Decode a VIN using NHTSA API
    * @param {string} vin - 17-character VIN
    * @returns {Promise<Object>} Decoded vehicle data
    */
@@ -40,45 +37,30 @@ class VINDecoderService {
       throw new Error('VIN must be exactly 17 characters');
     }
 
-    // Check if API key is configured
-    if (!this.apiKey) {
-      throw new Error('VIN decoder not configured. Please contact administrator.');
-    }
-
     try {
       logger.info(`Decoding VIN: ${cleanVIN}`);
 
-      // Call Auto.dev VIN Decoder API
-      const response = await fetch(`${this.baseURL}/vin/${cleanVIN}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // Call NHTSA VIN Decoder API
+      const response = await fetch(`${this.baseURL}/DecodeVin/${cleanVIN}?format=json`);
 
       if (!response.ok) {
         const errorText = await response.text();
-        logger.error(`Auto.dev API error: ${response.status} - ${errorText}`);
-
-        if (response.status === 401) {
-          throw new Error('Invalid API key');
-        } else if (response.status === 404) {
-          throw new Error('VIN not found in database');
-        } else if (response.status === 429) {
-          throw new Error('Rate limit exceeded. Please try again later.');
-        } else {
-          throw new Error(`Failed to decode VIN: ${response.statusText}`);
-        }
+        logger.error(`NHTSA API error: ${response.status} - ${errorText}`);
+        throw new Error(`Failed to decode VIN: ${response.statusText}`);
       }
 
       const data = await response.json();
 
+      // NHTSA returns data in Results array
+      if (!data.Results || data.Results.length === 0) {
+        throw new Error('VIN not found in NHTSA database');
+      }
+
       // Log the raw response for debugging
-      logger.info(`Raw Auto.dev response for VIN ${cleanVIN}:`, JSON.stringify(data, null, 2));
+      logger.info(`Raw NHTSA response for VIN ${cleanVIN}:`, JSON.stringify(data, null, 2));
 
       // Extract and normalize the relevant fields
-      const decodedData = this.normalizeVehicleData(data);
+      const decodedData = this.normalizeVehicleData(data.Results);
 
       logger.info(`Successfully decoded VIN: ${cleanVIN} - ${decodedData.year} ${decodedData.make} ${decodedData.model}`);
       logger.info(`Extracted data:`, JSON.stringify(decodedData, null, 2));
@@ -91,86 +73,77 @@ class VINDecoderService {
   }
 
   /**
-   * Normalize Auto.dev response to our internal format
-   * @param {Object} apiData - Raw API response
+   * Normalize NHTSA response to our internal format
+   * @param {Array} results - NHTSA Results array
    * @returns {Object} Normalized vehicle data
    */
-  normalizeVehicleData(apiData) {
-    // Auto.dev v2 API response structure
-    // The API may return data directly or nested in a 'data' property
-    const data = apiData.data || apiData;
-
+  normalizeVehicleData(results) {
     return {
       // Basic Information
-      year: this.extractValue(data, ['year', 'model_year', 'years.year']),
-      make: this.extractValue(data, ['make', 'manufacturer', 'makes.name']),
-      model: this.extractValue(data, ['model', 'models.name']),
-      trim: this.extractValue(data, ['trim', 'trim_level', 'trims.name']),
+      year: this.getValueByVariable(results, 'Model Year'),
+      make: this.getValueByVariable(results, 'Make'),
+      model: this.getValueByVariable(results, 'Model'),
+      trim: this.getValueByVariable(results, 'Trim') || this.getValueByVariable(results, 'Trim2'),
 
       // Engine & Performance
-      engine: this.extractEngineDescription(data),
+      engine: this.buildEngineDescription(results),
       drivetrain: this.normalizeDrivetrain(
-        this.extractValue(data, ['drivetrain', 'drive_type', 'drive', 'driveType'])
+        this.getValueByVariable(results, 'Drive Type')
       ),
-      transmission: this.extractValue(data, ['transmission', 'transmission_type', 'transmissionType']),
-      horsepower: this.extractValue(data, ['horsepower', 'hp', 'horsePower']),
+      transmission: this.getValueByVariable(results, 'Transmission Style') ||
+                     this.getValueByVariable(results, 'Transmission Speeds'),
+      horsepower: this.getValueByVariable(results, 'Engine Brake (hp)'),
 
-      // Fuel Economy
-      mpgCity: this.extractValue(data, ['mpg_city', 'city_mpg', 'fuel_economy.city', 'fuelEconomy.city', 'cityMpg']),
-      mpgHighway: this.extractValue(data, ['mpg_highway', 'highway_mpg', 'fuel_economy.highway', 'fuelEconomy.highway', 'highwayMpg']),
-      fuelType: this.extractValue(data, ['fuel_type', 'fuel', 'fuelType']),
+      // Fuel Economy - NHTSA doesn't provide MPG, return null
+      mpgCity: null,
+      mpgHighway: null,
+      fuelType: this.getValueByVariable(results, 'Fuel Type - Primary'),
 
       // Physical Attributes
-      bodyType: this.extractValue(data, ['body_type', 'body_style', 'style', 'bodyType']),
-      exteriorColor: this.extractValue(data, ['exterior_color', 'color', 'exteriorColor']),
-      interiorColor: this.extractValue(data, ['interior_color', 'interiorColor']),
-      doors: this.extractValue(data, ['doors', 'door_count', 'doorCount']),
+      bodyType: this.getValueByVariable(results, 'Body Class'),
+      exteriorColor: null, // NHTSA doesn't have this
+      interiorColor: null, // NHTSA doesn't have this
+      doors: this.getValueByVariable(results, 'Doors'),
+
+      // Additional useful fields from NHTSA
+      manufacturer: this.getValueByVariable(results, 'Manufacturer Name'),
+      plantCity: this.getValueByVariable(results, 'Plant City'),
+      plantCountry: this.getValueByVariable(results, 'Plant Country'),
+      series: this.getValueByVariable(results, 'Series'),
 
       // Raw data for debugging
-      _rawData: apiData
+      _rawData: results
     };
   }
 
   /**
-   * Extract value from nested object using multiple possible paths
-   * @param {Object} obj - Object to search
-   * @param {Array<string>} paths - Possible paths to value
+   * Extract value from NHTSA Results array by Variable name
+   * @param {Array} results - NHTSA Results array
+   * @param {string} variableName - The Variable field to search for
    * @returns {any} Extracted value or null
    */
-  extractValue(obj, paths) {
-    for (const path of paths) {
-      // Handle dot notation (e.g., 'fuel_economy.city')
-      const keys = path.split('.');
-      let value = obj;
+  getValueByVariable(results, variableName) {
+    const item = results.find(r => r.Variable === variableName);
+    const value = item && item.Value;
 
-      for (const key of keys) {
-        if (value && typeof value === 'object' && key in value) {
-          value = value[key];
-        } else {
-          value = null;
-          break;
-        }
-      }
-
-      if (value !== null && value !== undefined && value !== '' && value !== 'Not Applicable') {
-        return value;
-      }
+    // Return null for empty, "Not Applicable", or falsy values
+    if (!value || value === 'Not Applicable' || value === '' || value === 'null') {
+      return null;
     }
 
-    return null;
+    return value;
   }
 
   /**
-   * Extract and format engine description
-   * @param {Object} apiData - API response data
+   * Build engine description from NHTSA data
+   * @param {Array} results - NHTSA Results array
    * @returns {string|null} Formatted engine description
    */
-  extractEngineDescription(apiData) {
-    // Try to build a comprehensive engine description
-    const displacement = this.extractValue(apiData, ['engine_displacement', 'displacement', 'engine_size', 'engineDisplacement', 'engineSize']);
-    const cylinders = this.extractValue(apiData, ['cylinders', 'cylinder_count', 'engine_cylinders', 'cylinderCount', 'engineCylinders']);
-    const engineType = this.extractValue(apiData, ['engine_type', 'engine', 'engineType', 'engine_description', 'engineDescription']);
-    const aspiration = this.extractValue(apiData, ['aspiration', 'turbo', 'supercharged', 'turbocharged']);
+  buildEngineDescription(results) {
+    const displacement = this.getValueByVariable(results, 'Displacement (L)');
+    const cylinders = this.getValueByVariable(results, 'Engine Number of Cylinders');
+    const configuration = this.getValueByVariable(results, 'Engine Configuration');
+    const fuelType = this.getValueByVariable(results, 'Fuel Type - Primary');
 
     // Build description from available parts
     let description = '';
@@ -183,20 +156,28 @@ class VINDecoderService {
       description += `${cylinders}-Cylinder `;
     }
 
-    if (aspiration && aspiration.toLowerCase() !== 'naturally aspirated') {
-      description += `${aspiration} `;
+    if (configuration) {
+      description += `${configuration} `;
     }
 
-    if (engineType && !description.includes(engineType)) {
-      description += engineType;
+    if (fuelType && !description.toLowerCase().includes(fuelType.toLowerCase())) {
+      description += fuelType;
     }
 
-    return description.trim() || this.extractValue(apiData, ['engine_description', 'engine']);
+    const result = description.trim();
+
+    // If we couldn't build a description, try to get it directly
+    if (!result) {
+      return this.getValueByVariable(results, 'Engine Model') ||
+             this.getValueByVariable(results, 'Engine Manufacturer');
+    }
+
+    return result || null;
   }
 
   /**
-   * Normalize drivetrain to standard values (AWD, RWD, FWD)
-   * @param {string} drivetrain - Raw drivetrain value
+   * Normalize drivetrain to standard values (AWD, RWD, FWD, 4WD)
+   * @param {string} drivetrain - Raw drivetrain value from NHTSA
    * @returns {string|null} Normalized drivetrain
    */
   normalizeDrivetrain(drivetrain) {
@@ -204,12 +185,15 @@ class VINDecoderService {
 
     const normalized = drivetrain.toUpperCase();
 
-    // Map various formats to standard values
-    if (normalized.includes('AWD') || normalized.includes('ALL') || normalized.includes('4WD') || normalized.includes('FOUR')) {
+    // NHTSA returns values like: "AWD/All-Wheel Drive", "FWD/Front-Wheel Drive", etc.
+    // Map to our standard values: AWD, RWD, FWD, 4WD
+    if (normalized.includes('AWD') || normalized.includes('ALL-WHEEL') || normalized.includes('ALL WHEEL')) {
       return 'AWD';
-    } else if (normalized.includes('RWD') || normalized.includes('REAR')) {
+    } else if (normalized.includes('4WD') || normalized.includes('4X4') || normalized.includes('FOUR-WHEEL') || normalized.includes('FOUR WHEEL')) {
+      return '4WD';
+    } else if (normalized.includes('RWD') || normalized.includes('REAR-WHEEL') || normalized.includes('REAR WHEEL')) {
       return 'RWD';
-    } else if (normalized.includes('FWD') || normalized.includes('FRONT')) {
+    } else if (normalized.includes('FWD') || normalized.includes('FRONT-WHEEL') || normalized.includes('FRONT WHEEL')) {
       return 'FWD';
     }
 
