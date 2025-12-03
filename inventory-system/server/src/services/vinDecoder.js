@@ -176,7 +176,8 @@ class VINDecoderService {
   }
 
   /**
-   * Normalize drivetrain to standard values (AWD, RWD, FWD, 4WD)
+   * Normalize drivetrain to standard values (AWD, RWD, FWD)
+   * Note: 4WD is converted to AWD as they are functionally equivalent for our purposes
    * @param {string} drivetrain - Raw drivetrain value from NHTSA
    * @returns {string|null} Normalized drivetrain
    */
@@ -186,11 +187,11 @@ class VINDecoderService {
     const normalized = drivetrain.toUpperCase();
 
     // NHTSA returns values like: "AWD/All-Wheel Drive", "FWD/Front-Wheel Drive", etc.
-    // Map to our standard values: AWD, RWD, FWD, 4WD
-    if (normalized.includes('AWD') || normalized.includes('ALL-WHEEL') || normalized.includes('ALL WHEEL')) {
+    // Map to our standard values: AWD, RWD, FWD
+    // Note: Both 4WD and AWD are mapped to 'AWD' (functionally equivalent)
+    if (normalized.includes('AWD') || normalized.includes('ALL-WHEEL') || normalized.includes('ALL WHEEL') ||
+        normalized.includes('4WD') || normalized.includes('4X4') || normalized.includes('FOUR-WHEEL') || normalized.includes('FOUR WHEEL')) {
       return 'AWD';
-    } else if (normalized.includes('4WD') || normalized.includes('4X4') || normalized.includes('FOUR-WHEEL') || normalized.includes('FOUR WHEEL')) {
-      return '4WD';
     } else if (normalized.includes('RWD') || normalized.includes('REAR-WHEEL') || normalized.includes('REAR WHEEL')) {
       return 'RWD';
     } else if (normalized.includes('FWD') || normalized.includes('FRONT-WHEEL') || normalized.includes('FRONT WHEEL')) {
