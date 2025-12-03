@@ -188,12 +188,17 @@ const startServer = async () => {
       await syncDatabase({ alter: true });
     }
 
-    // Schedule DealerCenter exports (daily at 2:00 AM)
-    // DISABLED: Use manual trigger via POST /api/exports/dealer-center/upload
-    // if (process.env.ENABLE_DEALER_CENTER_EXPORT === 'true') {
-    //   const { scheduleDealerCenterExport } = require('./jobs/dealerCenterExport');
-    //   scheduleDealerCenterExport();
-    // }
+    // Schedule automated exports
+    // Jekyll export runs at 1:55 AM, Dealer Center at 2:00 AM (5 min later for VDP links)
+    if (process.env.ENABLE_SCHEDULED_EXPORTS === 'true') {
+      const { scheduleJekyllExport } = require('./jobs/jekyllExport');
+      const { scheduleDealerCenterExport } = require('./jobs/dealerCenterExport');
+
+      scheduleJekyllExport(); // 1:55 AM - Website inventory deploy
+      scheduleDealerCenterExport(); // 2:00 AM - Dealer Center FTP upload
+
+      logger.info('Scheduled exports enabled: Jekyll (1:55 AM) → Dealer Center (2:00 AM)');
+    }
 
     // Start listening
     app.listen(PORT, () => {
