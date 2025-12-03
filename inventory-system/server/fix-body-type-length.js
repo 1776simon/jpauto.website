@@ -1,11 +1,10 @@
 /**
- * Fix previous_owners column type from INTEGER to VARCHAR(10)
- * To support values like "4+"
+ * Quick fix script to increase body_type column length
  */
 
 const { Client } = require('pg');
 
-async function fixPreviousOwnersType() {
+async function fixBodyTypeLength() {
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
@@ -15,19 +14,17 @@ async function fixPreviousOwnersType() {
     await client.connect();
     console.log('✅ Connected to database');
 
-    // Change column type from INTEGER to VARCHAR(10) for both tables
+    // Increase body_type column length from VARCHAR(50) to VARCHAR(100)
     const query = `
-      -- Fix inventory table
       ALTER TABLE inventory
-      ALTER COLUMN previous_owners TYPE VARCHAR(10);
+      ALTER COLUMN body_type TYPE VARCHAR(100);
 
-      -- Fix pending_submissions table (if exists)
       ALTER TABLE pending_submissions
-      ALTER COLUMN previous_owners TYPE VARCHAR(10);
+      ALTER COLUMN body_type TYPE VARCHAR(100);
     `;
 
     await client.query(query);
-    console.log('✅ Updated previous_owners column type to VARCHAR(10)');
+    console.log('✅ Updated body_type column length to VARCHAR(100)');
     console.log('✅ Migration complete!');
 
   } catch (error) {
@@ -38,4 +35,4 @@ async function fixPreviousOwnersType() {
   }
 }
 
-fixPreviousOwnersType();
+fixBodyTypeLength();
