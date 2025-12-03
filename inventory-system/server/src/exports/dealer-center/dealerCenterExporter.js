@@ -47,10 +47,8 @@ const generateDealerCenterCSV = (vehicles) => {
 
   // Map vehicles to DealerCenter format
   const dealerCenterVehicles = vehicles.map(vehicle => {
-    // Generate VDP (Vehicle Detail Page) URL
-    const vdpUrl = vehicle.stockNumber
-      ? `https://jpautomotivegroup.com/vehicles/${vehicle.stockNumber.toLowerCase()}`
-      : '';
+    // Generate VDP (Vehicle Detail Page) URL - matches Jekyll URL format
+    const vdpUrl = generateVehicleURL(vehicle);
 
     // Format photo URLs (pipe-separated as per DMS standard)
     const photoURLs = vehicle.images && vehicle.images.length > 0
@@ -96,6 +94,29 @@ const generateDealerCenterCSV = (vehicles) => {
   const csv = parse(dealerCenterVehicles, { fields });
 
   return csv;
+};
+
+/**
+ * Generate vehicle URL in Jekyll format
+ * @param {object} vehicle - Vehicle object
+ * @returns {string} - Vehicle URL
+ */
+const generateVehicleURL = (vehicle) => {
+  if (!vehicle.vin || !vehicle.year || !vehicle.make || !vehicle.model) {
+    return '';
+  }
+
+  const year = vehicle.year;
+  const make = vehicle.make.toLowerCase().replace(/\s+/g, '-');
+  const model = vehicle.model.toLowerCase().replace(/\s+/g, '-');
+  const trim = vehicle.trim ? `-${vehicle.trim.toLowerCase().replace(/\s+/g, '-')}` : '';
+
+  // Use VIN last 6 characters to ensure uniqueness (same as Jekyll)
+  const uniqueId = vehicle.vin.slice(-6).toLowerCase();
+
+  const slug = `${year}-${make}-${model}${trim}-${uniqueId}`;
+
+  return `https://jpautomotivegroup.com/vehicles/${slug}`;
 };
 
 /**
