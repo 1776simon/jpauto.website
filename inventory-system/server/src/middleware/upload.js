@@ -7,17 +7,30 @@ const MAX_FILES = parseInt(process.env.MAX_IMAGES_PER_SUBMISSION) || 40;
 
 // File filter - only allow images
 const imageFilter = (req, file, cb) => {
-  // Allowed extensions
-  const allowedExts = ['.jpg', '.jpeg', '.png', '.webp'];
+  // Allowed extensions (including HEIC/HEIF for iPhone photos)
+  const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
   const ext = path.extname(file.originalname).toLowerCase();
 
-  // Allowed MIME types
-  const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  // Allowed MIME types (iPhone HEIC photos may have various MIME types)
+  const allowedMimes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/heic',
+    'image/heif',
+    'image/heic-sequence',
+    'image/heif-sequence'
+  ];
 
-  if (allowedExts.includes(ext) && allowedMimes.includes(file.mimetype)) {
+  // Check extension first (more reliable for mobile uploads)
+  if (allowedExts.includes(ext)) {
+    cb(null, true);
+  } else if (allowedMimes.includes(file.mimetype)) {
+    // Fallback to MIME type check (some browsers send correct MIME without extension)
     cb(null, true);
   } else {
-    cb(new Error(`Invalid file type. Only ${allowedExts.join(', ')} are allowed.`), false);
+    cb(new Error(`Invalid file type. Only images (JPG, PNG, WebP, HEIC) are allowed.`), false);
   }
 };
 

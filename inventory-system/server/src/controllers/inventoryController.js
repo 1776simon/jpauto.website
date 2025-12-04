@@ -232,21 +232,31 @@ const uploadInventoryImages = async (req, res) => {
   try {
     const { id } = req.params;
 
+    console.log(`[InventoryController] Upload request - Vehicle ID: ${id}, Files: ${req.files?.length || 0}`);
+
     const vehicle = await Inventory.findByPk(id);
 
     if (!vehicle) {
+      console.error(`[InventoryController] Vehicle not found: ${id}`);
       return res.status(404).json({
         error: 'Vehicle not found'
       });
     }
 
     if (!req.files || req.files.length === 0) {
+      console.error('[InventoryController] No files in request');
       return res.status(400).json({
         error: 'No images uploaded'
       });
     }
 
+    // Log file details for mobile debugging
+    req.files.forEach((file, idx) => {
+      console.log(`[InventoryController] File ${idx + 1}/${req.files.length}: ${file.originalname}, ${(file.size / 1024 / 1024).toFixed(2)}MB, ${file.mimetype}`);
+    });
+
     // Process and upload images
+    console.log(`[InventoryController] Starting image processing for VIN: ${vehicle.vin}`);
     const processedImages = await processVehicleImages(req.files, vehicle.vin);
 
     const imageUrls = [];

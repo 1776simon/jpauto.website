@@ -96,10 +96,20 @@ const createThumbnail = async (imageBuffer, width = THUMBNAIL_WIDTH) => {
  */
 const validateImage = async (imageBuffer, mimetype) => {
   try {
-    // Check MIME type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    // Check MIME type (including HEIC/HEIF for iPhone photos)
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/heic',
+      'image/heif',
+      'image/heic-sequence',
+      'image/heif-sequence'
+    ];
+
     if (!allowedTypes.includes(mimetype)) {
-      throw new Error('Invalid image type. Only JPEG, PNG, and WebP are allowed.');
+      throw new Error(`Invalid image type: ${mimetype}. Only JPEG, PNG, WebP, and HEIC are allowed.`);
     }
 
     // Check file size
@@ -115,8 +125,12 @@ const validateImage = async (imageBuffer, mimetype) => {
       throw new Error('Invalid image file');
     }
 
+    // Log successful validation (helpful for mobile debugging)
+    console.log(`[ImageProcessor] Validated ${mimetype} image: ${metadata.width}x${metadata.height}, ${sizeMB.toFixed(2)}MB`);
+
     return true;
   } catch (error) {
+    console.error(`[ImageProcessor] Validation failed for ${mimetype}:`, error.message);
     throw error;
   }
 };
