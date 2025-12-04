@@ -153,3 +153,22 @@
     letter-spacing: 0.05em;
   }
 }
+
+/* Indeterminate progress bar animation */
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+@layer utilities {
+  .animate-progress-indeterminate {
+    animation: progress-indeterminate 2s ease-in-out infinite;
+  }
+}

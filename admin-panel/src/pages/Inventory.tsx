@@ -1229,23 +1229,34 @@ export default function Inventory() {
                               <div className="mt-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
                                 <div className="flex items-center justify-between mb-2">
                                   <span className="text-sm font-medium text-foreground">
-                                    Processing {uploadProgress.total} photo{uploadProgress.total !== 1 ? 's' : ''}...
+                                    {uploadPhotosMutation.isPending ? 'Uploading' : 'Uploaded'} {uploadProgress.total} photo{uploadProgress.total !== 1 ? 's' : ''}...
                                   </span>
                                   <span className="text-sm font-semibold text-primary">
                                     {uploadPhotosMutation.isPending ? 'In progress...' : 'Complete!'}
                                   </span>
                                 </div>
-                                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                                  <div
-                                    className="h-full bg-primary transition-all duration-300 ease-out"
-                                    style={{
-                                      width: uploadPhotosMutation.isPending ? '75%' : '100%'
-                                    }}
-                                  />
+
+                                {/* Indeterminate Progress Bar */}
+                                <div className="w-full bg-muted rounded-full h-2 overflow-hidden relative">
+                                  {uploadPhotosMutation.isPending ? (
+                                    // Animated indeterminate progress bar
+                                    <div className="absolute inset-0">
+                                      <div
+                                        className="h-full bg-primary rounded-full animate-progress-indeterminate"
+                                        style={{
+                                          width: '40%'
+                                        }}
+                                      />
+                                    </div>
+                                  ) : (
+                                    // Complete - full width
+                                    <div className="h-full bg-primary w-full transition-all duration-300" />
+                                  )}
                                 </div>
+
                                 <p className="text-xs text-muted-foreground mt-2">
                                   {uploadPhotosMutation.isPending
-                                    ? 'Please wait while images are being processed and uploaded...'
+                                    ? 'Processing and uploading images in batches - this may take a moment...'
                                     : 'Upload complete! Images will appear below.'}
                                 </p>
                               </div>
