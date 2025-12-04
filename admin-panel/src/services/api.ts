@@ -256,60 +256,55 @@ class ApiService {
 
   // ===== Photo Management =====
   async uploadInventoryPhotos(id: number, files: File[]): Promise<{ images: string[] }> {
-    try {
-      // Log file details for debugging (especially helpful for mobile)
-      console.log(`[Upload] Starting upload of ${files.length} files`);
-      files.forEach((file, idx) => {
-        console.log(`[Upload] File ${idx + 1}: ${file.name}, ${(file.size / 1024 / 1024).toFixed(2)}MB, ${file.type}`);
-      });
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('images', file);
+    });
 
-      const formData = new FormData();
-      files.forEach(file => {
-        formData.append('images', file);
-      });
+    const url = `${API_URL}/api/inventory/${id}/images`;
 
-      const url = `${API_URL}/api/inventory/${id}/images`;
-      console.log(`[Upload] Sending to: ${url}`);
+    // Use XMLHttpRequest instead of fetch() for better Safari/iOS compatibility
+    // Safari has known issues with fetch() for large multipart uploads
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
 
-      const response = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData
-      });
-
-      console.log(`[Upload] Response status: ${response.status}`);
-
-      if (!response.ok) {
-        let errorMessage = 'Failed to upload photos';
-        try {
-          const error = await response.json();
-          errorMessage = error.message || error.error || errorMessage;
-        } catch (parseError) {
-          // If response isn't JSON, use status text
-          errorMessage = `Upload failed: ${response.statusText || response.status}`;
+      xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (error) {
+            reject(new Error('Failed to parse response'));
+          }
+        } else {
+          try {
+            const error = JSON.parse(xhr.responseText);
+            reject(new Error(error.message || error.error || 'Failed to upload photos'));
+          } catch {
+            reject(new Error(`HTTP ${xhr.status}: Failed to upload photos`));
+          }
         }
-        console.error(`[Upload] Error: ${errorMessage}`);
-        throw new Error(errorMessage);
-      }
+      };
 
-      const result = await response.json();
-      console.log(`[Upload] Success! Uploaded ${result.images?.length || 0} images`);
-      return result;
-    } catch (error: any) {
-      // Enhanced error logging for debugging
-      console.error('[Upload] Exception:', error);
+      xhr.onerror = function() {
+        reject(new Error('Network error - failed to upload photos'));
+      };
 
-      // Provide more helpful error messages
-      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-        throw new Error('Network error: Unable to connect to server. Check your internet connection.');
-      } else if (error.name === 'TypeError' && error.message.includes('Load failed')) {
-        throw new Error('Upload failed: File too large or network timeout. Try uploading fewer photos at once.');
-      } else if (error.message.includes('413')) {
-        throw new Error('Files too large. Try uploading fewer photos or smaller images.');
-      }
+      xhr.ontimeout = function() {
+        reject(new Error('Upload timed out - please try with fewer photos'));
+      };
 
-      throw error;
-    }
+      // Set timeout to 5 minutes for large uploads
+      xhr.timeout = 300000;
+
+      xhr.open('POST', url);
+
+      // Important: credentials must be set for CORS with cookies
+      xhr.withCredentials = true;
+
+      // Don't set Content-Type header - browser will set it automatically with boundary
+      xhr.send(formData);
+    });
   }
 
   async reorderInventoryPhotos(id: number, imageUrls: string[]): Promise<{ images: string[] }> {
