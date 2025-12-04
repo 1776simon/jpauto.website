@@ -237,17 +237,21 @@ class ApiService {
   }
 
   async createInventoryItem(data: Partial<InventoryItem>): Promise<InventoryItem> {
-    return this.request<InventoryItem>('/api/inventory', {
+    const response = await this.request<{ message: string; vehicle: InventoryItem }>('/api/inventory', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    // Backend returns { message, vehicle } wrapper - extract vehicle
+    return response.vehicle;
   }
 
   async updateInventoryItem(id: number, data: Partial<InventoryItem>): Promise<InventoryItem> {
-    return this.request<InventoryItem>(`/api/inventory/${id}`, {
+    const response = await this.request<{ message: string; vehicle: InventoryItem }>(`/api/inventory/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
+    // Backend returns { message, vehicle } wrapper - extract vehicle
+    return response.vehicle;
   }
 
   async deleteInventoryItem(id: number): Promise<void> {
