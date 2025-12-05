@@ -50,6 +50,106 @@ router.post('/run', isAdmin, async (req, res) => {
 });
 
 /**
+ * Run market research migrations
+ * POST /api/migrations/run-market-research
+ * ADMIN ONLY - Creates market research tables
+ */
+router.post('/run-market-research', isAdmin, async (req, res) => {
+  try {
+    logger.info('Running market research migrations...');
+
+    // Get all migration files from src/migrations directory
+    const migrationsDir = path.join(__dirname, '../migrations');
+
+    if (!fs.existsSync(migrationsDir)) {
+      return res.status(404).json({
+        success: false,
+        error: 'Migrations directory not found'
+      });
+    }
+
+    const migrationFiles = fs.readdirSync(migrationsDir)
+      .filter(file => file.endsWith('.js'))
+      .sort();
+
+    if (migrationFiles.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No migration files found',
+        migrations: []
+      });
+    }
+
+    const results = [];
+
+    // Run each migration
+    for (const file of migrationFiles) {
+      logger.info(`Running migration: ${file}`);
+
+      const migrationPath = path.join(migrationsDir, file);
+
+      // Clear require cache to ensure fresh load
+      delete require.cache[require.resolve(migrationPath)];
+      const migration = require(migrationPath);
+
+      if (typeof migration.up !== 'function') {
+        results.push({
+          file,
+          status: 'skipped',
+          message: 'No up() function found'
+        });
+        continue;
+      }
+
+      try {
+        await migration.up(sequelize.getQueryInterface(), sequelize.Sequelize);
+
+        results.push({
+          file,
+          status: 'success',
+          message: 'Migration completed successfully'
+        });
+
+        logger.info(`Migration ${file} completed successfully`);
+      } catch (error) {
+        // Check if error is about table already existing
+        if (error.message && (error.message.includes('already exists') || error.message.includes('duplicate'))) {
+          results.push({
+            file,
+            status: 'skipped',
+            message: 'Objects already exist'
+          });
+          logger.info(`Migration ${file} skipped - objects already exist`);
+        } else {
+          results.push({
+            file,
+            status: 'error',
+            message: error.message
+          });
+          logger.error(`Migration ${file} failed:`, error);
+        }
+      }
+    }
+
+    const successCount = results.filter(r => r.status === 'success').length;
+    const errorCount = results.filter(r => r.status === 'error').length;
+    const skippedCount = results.filter(r => r.status === 'skipped').length;
+
+    res.json({
+      success: errorCount === 0,
+      message: `Migrations complete: ${successCount} succeeded, ${skippedCount} skipped, ${errorCount} failed`,
+      migrations: results
+    });
+  } catch (error) {
+    logger.error('Migration endpoint error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * Check migration status
  * GET /api/migrations/status
  */
