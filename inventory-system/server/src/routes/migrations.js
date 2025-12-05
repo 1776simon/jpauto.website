@@ -150,6 +150,110 @@ router.post('/run-market-research', isAdmin, async (req, res) => {
 });
 
 /**
+ * Migrate photo URLs from R2.dev to custom domain
+ * POST /api/migrations/migrate-photo-urls
+ * ADMIN ONLY - Updates all existing photo URLs to use custom domain
+ */
+router.post('/migrate-photo-urls', isAdmin, async (req, res) => {
+  try {
+    logger.info('Starting photo URL migration...');
+
+    const Inventory = require('../models/Inventory');
+    const PendingSubmission = require('../models/PendingSubmission');
+
+    const OLD_URL = 'https://pub-1e321c8447c84ba3a8b4d85d8487d779.r2.dev';
+    const NEW_URL = process.env.R2_PUBLIC_URL || 'https://cdn.jpautomotivegroup.com';
+
+    logger.info(`Migrating from ${OLD_URL} to ${NEW_URL}`);
+
+    let inventoryUpdated = 0;
+    let submissionsUpdated = 0;
+
+    // Migrate Inventory
+    const inventoryRecords = await Inventory.findAll();
+    for (const record of inventoryRecords) {
+      let updated = false;
+
+      // Update images array
+      if (record.images && Array.isArray(record.images)) {
+        const updatedImages = record.images.map(url => {
+          if (url && url.startsWith(OLD_URL)) {
+            updated = true;
+            return url.replace(OLD_URL, NEW_URL);
+          }
+          return url;
+        });
+        record.images = updatedImages;
+      }
+
+      // Update primary image URL
+      if (record.primaryImageUrl && record.primaryImageUrl.startsWith(OLD_URL)) {
+        updated = true;
+        record.primaryImageUrl = record.primaryImageUrl.replace(OLD_URL, NEW_URL);
+      }
+
+      if (updated) {
+        await record.save();
+        inventoryUpdated++;
+        logger.info(`Updated inventory: ${record.year} ${record.make} ${record.model}`);
+      }
+    }
+
+    // Migrate Pending Submissions
+    const submissionRecords = await PendingSubmission.findAll();
+    for (const record of submissionRecords) {
+      let updated = false;
+
+      // Update images array
+      if (record.images && Array.isArray(record.images)) {
+        const updatedImages = record.images.map(url => {
+          if (url && url.startsWith(OLD_URL)) {
+            updated = true;
+            return url.replace(OLD_URL, NEW_URL);
+          }
+          return url;
+        });
+        record.images = updatedImages;
+      }
+
+      // Update primary image URL
+      if (record.primaryImageUrl && record.primaryImageUrl.startsWith(OLD_URL)) {
+        updated = true;
+        record.primaryImageUrl = record.primaryImageUrl.replace(OLD_URL, NEW_URL);
+      }
+
+      if (updated) {
+        await record.save();
+        submissionsUpdated++;
+        logger.info(`Updated submission: ${record.year} ${record.make} ${record.model}`);
+      }
+    }
+
+    logger.info(`Photo URL migration complete: ${inventoryUpdated} inventory + ${submissionsUpdated} submissions updated`);
+
+    res.json({
+      success: true,
+      message: `Photo URLs migrated successfully`,
+      results: {
+        oldUrl: OLD_URL,
+        newUrl: NEW_URL,
+        inventoryUpdated,
+        submissionsUpdated,
+        totalUpdated: inventoryUpdated + submissionsUpdated,
+        totalRecords: inventoryRecords.length + submissionRecords.length
+      }
+    });
+  } catch (error) {
+    logger.error('Photo URL migration failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Photo URL migration failed',
+      message: error.message
+    });
+  }
+});
+
+/**
  * Check migration status
  * GET /api/migrations/status
  */
