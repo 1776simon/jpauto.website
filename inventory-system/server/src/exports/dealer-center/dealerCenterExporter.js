@@ -83,7 +83,7 @@ const generateDealerCenterCSV = (vehicles) => {
       'WebAdDescription': generateWebAdDescription(vehicle),
       'VDP': vdpUrl,
       'FuelType': vehicle.fuelType || '',
-      'Description': vehicle.description || '',
+      'Description': formatDescriptionForDealerCenter(vehicle.description),
       'LatestPhotoModifiedDate': latestPhotoModified
     };
   });
@@ -144,6 +144,35 @@ const generateWebAdDescription = (vehicle) => {
   }
 
   return parts.join(' | ');
+};
+
+/**
+ * Format description with HTML line breaks for Dealer Center
+ * Converts plain text formatting to HTML that displays properly in DMS
+ * @param {string} description - Raw description text
+ * @returns {string} - HTML-formatted description
+ */
+const formatDescriptionForDealerCenter = (description) => {
+  if (!description) return '';
+
+  let formatted = description.trim();
+
+  // Replace double newlines with paragraph breaks
+  formatted = formatted.replace(/\n\n+/g, '<br><br>');
+
+  // Replace single newlines with line breaks
+  formatted = formatted.replace(/\n/g, '<br>');
+
+  // Format bullet points (if using -, *, or •)
+  formatted = formatted.replace(/^[\-\*•]\s+/gm, '• ');
+
+  // Clean up multiple consecutive <br> tags (max 2)
+  formatted = formatted.replace(/(<br>){3,}/gi, '<br><br>');
+
+  // Trim any leading/trailing <br> tags
+  formatted = formatted.replace(/^(<br>)+|(<br>)+$/gi, '');
+
+  return formatted;
 };
 
 /**
