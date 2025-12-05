@@ -12,17 +12,25 @@ class MarketEmailService {
   constructor() {
     this.enabled = process.env.MARKET_RESEARCH_ENABLED === 'true';
     this.alertEmail = process.env.MARKET_RESEARCH_ALERT_EMAIL || 'jpautomotivegroupllc@gmail.com';
+    this.transporter = null;
 
-    if (this.enabled) {
-      this.transporter = nodemailer.createTransporter({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT) || 587,
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
-        }
-      });
+    if (this.enabled && process.env.SMTP_USER && process.env.SMTP_PASS) {
+      try {
+        this.transporter = nodemailer.createTransporter({
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: parseInt(process.env.SMTP_PORT) || 587,
+          secure: process.env.SMTP_SECURE === 'true',
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+          }
+        });
+        logger.info('Email transporter initialized successfully');
+      } catch (error) {
+        logger.warn('Failed to initialize email transporter', { error: error.message });
+      }
+    } else if (this.enabled) {
+      logger.warn('Market research enabled but email configuration incomplete (missing SMTP_USER or SMTP_PASS)');
     }
   }
 
@@ -32,6 +40,11 @@ class MarketEmailService {
   async sendAlertEmail(alerts) {
     if (!this.enabled) {
       logger.warn('Email sending disabled (MARKET_RESEARCH_ENABLED=false)');
+      return false;
+    }
+
+    if (!this.transporter) {
+      logger.warn('Email transporter not configured - cannot send alerts');
       return false;
     }
 
@@ -333,6 +346,11 @@ Powered by Auto.dev Listings API
   async sendTestEmail() {
     if (!this.enabled) {
       logger.warn('Email sending disabled (MARKET_RESEARCH_ENABLED=false)');
+      return false;
+    }
+
+    if (!this.transporter) {
+      logger.warn('Email transporter not configured - cannot send test email');
       return false;
     }
 
