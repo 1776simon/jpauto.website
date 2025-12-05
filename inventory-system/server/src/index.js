@@ -131,7 +131,8 @@ app.get('/', (req, res) => {
       submissions: '/api/submissions',
       inventory: '/api/inventory',
       exports: '/api/exports',
-      users: '/api/users'
+      users: '/api/users',
+      marketResearch: '/api/market-research'
     }
   });
 });
@@ -162,6 +163,11 @@ app.use('/api/exports', require('./routes/exports'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/migrations', require('./routes/migrations'));
 app.use('/api/vin', require('./routes/vin'));
+
+// Market Research Routes
+app.use('/api/market-research', require('./routes/marketResearch'));
+app.use('/api/market-research/history', require('./routes/marketHistory'));
+app.use('/api/market-research/system', require('./routes/marketSystem'));
 
 // Standardized error handling
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
@@ -198,6 +204,13 @@ const startServer = async () => {
       scheduleDealerCenterExport(); // 2:00 AM - Dealer Center FTP upload
 
       logger.info('Scheduled exports enabled: Jekyll (1:55 AM) → Dealer Center (2:00 AM)');
+    }
+
+    // Start market research jobs
+    if (process.env.MARKET_RESEARCH_ENABLED === 'true') {
+      const jobManager = require('./jobs/jobManager');
+      jobManager.startAll();
+      logger.info('Market research jobs started: Analysis (every 3 days), Cleanup (weekly), Storage monitoring (daily)');
     }
 
     // Start listening
