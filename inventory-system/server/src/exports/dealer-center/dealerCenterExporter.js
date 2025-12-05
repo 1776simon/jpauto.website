@@ -147,15 +147,32 @@ const generateWebAdDescription = (vehicle) => {
 };
 
 /**
- * Format description with HTML line breaks for Dealer Center
- * Converts plain text formatting to HTML that displays properly in DMS
- * @param {string} description - Raw description text
+ * Format description with HTML formatting for Dealer Center
+ * Converts markdown-style and plain text formatting to HTML that displays properly in DMS
+ * @param {string} description - Raw description text (can include markdown-style formatting)
  * @returns {string} - HTML-formatted description
  */
 const formatDescriptionForDealerCenter = (description) => {
   if (!description) return '';
 
   let formatted = description.trim();
+
+  // Convert markdown-style bold: **text** or __text__ → <strong>text</strong>
+  formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  formatted = formatted.replace(/__(.+?)__/g, '<strong>$1</strong>');
+
+  // Convert markdown-style italic: *text* or _text_ → <em>text</em>
+  // (careful not to conflict with bullet points)
+  formatted = formatted.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+  formatted = formatted.replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g, '<em>$1</em>');
+
+  // Convert markdown-style bold+italic: ***text*** → <strong><em>text</em></strong>
+  formatted = formatted.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+
+  // Convert headings to bold with line break
+  // # Heading → <strong>Heading</strong><br>
+  // ## Heading → <strong>Heading</strong><br>
+  formatted = formatted.replace(/^#{1,3}\s+(.+?)$/gm, '<strong>$1</strong><br>');
 
   // Replace double newlines with paragraph breaks
   formatted = formatted.replace(/\n\n+/g, '<br><br>');
@@ -165,6 +182,9 @@ const formatDescriptionForDealerCenter = (description) => {
 
   // Format bullet points (if using -, *, or •)
   formatted = formatted.replace(/^[\-\*•]\s+/gm, '• ');
+
+  // Format numbered lists: "1. Item" → "1. Item"
+  // Already displays well, no change needed
 
   // Clean up multiple consecutive <br> tags (max 2)
   formatted = formatted.replace(/(<br>){3,}/gi, '<br><br>');
