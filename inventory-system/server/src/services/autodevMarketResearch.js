@@ -35,7 +35,8 @@ class AutoDevMarketResearchService {
 
     logger.info('Fetching market listings', {
       vehicle: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
-      params
+      params,
+      url // Log the full URL for debugging
     });
 
     try {
