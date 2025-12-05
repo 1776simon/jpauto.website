@@ -20,7 +20,7 @@ module.exports = {
         autoIncrement: true
       },
       vehicle_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'inventory',
@@ -100,7 +100,7 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       vehicle_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'inventory',
@@ -168,7 +168,7 @@ module.exports = {
         autoIncrement: true
       },
       vehicle_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'inventory',
@@ -319,7 +319,7 @@ module.exports = {
         autoIncrement: true
       },
       vehicle_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'inventory',

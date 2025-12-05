@@ -45,7 +45,7 @@ router.get('/overview', async (req, res) => {
  */
 router.get('/vehicle/:id', async (req, res) => {
   try {
-    const vehicleId = parseInt(req.params.id);
+    const vehicleId = req.params.id; // UUID string
 
     const detail = await marketAnalysisService.getVehicleDetail(vehicleId);
 
@@ -72,7 +72,7 @@ router.get('/vehicle/:id', async (req, res) => {
  */
 router.post('/vehicle/:id/analyze', async (req, res) => {
   try {
-    const vehicleId = parseInt(req.params.id);
+    const vehicleId = req.params.id; // UUID string
     const { yearRange } = req.body; // Optional: "±1", "±2", "±3"
 
     const result = await marketAnalysisService.analyzeVehicle(vehicleId, {
