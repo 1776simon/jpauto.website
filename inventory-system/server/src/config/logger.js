@@ -33,9 +33,22 @@ const format = winston.format.combine(
 const consoleFormat = winston.format.combine(
   winston.format.colorize({ all: true }),
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-  winston.format.printf(
-    (info) => `${info.timestamp} ${info.level}: ${info.message}${info.stack ? '\n' + info.stack : ''}`
-  )
+  winston.format.printf((info) => {
+    const { timestamp, level, message, stack, ...metadata } = info;
+    let log = `${timestamp} ${level}: ${message}`;
+
+    // Include metadata if present
+    if (Object.keys(metadata).length > 0) {
+      log += `\n${JSON.stringify(metadata, null, 2)}`;
+    }
+
+    // Include stack trace if present
+    if (stack) {
+      log += `\n${stack}`;
+    }
+
+    return log;
+  })
 );
 
 // Define which logs to display based on environment
