@@ -2,6 +2,8 @@ const { Inventory, PendingSubmission, User } = require('../models');
 const { uploadFile, deleteMultipleFiles, extractKeyFromUrl, uploadFileWithVerification } = require('../services/r2Storage');
 const { processVehicleImages, scanForVirus } = require('../services/imageProcessor');
 const { Op } = require('sequelize');
+const { sequelize } = require('../models');
+const logger = require('../config/logger');
 
 /**
  * Sanitize user input for LIKE queries to prevent SQL wildcards in user input
@@ -152,6 +154,8 @@ const getInventoryById = async (req, res) => {
  * POST /api/inventory
  */
 const createInventory = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
   try {
     const vehicleData = {
       ...req.body,
@@ -159,14 +163,21 @@ const createInventory = async (req, res) => {
       source: 'manual'
     };
 
-    const vehicle = await Inventory.create(vehicleData);
+    const vehicle = await Inventory.create(vehicleData, { transaction });
+
+    // Explicitly commit transaction to ensure data is immediately available
+    await transaction.commit();
+
+    // Log vehicle creation for export tracking
+    logger.info(`[InventoryController] Vehicle created: ID=${vehicle.id}, VIN=${vehicle.vin}, Status=${vehicle.status}, Time=${new Date().toISOString()}`);
 
     res.status(201).json({
       message: 'Vehicle added to inventory',
       vehicle
     });
   } catch (error) {
-    console.error('Error creating inventory:', error);
+    await transaction.rollback();
+    logger.error('Error creating inventory:', error);
 
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(400).json({
@@ -229,22 +240,26 @@ const updateInventory = async (req, res) => {
  * POST /api/inventory/:id/images
  */
 const uploadInventoryImages = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
   try {
     const { id } = req.params;
 
-    console.log(`[InventoryController] Upload request - Vehicle ID: ${id}, Files: ${req.files?.length || 0}`);
+    logger.info(`[InventoryController] Upload request - Vehicle ID: ${id}, Files: ${req.files?.length || 0}, Time=${new Date().toISOString()}`);
 
-    const vehicle = await Inventory.findByPk(id);
+    const vehicle = await Inventory.findByPk(id, { transaction });
 
     if (!vehicle) {
-      console.error(`[InventoryController] Vehicle not found: ${id}`);
+      await transaction.rollback();
+      logger.error(`[InventoryController] Vehicle not found: ${id}`);
       return res.status(404).json({
         error: 'Vehicle not found'
       });
     }
 
     if (!req.files || req.files.length === 0) {
-      console.error('[InventoryController] No files in request');
+      await transaction.rollback();
+      logger.error('[InventoryController] No files in request');
       return res.status(400).json({
         error: 'No images uploaded'
       });
@@ -314,6 +329,7 @@ const uploadInventoryImages = async (req, res) => {
 
     // Validate that at least some images uploaded successfully
     if (imageUrls.length === 0 && processedImages.fullSize.length > 0) {
+      await transaction.rollback();
       return res.status(500).json({
         error: 'All image uploads failed',
         message: 'Unable to upload any images. Please try again.',
@@ -343,7 +359,13 @@ const uploadInventoryImages = async (req, res) => {
       primaryImageUrl: finalImages[0] || null,
       latestPhotoModified: new Date(),
       updatedBy: req.user.id
-    });
+    }, { transaction });
+
+    // Explicitly commit transaction to ensure data is immediately available
+    await transaction.commit();
+
+    // Log photo upload completion for export tracking
+    logger.info(`[InventoryController] Photos uploaded: ID=${vehicle.id}, VIN=${vehicle.vin}, PhotoCount=${imageUrls.length}, TotalPhotos=${finalImages.length}, Time=${new Date().toISOString()}`);
 
     const response = {
       message: failedUploads.length > 0
@@ -361,7 +383,8 @@ const uploadInventoryImages = async (req, res) => {
 
     res.json(response);
   } catch (error) {
-    console.error('Error uploading images:', error);
+    await transaction.rollback();
+    logger.error('Error uploading images:', error);
     res.status(500).json({
       error: 'Failed to upload images',
       message: error.message

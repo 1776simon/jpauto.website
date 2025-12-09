@@ -16,15 +16,34 @@ const handleExport = async (req, res, config) => {
 
   try {
     const { status = 'available', includeAll = false } = req.query;
+    const exportStartTime = new Date().toISOString();
 
     // Get vehicles to export
     const where = includeAll !== undefined && includeAll !== 'false' ? (includeAll ? {} : { status }) : { status };
+
+    // Log export query start
+    logger.info(`[ExportController] ${displayName} export started: QueryTime=${exportStartTime}, Status=${JSON.stringify(where)}`);
+
     const vehicles = await Inventory.findAll({
       where,
       order: [['id', 'DESC']]
     });
 
+    // Log detailed vehicle info for debugging export timing issues
+    logger.info(`[ExportController] ${displayName} export query results: VehicleCount=${vehicles.length}, VINs=[${vehicles.map(v => v.vin).join(', ')}], IDs=[${vehicles.map(v => v.id).join(', ')}]`);
+
+    if (vehicles.length > 0) {
+      // Log creation times of newest vehicles to track export lag
+      const newest = vehicles.slice(0, 3); // First 3 (most recent due to DESC order)
+      newest.forEach(v => {
+        const createdAt = v.created_at || v.createdAt;
+        const photoModified = v.latestPhotoModified;
+        logger.info(`[ExportController] ${displayName} recent vehicle: ID=${v.id}, VIN=${v.vin}, CreatedAt=${createdAt}, PhotoModified=${photoModified || 'N/A'}`);
+      });
+    }
+
     if (vehicles.length === 0) {
+      logger.warn(`[ExportController] ${displayName} export: No vehicles found with filter ${JSON.stringify(where)}`);
       return res.status(404).json({
         error: 'No vehicles found',
         message: 'No vehicles available for export'
@@ -44,6 +63,10 @@ const handleExport = async (req, res, config) => {
     updateFields[`exportedTo${fieldPrefix}At`] = new Date();
 
     await Inventory.update(updateFields, { where: { id: vehicleIds } });
+
+    // Log successful export completion
+    const exportEndTime = new Date().toISOString();
+    logger.info(`[ExportController] ${displayName} export completed: EndTime=${exportEndTime}, VehicleCount=${vehiclesData.length}, SuccessCount=${results.success?.length || vehiclesData.length}`);
 
     // Handle response based on export type
     if (downloadable && results.filePath) {
