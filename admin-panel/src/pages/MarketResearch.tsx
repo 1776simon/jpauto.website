@@ -88,8 +88,8 @@ export default function MarketResearch() {
   });
 
   // Format currency
-  const formatCurrency = (value: number | null) => {
-    if (value === null) return "N/A";
+  const formatCurrency = (value: number | null | undefined) => {
+    if (value === null || value === undefined) return "N/A";
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
@@ -99,14 +99,14 @@ export default function MarketResearch() {
   };
 
   // Format percentage
-  const formatPercent = (value: number | null) => {
-    if (value === null) return "N/A";
+  const formatPercent = (value: number | null | undefined) => {
+    if (value === null || value === undefined) return "N/A";
     const sign = value > 0 ? "+" : "";
     return `${sign}${value.toFixed(1)}%`;
   };
 
   // Get position badge variant
-  const getPositionBadge = (position: string | null) => {
+  const getPositionBadge = (position: string | null | undefined) => {
     if (!position) return <Badge variant="secondary">No Data</Badge>;
 
     switch (position) {
@@ -136,17 +136,21 @@ export default function MarketResearch() {
   };
 
   // Format time ago
-  const timeAgo = (date: string | null) => {
+  const timeAgo = (date: string | null | undefined) => {
     if (!date) return "Never";
-    const now = new Date();
-    const past = new Date(date);
-    const diffMs = now.getTime() - past.getTime();
-    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    try {
+      const now = new Date();
+      const past = new Date(date);
+      const diffMs = now.getTime() - past.getTime();
+      const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-    if (diffHrs > 0) return `${diffHrs} hour${diffHrs > 1 ? "s" : ""} ago`;
-    return "Just now";
+      if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+      if (diffHrs > 0) return `${diffHrs} hour${diffHrs > 1 ? "s" : ""} ago`;
+      return "Just now";
+    } catch {
+      return "Never";
+    }
   };
 
   const statCards = [
@@ -300,7 +304,7 @@ export default function MarketResearch() {
                         <TableCell>{formatCurrency(vehicle.ourPrice)}</TableCell>
                         <TableCell>{formatCurrency(vehicle.medianMarketPrice)}</TableCell>
                         <TableCell>
-                          {vehicle.priceDeltaPercent !== null ? (
+                          {vehicle.priceDeltaPercent !== null && vehicle.priceDeltaPercent !== undefined ? (
                             <span
                               className={
                                 vehicle.priceDeltaPercent < 0
