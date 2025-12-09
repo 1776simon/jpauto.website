@@ -37,12 +37,12 @@ const consoleFormat = winston.format.combine(
     const { timestamp, level, message, stack, ...metadata } = info;
     let log = `${timestamp} ${level}: ${message}`;
 
-    // Include metadata if present
+    // Include metadata inline (single line, compact)
     if (Object.keys(metadata).length > 0) {
-      log += `\n${JSON.stringify(metadata, null, 2)}`;
+      log += ` ${JSON.stringify(metadata)}`;
     }
 
-    // Include stack trace if present
+    // Include stack trace if present (keep on separate line for errors)
     if (stack) {
       log += `\n${stack}`;
     }
