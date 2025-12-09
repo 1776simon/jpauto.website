@@ -111,7 +111,7 @@ class AutoDevMarketResearchService {
 
     // Mileage range with optional expansion
     const mileageRange = this.calculateMileageRange(vehicle.mileage, expansion);
-    params['retailListing.mileage'] = `${mileageRange.min}-${mileageRange.max}`;
+    params['retailListing.miles'] = `${mileageRange.min}-${mileageRange.max}`;
 
     return params;
   }
