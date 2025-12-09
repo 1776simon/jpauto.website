@@ -1,5 +1,15 @@
 const { Sequelize } = require('sequelize');
+const logger = require('./logger');
 require('dotenv').config();
+
+// Custom query logger - condenses SQL queries into single line
+const queryLogger = (sql, timing) => {
+  // Only log in development
+  if (process.env.NODE_ENV === 'development') {
+    const condensed = sql.replace(/\s+/g, ' ').substring(0, 100);
+    logger.debug(`DB Query: ${condensed}... (${timing}ms)`);
+  }
+};
 
 const sequelize = new Sequelize(process.env.DATABASE_URL || {
   database: process.env.DB_NAME,
@@ -8,7 +18,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL || {
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 5432,
   dialect: 'postgres',
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  logging: false, // Disable all Sequelize query logging
   pool: {
     max: 5,
     min: 0,

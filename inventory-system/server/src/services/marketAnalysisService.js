@@ -298,18 +298,45 @@ class MarketAnalysisService {
 
       const [results] = await sequelize.query(query);
 
+      // Transform results to camelCase for frontend
+      const vehicles = results.map(v => ({
+        id: v.id,
+        year: v.year,
+        make: v.make,
+        model: v.model,
+        trim: v.trim || null,
+        vin: v.vin,
+        ourPrice: parseFloat(v.our_price),
+        medianMarketPrice: v.market_median ? parseFloat(v.market_median) : null,
+        priceDelta: v.price_delta ? parseFloat(v.price_delta) : null,
+        priceDeltaPercent: v.price_delta_percent ? parseFloat(v.price_delta_percent) : null,
+        position: v.competitive_position || null,
+        percentileRank: v.percentile_rank ? parseFloat(v.percentile_rank) : null,
+        listingsFound: v.total_listings || 0,
+        lastAnalyzed: v.last_analyzed || null,
+        daysInMarket: v.days_in_market || 0
+      }));
+
       // Calculate summary statistics
+      const analyzedVehicles = results.filter(r => r.last_analyzed);
+      const latestAnalysis = analyzedVehicles.length > 0
+        ? analyzedVehicles.reduce((latest, v) =>
+            new Date(v.last_analyzed) > new Date(latest.last_analyzed) ? v : latest
+          ).last_analyzed
+        : null;
+
       const summary = {
         totalVehicles: results.length,
-        analyzed: results.filter(r => r.last_analyzed).length,
+        analyzedVehicles: analyzedVehicles.length,
         competitive: results.filter(r => r.competitive_position === 'competitive').length,
         aboveMarket: results.filter(r => r.competitive_position === 'above_market').length,
         belowMarket: results.filter(r => r.competitive_position === 'below_market').length,
-        averagePosition: this.calculateAveragePosition(results)
+        averagePosition: this.calculateAveragePosition(results),
+        lastUpdated: latestAnalysis
       };
 
       return {
-        vehicles: results,
+        vehicles,
         summary
       };
     } catch (error) {
