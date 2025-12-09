@@ -567,6 +567,20 @@ class ApiService {
     document.body.removeChild(a);
   }
 
+  async exportAndUploadToDealerCenter(): Promise<any> {
+    const url = `${API_URL}/api/exports/dealer-center/upload`;
+    const response = await fetch(url, {
+      credentials: 'include',
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error('Export and upload failed');
+    }
+
+    return response.json();
+  }
+
   async decodeVIN(vin: string): Promise<any> {
     const url = `${API_URL}/api/vin/decode`;
     const response = await fetch(url, {

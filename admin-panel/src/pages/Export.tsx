@@ -1,10 +1,7 @@
 import { AdminLayout } from "@/components/AdminLayout";
 import {
   Download,
-  FileText,
-  Facebook,
   Building2,
-  Car,
   CheckCircle,
   Loader2,
 } from "lucide-react";
@@ -36,46 +33,24 @@ export default function Export() {
 
   const exportOptions = [
     {
-      id: "autotrader",
-      name: "AutoTrader",
-      description: "Export inventory feed for AutoTrader listing platform",
-      icon: Car,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200",
-      exportFn: () => api.exportToAutoTrader(),
-      fileFormat: "XML",
-    },
-    {
-      id: "cargurus",
-      name: "CarGurus",
-      description: "Export inventory feed for CarGurus marketplace",
-      icon: FileText,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200",
-      exportFn: () => api.exportToCarGurus(),
-      fileFormat: "XML",
-    },
-    {
-      id: "facebook",
-      name: "Facebook Marketplace",
-      description: "Export inventory for Facebook Marketplace listings",
-      icon: Facebook,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      exportFn: () => api.exportToFacebook(),
-      fileFormat: "CSV",
-    },
-    {
-      id: "dealer-center",
-      name: "Dealer Center (DMS)",
-      description: "Export inventory data to Dealer Management System",
+      id: "dealer-center-upload",
+      name: "Export to Dealer Center",
+      description: "Export and upload inventory to Dealer Management System via FTP",
       icon: Building2,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200",
+      exportFn: () => api.exportAndUploadToDealerCenter(),
+      fileFormat: "CSV",
+    },
+    {
+      id: "dealer-center-download",
+      name: "Download export file",
+      description: "Download Dealer Center CSV file to your computer",
+      icon: Download,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+      borderColor: "border-blue-200",
       exportFn: () => api.exportToDealerCenter(),
       fileFormat: "CSV",
     },
@@ -176,41 +151,24 @@ export default function Export() {
 
           <div className="space-y-4 text-sm">
             <div>
-              <h4 className="font-medium text-foreground mb-2">AutoTrader</h4>
+              <h4 className="font-medium text-foreground mb-2">
+                Export to Dealer Center
+              </h4>
               <p className="text-muted-foreground">
-                Downloads an XML file formatted to AutoTrader's feed
-                specifications. Upload this file to your AutoTrader account's
-                inventory feed settings.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-foreground mb-2">CarGurus</h4>
-              <p className="text-muted-foreground">
-                Downloads an XML file compatible with CarGurus' import system.
-                Upload to your CarGurus dealer account under Inventory
-                Management.
+                Automatically exports and uploads your inventory to the Dealer Management System via FTP.
+                This is the same process that runs on the scheduled daily export at 2:00 AM.
+                Use this option to manually trigger an immediate export and upload.
               </p>
             </div>
 
             <div>
               <h4 className="font-medium text-foreground mb-2">
-                Facebook Marketplace
+                Download export file
               </h4>
               <p className="text-muted-foreground">
-                Downloads a CSV file formatted for Facebook's vehicle inventory
-                feed. Upload through Facebook Business Manager under Catalog
-                Management.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-foreground mb-2">
-                Dealer Center (DMS)
-              </h4>
-              <p className="text-muted-foreground">
-                Downloads a CSV file compatible with most Dealer Management
-                Systems. Import through your DMS's inventory import tool.
+                Downloads a CSV file compatible with Dealer Center format to your computer.
+                Use this option if you need to manually review the export file or upload it yourself
+                through your DMS's inventory import tool.
               </p>
             </div>
           </div>
@@ -225,27 +183,25 @@ export default function Export() {
             <li className="flex items-start gap-2">
               <span className="text-primary mt-1">•</span>
               <span>
-                Export regularly to keep your listings up to date across all
-                platforms
+                The scheduled export runs daily at 2:00 AM - use manual export only when immediate updates are needed
               </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-1">•</span>
               <span>
-                Verify vehicle data is complete before exporting to avoid errors
+                Verify vehicle data is complete before exporting to avoid errors in the DMS
               </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-1">•</span>
               <span>
-                Only vehicles marked as "available" will be included in exports
+                Only vehicles marked as "available" or "pending" will be included in exports
               </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-1">•</span>
               <span>
-                Each platform has specific requirements - review the exported
-                file before uploading
+                Download the export file occasionally to review data quality and accuracy
               </span>
             </li>
             <li className="flex items-start gap-2">
@@ -261,7 +217,7 @@ export default function Export() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div className="m3-card p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Car className="w-4 h-4 text-primary" />
+              <Building2 className="w-4 h-4 text-primary" />
               <span className="font-semibold text-foreground">
                 Inventory Synced
               </span>
@@ -279,7 +235,7 @@ export default function Export() {
               </span>
             </div>
             <p className="text-muted-foreground">
-              All exports are validated against platform requirements
+              All exports are validated against Dealer Center format requirements
             </p>
           </div>
 
@@ -287,11 +243,11 @@ export default function Export() {
             <div className="flex items-center gap-2 mb-2">
               <Download className="w-4 h-4 text-blue-600" />
               <span className="font-semibold text-foreground">
-                Instant Download
+                Instant Processing
               </span>
             </div>
             <p className="text-muted-foreground">
-              Files are generated on-demand and download immediately
+              Files are generated on-demand and processed immediately
             </p>
           </div>
         </div>
