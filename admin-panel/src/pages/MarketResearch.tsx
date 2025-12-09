@@ -1,0 +1,393 @@
+import { AdminLayout } from "@/components/AdminLayout";
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  AlertTriangle,
+  RefreshCw,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  BarChart3,
+  Activity,
+  Play,
+} from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "@/services/api";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+
+export default function MarketResearch() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+
+  // Fetch market overview
+  const { data: overview, isLoading: overviewLoading } = useQuery({
+    queryKey: ["marketOverview"],
+    queryFn: () => api.getMarketOverview(),
+    refetchInterval: 60000, // Refetch every minute
+  });
+
+  // Fetch recent alerts
+  const { data: alerts } = useQuery({
+    queryKey: ["marketAlerts"],
+    queryFn: () => api.getMarketAlerts({ limit: 10 }),
+  });
+
+  // Fetch job status
+  const { data: jobsStatus } = useQuery({
+    queryKey: ["marketJobsStatus"],
+    queryFn: () => api.getMarketJobsStatus(),
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
+  // Analyze all vehicles mutation
+  const analyzeAllMutation = useMutation({
+    mutationFn: () => api.analyzeAllVehicles(),
+    onSuccess: () => {
+      toast({
+        title: "Analysis Started",
+        description: "Market analysis has been queued for all vehicles.",
+      });
+      // Refetch overview after 10 seconds to see updates
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["marketOverview"] });
+      }, 10000);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Analysis Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Run job mutation
+  const runJobMutation = useMutation({
+    mutationFn: (jobName: string) => api.runMarketJob(jobName),
+    onSuccess: () => {
+      toast({
+        title: "Job Started",
+        description: "The scheduled job has been triggered manually.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["marketJobsStatus"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Job Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Format currency
+  const formatCurrency = (value: number | null) => {
+    if (value === null) return "N/A";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  // Format percentage
+  const formatPercent = (value: number | null) => {
+    if (value === null) return "N/A";
+    const sign = value > 0 ? "+" : "";
+    return `${sign}${value.toFixed(1)}%`;
+  };
+
+  // Get position badge variant
+  const getPositionBadge = (position: string | null) => {
+    if (!position) return <Badge variant="secondary">No Data</Badge>;
+
+    switch (position) {
+      case "below_market":
+        return <Badge className="bg-green-500">Below Market</Badge>;
+      case "competitive":
+        return <Badge className="bg-blue-500">Competitive</Badge>;
+      case "above_market":
+        return <Badge className="bg-red-500">Above Market</Badge>;
+      default:
+        return <Badge variant="secondary">{position}</Badge>;
+    }
+  };
+
+  // Get severity badge
+  const getSeverityBadge = (severity: string) => {
+    switch (severity) {
+      case "critical":
+        return <Badge variant="destructive">Critical</Badge>;
+      case "warning":
+        return <Badge className="bg-yellow-500">Warning</Badge>;
+      case "info":
+        return <Badge variant="secondary">Info</Badge>;
+      default:
+        return <Badge>{severity}</Badge>;
+    }
+  };
+
+  // Format time ago
+  const timeAgo = (date: string | null) => {
+    if (!date) return "Never";
+    const now = new Date();
+    const past = new Date(date);
+    const diffMs = now.getTime() - past.getTime();
+    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+    if (diffHrs > 0) return `${diffHrs} hour${diffHrs > 1 ? "s" : ""} ago`;
+    return "Just now";
+  };
+
+  const statCards = [
+    {
+      title: "Analyzed Vehicles",
+      value: overviewLoading ? "..." : `${overview?.summary.analyzedVehicles ?? 0}/${overview?.summary.totalVehicles ?? 0}`,
+      icon: BarChart3,
+      description: "Vehicles with market data",
+    },
+    {
+      title: "Below Market",
+      value: overviewLoading ? "..." : (overview?.summary.belowMarket ?? 0).toString(),
+      icon: TrendingDown,
+      description: "Priced below market median",
+      color: "text-green-500",
+    },
+    {
+      title: "Competitive",
+      value: overviewLoading ? "..." : (overview?.summary.competitive ?? 0).toString(),
+      icon: Activity,
+      description: "Within ±10% of market",
+      color: "text-blue-500",
+    },
+    {
+      title: "Above Market",
+      value: overviewLoading ? "..." : (overview?.summary.aboveMarket ?? 0).toString(),
+      icon: TrendingUp,
+      description: "Priced above market median",
+      color: "text-red-500",
+    },
+  ];
+
+  return (
+    <AdminLayout
+      title="Market Research"
+      description="Competitive pricing analysis powered by Auto.dev"
+    >
+      <div className="space-y-6">
+        {/* Header Actions */}
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Last updated: {overview?.summary.lastUpdated ? timeAgo(overview.summary.lastUpdated) : "Never"}
+            </p>
+          </div>
+          <Button
+            onClick={() => analyzeAllMutation.mutate()}
+            disabled={analyzeAllMutation.isPending}
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${analyzeAllMutation.isPending ? "animate-spin" : ""}`} />
+            Analyze All Vehicles
+          </Button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {statCards.map((card, index) => {
+            const Icon = card.icon;
+            return (
+              <Card key={index}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+                  <Icon className={`h-4 w-4 ${card.color || "text-muted-foreground"}`} />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{card.value}</div>
+                  <p className="text-xs text-muted-foreground">{card.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Recent Alerts */}
+        {alerts && alerts.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                Recent Alerts
+              </CardTitle>
+              <CardDescription>Price changes and market alerts</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {alerts.map((alert) => (
+                  <div
+                    key={alert.id}
+                    className="flex items-start gap-3 p-3 rounded-lg border bg-card"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        {getSeverityBadge(alert.severity)}
+                        <span className="text-sm font-medium">{alert.title}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {alert.year} {alert.make} {alert.model} {alert.trim}
+                      </p>
+                      <p className="text-sm">{alert.message}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {timeAgo(alert.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Vehicles Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Vehicle Market Analysis</CardTitle>
+            <CardDescription>
+              Competitive pricing data for your inventory
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {overviewLoading ? (
+              <div className="flex justify-center py-8">
+                <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : overview?.vehicles && overview.vehicles.length > 0 ? (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Vehicle</TableHead>
+                      <TableHead>Our Price</TableHead>
+                      <TableHead>Market Median</TableHead>
+                      <TableHead>Delta</TableHead>
+                      <TableHead>Position</TableHead>
+                      <TableHead>Listings</TableHead>
+                      <TableHead>Last Analyzed</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {overview.vehicles.map((vehicle) => (
+                      <TableRow key={vehicle.id} className="cursor-pointer hover:bg-muted/50">
+                        <TableCell className="font-medium">
+                          <div>
+                            <div>
+                              {vehicle.year} {vehicle.make} {vehicle.model}
+                            </div>
+                            {vehicle.trim && (
+                              <div className="text-xs text-muted-foreground">{vehicle.trim}</div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>{formatCurrency(vehicle.ourPrice)}</TableCell>
+                        <TableCell>{formatCurrency(vehicle.medianMarketPrice)}</TableCell>
+                        <TableCell>
+                          {vehicle.priceDeltaPercent !== null ? (
+                            <span
+                              className={
+                                vehicle.priceDeltaPercent < 0
+                                  ? "text-green-500"
+                                  : vehicle.priceDeltaPercent > 0
+                                  ? "text-red-500"
+                                  : ""
+                              }
+                            >
+                              {formatCurrency(vehicle.priceDelta)} ({formatPercent(vehicle.priceDeltaPercent)})
+                            </span>
+                          ) : (
+                            "N/A"
+                          )}
+                        </TableCell>
+                        <TableCell>{getPositionBadge(vehicle.position)}</TableCell>
+                        <TableCell>{vehicle.listingsFound || 0}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {timeAgo(vehicle.lastAnalyzed)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No market data available</p>
+                <p className="text-sm mt-2">Click "Analyze All Vehicles" to start</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Job Status */}
+        {jobsStatus && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Scheduled Jobs
+              </CardTitle>
+              <CardDescription>Automated market research tasks</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Object.entries(jobsStatus).map(([jobName, status]) => (
+                  <div key={jobName} className="flex items-center justify-between p-4 rounded-lg border">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium capitalize">
+                          {jobName.replace(/([A-Z])/g, " $1").trim()}
+                        </span>
+                        {status.enabled ? (
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-500" />
+                        )}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <p>Schedule: {status.schedule}</p>
+                        <p>Last run: {timeAgo(status.lastRun)}</p>
+                        {status.lastResult && (
+                          <p>
+                            Status: {status.lastResult.success ? "✓ Success" : "✗ Failed"}
+                            {status.lastResult.vehiclesAnalyzed !== undefined &&
+                              ` - ${status.lastResult.vehiclesAnalyzed} vehicles analyzed`}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => runJobMutation.mutate(jobName)}
+                      disabled={runJobMutation.isPending || status.isRunning}
+                    >
+                      <Play className="h-4 w-4 mr-1" />
+                      Run Now
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </AdminLayout>
+  );
+}

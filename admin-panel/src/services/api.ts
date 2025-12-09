@@ -126,6 +126,124 @@ export interface InventoryStats {
   totalCost: number;
 }
 
+// Market Research Types
+export interface MarketSnapshot {
+  id: number;
+  vehicle_id: string;
+  search_params: any;
+  listings_data: any[];
+  total_listings: number;
+  unique_listings: number;
+  median_price: number;
+  average_price: number;
+  min_price: number;
+  max_price: number;
+  snapshot_date: string;
+  created_at: string;
+}
+
+export interface MarketMetrics {
+  id: number;
+  vehicle_id: string;
+  snapshot_id: number;
+  our_price: number;
+  median_price: number;
+  average_price: number;
+  min_price: number;
+  max_price: number;
+  price_delta: number;
+  price_delta_percent: number;
+  percentile_rank: number;
+  cheaper_count: number;
+  more_expensive_count: number;
+  competitive_position: 'below_market' | 'competitive' | 'above_market';
+  days_in_market: number;
+  created_at: string;
+}
+
+export interface MarketAlert {
+  id: number;
+  vehicle_id: string;
+  snapshot_id: number;
+  severity: 'info' | 'warning' | 'critical';
+  alert_type: string;
+  title: string;
+  message: string;
+  emailed_at?: string;
+  year: number;
+  make: string;
+  model: string;
+  trim?: string;
+  vin: string;
+  created_at: string;
+}
+
+export interface MarketPriceHistory {
+  vehicle_id: string;
+  date: string;
+  median_price: number;
+  change_1week: number | null;
+  change_2week: number | null;
+  change_1month: number | null;
+  created_at: string;
+}
+
+export interface MarketOverview {
+  summary: {
+    totalVehicles: number;
+    analyzedVehicles: number;
+    belowMarket: number;
+    competitive: number;
+    aboveMarket: number;
+    averagePosition: number | null;
+    lastUpdated: string | null;
+  };
+  vehicles: Array<{
+    id: string;
+    year: number;
+    make: string;
+    model: string;
+    trim?: string;
+    vin: string;
+    ourPrice: number;
+    medianMarketPrice: number | null;
+    priceDelta: number | null;
+    priceDeltaPercent: number | null;
+    position: 'below_market' | 'competitive' | 'above_market' | null;
+    percentileRank: number | null;
+    listingsFound: number;
+    lastAnalyzed: string | null;
+    daysInMarket: number;
+  }>;
+}
+
+export interface VehicleMarketDetail {
+  vehicle: InventoryItem;
+  latestSnapshot: MarketSnapshot | null;
+  latestMetrics: MarketMetrics | null;
+  priceHistory: MarketPriceHistory[];
+  recentAlerts: MarketAlert[];
+}
+
+export interface JobStatus {
+  enabled: boolean;
+  schedule: string;
+  isRunning: boolean;
+  lastRun: string | null;
+  lastResult: any;
+}
+
+export interface MarketSystemHealth {
+  healthy: boolean;
+  checks: {
+    database: boolean;
+    autodevApi: boolean;
+    email: boolean;
+    storage: boolean;
+  };
+  timestamp: string;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
@@ -467,6 +585,52 @@ class ApiService {
 
     const result = await response.json();
     return result.data;
+  }
+
+  // ===== Market Research endpoints =====
+  async getMarketOverview(): Promise<MarketOverview> {
+    const response = await this.request<{ success: boolean; data: MarketOverview }>('/api/market-research/overview');
+    return response.data;
+  }
+
+  async getVehicleMarketDetail(vehicleId: string): Promise<VehicleMarketDetail> {
+    const response = await this.request<{ success: boolean; data: VehicleMarketDetail }>(`/api/market-research/vehicle/${vehicleId}`);
+    return response.data;
+  }
+
+  async analyzeVehicle(vehicleId: string, yearRange?: string): Promise<any> {
+    return this.request(`/api/market-research/vehicle/${vehicleId}/analyze`, {
+      method: 'POST',
+      body: JSON.stringify({ yearRange }),
+    });
+  }
+
+  async analyzeAllVehicles(): Promise<any> {
+    return this.request('/api/market-research/analyze-all', {
+      method: 'POST',
+    });
+  }
+
+  async getMarketAlerts(params?: { severity?: string; limit?: number; vehicleId?: string }): Promise<MarketAlert[]> {
+    const query = new URLSearchParams(params as any).toString();
+    const response = await this.request<{ success: boolean; data: MarketAlert[] }>(`/api/market-research/alerts${query ? '?' + query : ''}`);
+    return response.data;
+  }
+
+  async getMarketJobsStatus(): Promise<Record<string, JobStatus>> {
+    const response = await this.request<{ success: boolean; data: Record<string, JobStatus> }>('/api/market-research/jobs/status');
+    return response.data;
+  }
+
+  async runMarketJob(jobName: string): Promise<any> {
+    return this.request(`/api/market-research/jobs/${jobName}/run`, {
+      method: 'POST',
+    });
+  }
+
+  async getMarketSystemHealth(): Promise<MarketSystemHealth> {
+    const response = await this.request<{ success: boolean; data: MarketSystemHealth }>('/api/market-research/system/health');
+    return response.data;
   }
 }
 

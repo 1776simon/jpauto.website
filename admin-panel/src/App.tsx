@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Submissions from "./pages/Submissions";
 import Inventory from "./pages/Inventory";
+import MarketResearch from "./pages/MarketResearch";
 import Export from "./pages/Export";
 import NotFound from "./pages/NotFound";
 
@@ -50,6 +51,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Inventory />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/market-research"
+                element={
+                  <ProtectedRoute>
+                    <MarketResearch />
                   </ProtectedRoute>
                 }
               />
