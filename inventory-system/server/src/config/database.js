@@ -2,30 +2,30 @@ const { Sequelize } = require('sequelize');
 const logger = require('./logger');
 require('dotenv').config();
 
-// Custom query logger - condenses SQL queries into single line
-const queryLogger = (sql, timing) => {
-  // Only log in development
-  if (process.env.NODE_ENV === 'development') {
-    const condensed = sql.replace(/\s+/g, ' ').substring(0, 100);
-    logger.debug(`DB Query: ${condensed}... (${timing}ms)`);
-  }
-};
-
-const sequelize = new Sequelize(process.env.DATABASE_URL || {
-  database: process.env.DB_NAME,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
+// Sequelize options (applied whether using DATABASE_URL or individual params)
+const sequelizeOptions = {
   dialect: 'postgres',
-  logging: false, // Disable all Sequelize query logging
+  logging: false, // Disable all Sequelize query logging in production
   pool: {
     max: 5,
     min: 0,
     acquire: 30000,
     idle: 10000
   }
-});
+};
+
+// Create Sequelize instance
+// If DATABASE_URL is set (Railway), use it; otherwise use individual params
+const sequelize = process.env.DATABASE_URL
+  ? new Sequelize(process.env.DATABASE_URL, sequelizeOptions)
+  : new Sequelize({
+      database: process.env.DB_NAME,
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 5432,
+      ...sequelizeOptions
+    });
 
 // Test database connection
 const testConnection = async () => {
