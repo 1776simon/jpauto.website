@@ -100,12 +100,13 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          if git diff --quiet _vehicles/; then
-            echo "No changes detected in inventory"
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-          else
+          # Check for any changes (modified OR new files)
+          if git status --porcelain _vehicles/ | grep -q .; then
             echo "Changes detected in inventory"
             echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes detected in inventory"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Commit and push changes
