@@ -1,8 +1,45 @@
 # Market Research - Follow-up & Debugging
 
-**Status**: Infrastructure deployed ✅ | Zero results issue 🔍
+**Status**: Infrastructure deployed ✅ | Issue RESOLVED ✅
 
-Last updated: 2025-12-05
+Last updated: 2025-12-08
+
+---
+
+## ✅ RESOLUTION (2025-12-08)
+
+**Issue**: Auto.dev API was returning zero listings due to incorrect parameter name
+
+**Root Cause**:
+- **File**: `inventory-system/server/src/services/autodevMarketResearch.js:114`
+- **Bug**: Used `retailListing.mileage` instead of `retailListing.miles`
+- **Discovery**: Found via Postman testing and Auto.dev API documentation review
+
+**Fix Applied**:
+```javascript
+// BEFORE (incorrect)
+params['retailListing.mileage'] = `${mileageRange.min}-${mileageRange.max}`;
+
+// AFTER (correct)
+params['retailListing.miles'] = `${mileageRange.min}-${mileageRange.max}`;
+```
+
+**Deployment**: Commit `6b08f84` - Pushed to Railway production
+
+**Test Results** (2018 Ford Fusion):
+- ✅ 4 comparable market listings found
+- ✅ Median market price: $15,995
+- ✅ Your asking price: $14,000 (12.5% below market)
+- ✅ Competitive position: Below market
+- ✅ Market snapshot saved to database (ID: 1)
+- ✅ Price tracking initialized
+
+**Additional Fixes Deployed**:
+1. **Enhanced Logging** (Commit `d4b7692`): Fixed winston logger to output metadata in production
+2. **Database Transactions** (Commit `2a45c6f`): Added explicit transactions to inventory operations
+3. **Export Timing Logs** (Commit `2a45c6f`): Added comprehensive export operation logging
+
+**System Status**: Fully operational - market research running successfully
 
 ---
 
@@ -40,7 +77,7 @@ Last updated: 2025-12-05
 
 ---
 
-## ❌ The Issue
+## ❌ The Issue (RESOLVED)
 
 **Problem**: Auto.dev API calls succeed but return **zero listings** for all vehicles
 
@@ -54,6 +91,8 @@ Last updated: 2025-12-05
 - Tesla Model 3 (2022, 114k miles)
 - Ford Fusion (2018, 35,250 miles)
 - All other inventory vehicles
+
+**Resolution**: Parameter name error fixed - changed `retailListing.mileage` to `retailListing.miles` per Auto.dev API documentation
 
 ---
 
@@ -152,7 +191,7 @@ https://api.auto.dev/listings?
   &vehicle.year=2018
   &zip=95814
   &distance=150
-  &retailListing.mileage=25250-45250
+  &retailListing.miles=25250-45250    ← CORRECT PARAMETER (was .mileage)
   &limit=100
   &page=1
 ```
@@ -177,9 +216,9 @@ buildSearchParams(vehicle, expansion = 0, yearRange = null) {
     params['vehicle.year'] = vehicle.year;
   }
 
-  // Mileage range
+  // Mileage range (FIXED: changed .mileage to .miles)
   const mileageRange = this.calculateMileageRange(vehicle.mileage, expansion);
-  params['retailListing.mileage'] = `${mileageRange.min}-${mileageRange.max}`;
+  params['retailListing.miles'] = `${mileageRange.min}-${mileageRange.max}`;
 
   return params;
 }
@@ -197,23 +236,28 @@ buildSearchParams(vehicle, expansion = 0, yearRange = null) {
 **Issue A: Parameter Format**
 - ✅ Using `zip` and `distance` (correct)
 - ✅ Using `vehicle.make`, `vehicle.model`, `vehicle.year` (correct)
-- ✅ Using `retailListing.mileage` (correct)
-- ⚠️ **CHECK**: Are parameter values URL-encoded correctly?
+- ❌ Using `retailListing.mileage` (INCORRECT - should be `retailListing.miles`)
+- ✅ Parameter values URL-encoded correctly
 
 **Issue B: API Account/Limits**
-- ⚠️ **CHECK**: Is Auto.dev API key valid and active?
-- ⚠️ **CHECK**: Rate limits reached?
-- ⚠️ **CHECK**: Account in good standing?
+- ✅ Auto.dev API key valid and active (200 OK responses)
+- ✅ No rate limits reached
+- ✅ Account in good standing
 
 **Issue C: Search Criteria Too Narrow**
 - ZIP 95814 + 150 miles might not have matching inventory
 - Mileage range might be too specific
-- ⚠️ **TEST**: Try widening search (±2 years, larger radius)
+- ✅ **TESTED**: Wider search works fine, not the root cause
 
 **Issue D: Make/Model Naming**
 - Auto.dev might use different spellings
 - Example: "Ford" vs "FORD", "Fusion" vs "Fusion Sedan"
-- ⚠️ **CHECK**: Log the exact make/model being sent
+- ✅ **VERIFIED**: Make/model naming was correct
+
+**Issue E: Parameter Naming (ROOT CAUSE)**
+- ❌ **FOUND**: Used `retailListing.mileage` instead of `retailListing.miles`
+- ✅ **FIXED**: Changed to correct parameter name per Auto.dev docs
+- ✅ **RESULT**: API now returns listings successfully
 
 ---
 
@@ -288,16 +332,16 @@ async fetchListings(vehicle, options = {}) {
 
 ## 📋 Action Checklist
 
-When resuming work:
+**Status**: ALL COMPLETED ✅
 
-- [ ] **1. Run Ford Fusion analysis** (command above)
-- [ ] **2. Check Railway logs** for full API URL
-- [ ] **3. Verify parameter format** matches Auto.dev docs
-- [ ] **4. Test manual API call** to Auto.dev directly (curl)
-- [ ] **5. Check Auto.dev account** (valid key, no rate limits)
-- [ ] **6. Test with wider parameters** (±2 years, 250 mile radius)
-- [ ] **7. Add response body logging** to see what Auto.dev returns
-- [ ] **8. Consider alternative ZIP codes** (try 94203 Sacramento downtown)
+- [x] **1. Run Ford Fusion analysis** - Tested successfully, 4 results found
+- [x] **2. Check Railway logs** - Full API URL logged and verified
+- [x] **3. Verify parameter format** - FOUND BUG: `retailListing.mileage` → `retailListing.miles`
+- [x] **4. Test manual API call** - Tested via Postman, confirmed parameter issue
+- [x] **5. Check Auto.dev account** - API key valid, 200 OK responses
+- [x] **6. Test with wider parameters** - Tested ±2 years successfully
+- [x] **7. Add response body logging** - Deployed (commits: d4b7692, db480e9)
+- [x] **8. Alternative ZIP codes** - Not needed, issue resolved
 
 ---
 
