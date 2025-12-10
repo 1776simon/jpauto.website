@@ -119,13 +119,12 @@ class AutoDevMarketResearchService {
   /**
    * Calculate mileage search range based on vehicle's mileage
    *
-   * Brackets (user specified):
+   * Brackets:
    * - 0-50k miles: ±10k
    * - 50-100k miles: ±20k
    * - 100k+ miles: ±30k
    *
    * Min floor: 500 miles (used vehicles only)
-   * Auto-expansion: +10k if <10 results (max +50k total)
    */
   calculateMileageRange(mileage, expansion = 0) {
     let spread;

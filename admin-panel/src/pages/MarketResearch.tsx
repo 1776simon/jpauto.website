@@ -11,13 +11,16 @@ import {
   BarChart3,
   Activity,
   Play,
+  Info,
+  AlertCircle,
 } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tantml:react-query";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
@@ -315,13 +318,38 @@ export default function MarketResearch() {
                     {overview.vehicles.map((vehicle) => (
                       <TableRow key={vehicle.id} className="cursor-pointer hover:bg-muted/50">
                         <TableCell className="font-medium">
-                          <div>
+                          <div className="flex items-start gap-2">
                             <div>
-                              {vehicle.year} {vehicle.make} {vehicle.model}
+                              <div className="flex items-center gap-1.5">
+                                {vehicle.year} {vehicle.make} {vehicle.model}
+                                <TooltipProvider>
+                                  {vehicle.expandedSearch && (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Results include listings outside of normal ranges</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  )}
+                                  {vehicle.titleStatus && vehicle.titleStatus.toLowerCase() !== 'clean' && (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <AlertCircle className="h-4 w-4 text-amber-500 cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Non-clean title ({vehicle.titleStatus})</p>
+                                        <p className="text-xs text-muted-foreground">Market prices shown are for clean title vehicles</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  )}
+                                </TooltipProvider>
+                              </div>
+                              {vehicle.trim && (
+                                <div className="text-xs text-muted-foreground">{vehicle.trim}</div>
+                              )}
                             </div>
-                            {vehicle.trim && (
-                              <div className="text-xs text-muted-foreground">{vehicle.trim}</div>
-                            )}
                           </div>
                         </TableCell>
                         <TableCell>{formatCurrency(vehicle.ourPrice)}</TableCell>
