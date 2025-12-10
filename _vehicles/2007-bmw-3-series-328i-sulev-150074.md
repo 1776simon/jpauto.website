@@ -1,10 +1,10 @@
 ---
 layout: vehicle
-title: 2007 BMW 328i SULEV
+title: 2007 BMW 3 series 328i SULEV
 year: 2007
 make: BMW
-model: 328i
-trim: SULEV
+model: 3 series
+trim: 328i SULEV
 price: '5900.00'
 mileage: 119900
 vin: WBAWR335X7P150074
