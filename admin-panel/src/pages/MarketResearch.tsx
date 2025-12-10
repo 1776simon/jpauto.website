@@ -68,6 +68,28 @@ export default function MarketResearch() {
     },
   });
 
+  // Analyze single vehicle mutation
+  const analyzeSingleMutation = useMutation({
+    mutationFn: (vehicleId: string) => api.analyzeVehicle(vehicleId),
+    onSuccess: () => {
+      toast({
+        title: "Analysis Complete",
+        description: "Market analysis has been updated for this vehicle.",
+      });
+      setSelectedVehicleId(null);
+      // Refetch overview to show updated data
+      queryClient.invalidateQueries({ queryKey: ["marketOverview"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Analysis Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setSelectedVehicleId(null);
+    },
+  });
+
   // Run job mutation
   const runJobMutation = useMutation({
     mutationFn: (jobName: string) => api.runMarketJob(jobName),
@@ -286,6 +308,7 @@ export default function MarketResearch() {
                       <TableHead>Position</TableHead>
                       <TableHead>Listings</TableHead>
                       <TableHead>Last Analyzed</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -324,6 +347,30 @@ export default function MarketResearch() {
                         <TableCell>{vehicle.listingsFound || 0}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">
                           {timeAgo(vehicle.lastAnalyzed)}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedVehicleId(vehicle.id);
+                              analyzeSingleMutation.mutate(vehicle.id);
+                            }}
+                            disabled={analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id}
+                          >
+                            {analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id ? (
+                              <>
+                                <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                                Analyzing...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                                Analyze
+                              </>
+                            )}
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
