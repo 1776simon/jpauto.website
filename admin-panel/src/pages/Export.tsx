@@ -134,7 +134,7 @@ export default function Export() {
                       ) : (
                         <>
                           <Download className="w-5 h-5" />
-                          Export to {option.name}
+                          {option.name}
                         </>
                       )}
                     </button>
