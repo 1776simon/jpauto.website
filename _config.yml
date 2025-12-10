@@ -61,6 +61,13 @@ exclude:
   - README.md
   - index-original.html
   - 2025-11-18-init.txt
+  - admin-panel/
+  - inventory-system/
+  - consignment-form/
+  - CICD_SETUP.md
+  - CLAUDE.md
+  - railway.json
+  - MARKET_RESEARCH_API.md
 
 # Include in processing
 include:
