@@ -1,5 +1,5 @@
 /** @import must precede all other statements */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@300;400;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -7,92 +7,54 @@
 
 @layer base {
   /**
-   * Material 3 Design theme
-   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
+   * JP AUTO Brand System - Dark Theme
+   * Using brand colors from /brand/tokens.json
+   * Single dark theme - no light/dark toggle
   */
   :root {
-    /* Light theme colors */
-    --background: 210 40% 98%;
-    --foreground: 210 11% 15%;
+    /* Brand colors - Dark theme */
+    --background: 240 5.2% 33.9%;  /* #52525b - zinc gray */
+    --foreground: 0 0% 100%;        /* white text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 210 11% 15%;
+    --card: 240 5.2% 37%;           /* slightly lighter than background */
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 11% 15%;
+    --popover: 240 5.2% 37%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Material 3 Primary - JP Auto Orange */
-    --primary: 16 100% 60%;
+    /* Primary - Dark Teal */
+    --primary: 197 78.9% 14.9%;       /* #083344 - dark teal */
     --primary-foreground: 0 0% 100%;
 
-    /* Material 3 Secondary - Teal */
-    --secondary: 174 96% 40%;
+    /* Secondary - lighter teal */
+    --secondary: 194.8 76.6% 21.8%;   /* #0d4d62 */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 14% 83%;
-    --muted-foreground: 210 11% 40%;
+    --muted: 240 5.2% 45%;
+    --muted-foreground: 0 0% 85%;
 
-    /* Material 3 Accent - Orange */
-    --accent: 22 96% 56%;
+    /* Accent - same as primary */
+    --accent: 197 78.9% 14.9%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 14% 90%;
-    --input: 210 14% 95%;
-    --ring: 16 100% 60%;
+    --border: 240 5.2% 45%;           /* #71717a */
+    --input: 240 5.2% 37%;
+    --ring: 197 78.9% 14.9%;
 
     --radius: 0.75rem;
 
     /* Sidebar colors */
-    --sidebar-background: 210 19% 24%;
-    --sidebar-foreground: 210 14% 90%;
-    --sidebar-primary: 16 100% 60%;
+    --sidebar-background: 240 5.2% 30%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 197 78.9% 14.9%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 19% 32%;
-    --sidebar-accent-foreground: 210 14% 90%;
-    --sidebar-border: 210 19% 32%;
-    --sidebar-ring: 16 100% 60%;
-  }
-
-  .dark {
-    --background: 210 11% 15%;
-    --foreground: 210 14% 90%;
-
-    --card: 210 19% 24%;
-    --card-foreground: 210 14% 90%;
-
-    --popover: 210 19% 24%;
-    --popover-foreground: 210 14% 90%;
-
-    --primary: 16 100% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 174 96% 45%;
-    --secondary-foreground: 210 11% 15%;
-
-    --muted: 210 19% 35%;
-    --muted-foreground: 210 14% 70%;
-
-    --accent: 22 96% 56%;
-    --accent-foreground: 210 11% 15%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 210 19% 32%;
-    --input: 210 19% 28%;
-    --ring: 16 100% 60%;
-
-    --sidebar-background: 210 11% 12%;
-    --sidebar-foreground: 210 14% 90%;
-    --sidebar-primary: 16 100% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 19% 24%;
-    --sidebar-accent-foreground: 210 14% 90%;
-    --sidebar-border: 210 19% 20%;
-    --sidebar-ring: 16 100% 60%;
+    --sidebar-accent: 240 5.2% 37%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 240 5.2% 45%;
+    --sidebar-ring: 197 78.9% 14.9%;
   }
 }
 
@@ -103,9 +65,15 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Montserrat', 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
 
-  :where(p, span, li, h1, h2, h3, h4, h5, h6, a, button, label, td, th) {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Nunito Sans', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: 700;
+  }
+
+  :where(p, span, li, a, button, label, td, th) {
     overflow-wrap: anywhere;
     word-break: break-word;
   }
@@ -114,6 +82,7 @@
   code {
     overflow-x: auto;
     white-space: pre;
+    font-family: 'Courier Prime', 'Courier New', monospace;
   }
 }
 

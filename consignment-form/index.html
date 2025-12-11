@@ -5,23 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consignment Sales - JP Auto</title>
     <meta name="description" content="Submit your vehicle for consignment sales at JP Auto. We'll handle the selling process while you get top dollar for your vehicle.">
+
+    <!-- Google Fonts - Range Rover inspired typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Google reCAPTCHA v3 -->
     <script src="https://www.google.com/recaptcha/api.js?render=6Lf8xRIsAAAAALHeNwoAQUu7WzoiuenXV-fMTwhk" async defer></script>
+
+    <!-- JP AUTO Brand System -->
+    <link rel="stylesheet" href="../brand/dist/brand.css">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#ff6b35',
-                        'primary-dark': '#e55a28',
+                        primary: '#083344',
+                        'primary-dark': '#05232e',
+                        'primary-light': '#0d4d62'
                     }
                 }
             }
         }
     </script>
+
+    <style>
+        /* Apply Range Rover-inspired fonts */
+        body {
+            font-family: 'Montserrat', 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Nunito Sans', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            font-weight: 700;
+        }
+    </style>
 </head>
-<body class="bg-gray-50">
+<body style="background-color: var(--color-background); color: var(--color-foreground);">
     <!-- Header -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -33,7 +56,7 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-primary to-primary-dark text-white py-12">
+    <section class="bg-primary-pearlescent text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl font-bold mb-4">Consignment Sales - Let Us Sell Your Car</h1>
             <p class="text-xl mb-2">Submit your vehicle for consignment sales</p>

@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Google Fonts - Range Rover inspired typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- JP AUTO Brand System -->
+  <link rel="stylesheet" href="/brand/dist/brand.css">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -11,8 +19,9 @@
       theme: {
         extend: {
           colors: {
-            'primary': '#ff6b35',
-            'primary-dark': '#e55a28'
+            'primary': '#083344',
+            'primary-dark': '#05232e',
+            'primary-light': '#0d4d62'
           }
         }
       }
@@ -34,26 +43,36 @@
       scroll-behavior: smooth;
     }
 
-    /* Custom scrollbar */
+    /* Apply Range Rover-inspired fonts */
+    body {
+      font-family: 'Montserrat', 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Nunito Sans', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      font-weight: 700;
+    }
+
+    /* Custom scrollbar with brand colors */
     ::-webkit-scrollbar {
       width: 10px;
     }
 
     ::-webkit-scrollbar-track {
-      background: #f1f1f1;
+      background: var(--color-card);
     }
 
     ::-webkit-scrollbar-thumb {
-      background: #ff6b35;
+      background: var(--color-primary);
       border-radius: 5px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: #e55a28;
+      background: var(--color-primary-dark);
     }
   </style>
 </head>
-<body class="font-sans antialiased bg-gray-50">
+<body class="antialiased" style="background-color: var(--color-background); color: var(--color-foreground);">
 
   {% include header.html %}
 
