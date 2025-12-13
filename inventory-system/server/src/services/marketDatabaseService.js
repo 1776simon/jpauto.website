@@ -193,6 +193,17 @@ class MarketDatabaseService {
     try {
       const { median, min, max } = priceStats;
 
+      // Ensure we have valid values
+      if (!median || !min || !max) {
+        logger.warn('Skipping price history update - missing price data', {
+          vehicleId,
+          median,
+          min,
+          max
+        });
+        return;
+      }
+
       // Get historical data for cumulative calculations
       const [history] = await sequelize.query(`
         SELECT date, median_price, min_price
