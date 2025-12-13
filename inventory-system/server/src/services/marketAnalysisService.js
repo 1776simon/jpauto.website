@@ -170,6 +170,17 @@ class MarketAnalysisService {
     const ownVins = await this.getOwnInventoryVINs();
     const platformData = autodevService.extractPlatformData(marketListings, ownVins);
 
+    logger.info('Platform data extraction complete', {
+      vehicleId: vehicle.id,
+      marketListingsCount: marketListings.length,
+      platformDataCount: platformData.length,
+      sampleListing: marketListings[0] ? {
+        hasVdpUrl: !!marketListings[0].retailListing?.vdpUrl,
+        vdpUrl: marketListings[0].retailListing?.vdpUrl
+      } : null,
+      samplePlatformData: platformData[0] || null
+    });
+
     // Save to database
     const snapshot = await marketDb.saveMarketSnapshot({
       vehicleId: vehicle.id,
