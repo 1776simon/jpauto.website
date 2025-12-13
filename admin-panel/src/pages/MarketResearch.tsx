@@ -516,19 +516,22 @@ export default function MarketResearch() {
                         )}
                       </div>
                       <div className="text-sm space-y-1">
-                        <p className="text-muted-foreground">
-                          <span className="font-medium">Schedule:</span> {status.humanReadableSchedule || status.schedule}
-                        </p>
-                        {status.nextRun && (
+                        {status.nextRun ? (
                           <p className="text-primary font-medium">
                             <Clock className="h-3 w-3 inline mr-1" />
                             Next run: {new Date(status.nextRun).toLocaleString('en-US', {
                               month: 'short',
                               day: 'numeric',
+                              year: 'numeric',
                               hour: 'numeric',
                               minute: '2-digit',
-                              hour12: true
+                              hour12: true,
+                              timeZoneName: 'short'
                             })}
+                          </p>
+                        ) : (
+                          <p className="text-muted-foreground">
+                            <span className="font-medium">Schedule:</span> {status.humanReadableSchedule || status.schedule}
                           </p>
                         )}
                         <p className="text-muted-foreground">
