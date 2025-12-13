@@ -1046,7 +1046,7 @@ class MarketDatabaseService {
       const mileage = listing.retailListing?.miles || listing.mileage;
       const trim = listing.vehicle?.trim || listing.trim || 'Base';
       const city = listing.retailListing?.city || listing.location?.city || 'Unknown';
-      const dealer = listing.retailListing?.dealerName || listing.dealerName || 'Private';
+      const dealer = listing.retailListing?.dealer || listing.retailListing?.dealerName || listing.dealerName || 'Private';
       const sources = listing.sources || [];
 
       return {

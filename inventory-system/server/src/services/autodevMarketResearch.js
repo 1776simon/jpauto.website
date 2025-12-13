@@ -306,7 +306,7 @@ class AutoDevMarketResearchService {
         platform,
         isOwnVehicle,
         price: listing.retailListing?.price,
-        dealerName: listing.retailListing?.dealerName,
+        dealerName: listing.retailListing?.dealer || listing.retailListing?.dealerName || null,
         listingUrl: vdpUrl
       });
     });
