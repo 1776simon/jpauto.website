@@ -852,20 +852,23 @@ class MarketDatabaseService {
     const crossPostingMatrix = {};
 
     listings.forEach(listing => {
-      const vin = listing.vin;
+      const vin = listing.vehicle?.vin || listing.vin;
+      const price = listing.retailListing?.price || listing.price || 0;
       const platforms = listing.sources || [];
+
+      if (!vin) return; // Skip if no VIN
 
       // Track VIN's platforms
       if (!crossPostingMatrix[vin]) {
         crossPostingMatrix[vin] = {
           vin: vin.slice(-4),
           platforms: [],
-          price: listing.price
+          price
         };
       }
 
       platforms.forEach(source => {
-        const platform = source.name || 'Unknown';
+        const platform = source.name || source || 'Unknown';
 
         // Count platforms
         platformCounts[platform] = (platformCounts[platform] || 0) + 1;
@@ -907,14 +910,18 @@ class MarketDatabaseService {
     const today = new Date();
 
     listings.forEach(listing => {
-      if (listing.listedDate) {
-        const listedDate = new Date(listing.listedDate);
-        const days = Math.floor((today - listedDate) / (1000 * 60 * 60 * 24));
+      const listedDate = listing.retailListing?.listedDate || listing.listedDate;
+      const vin = listing.vehicle?.vin || listing.vin;
+      const price = listing.retailListing?.price || listing.price || 0;
+
+      if (listedDate && vin) {
+        const listedDateObj = new Date(listedDate);
+        const days = Math.floor((today - listedDateObj) / (1000 * 60 * 60 * 24));
         if (days >= 0) {
           domValues.push({
-            vin: listing.vin.slice(-4),
+            vin: vin.slice(-4),
             days,
-            price: listing.price
+            price
           });
         }
       }
@@ -956,18 +963,28 @@ class MarketDatabaseService {
    * Prepare competitor listings with enhanced data
    */
   prepareCompetitorListings(listings) {
-    return listings.map(listing => ({
-      vinLast4: listing.vin ? listing.vin.slice(-4) : 'N/A',
-      vin: listing.vin,
-      price: listing.price,
-      mileage: listing.mileage,
-      trim: listing.trim || 'Base',
-      location: listing.location?.city || 'Unknown',
-      dealer: listing.dealerName || 'Private',
-      platforms: (listing.sources || []).map(s => s.name).join(', '),
-      platformCount: (listing.sources || []).length,
-      url: listing.url || null
-    })).sort((a, b) => a.price - b.price);
+    return listings.map(listing => {
+      const vin = listing.vehicle?.vin || listing.vin;
+      const price = listing.retailListing?.price || listing.price || 0;
+      const mileage = listing.retailListing?.miles || listing.mileage;
+      const trim = listing.vehicle?.trim || listing.trim || 'Base';
+      const city = listing.retailListing?.city || listing.location?.city || 'Unknown';
+      const dealer = listing.retailListing?.dealerName || listing.dealerName || 'Private';
+      const sources = listing.sources || [];
+
+      return {
+        vinLast4: vin ? vin.slice(-4) : 'N/A',
+        vin,
+        price,
+        mileage,
+        trim,
+        location: city,
+        dealer,
+        platforms: sources.map(s => s.name || s).join(', '),
+        platformCount: sources.length,
+        url: listing.retailListing?.vdpUrl || listing.url || null
+      };
+    }).sort((a, b) => a.price - b.price);
   }
 
   /**
