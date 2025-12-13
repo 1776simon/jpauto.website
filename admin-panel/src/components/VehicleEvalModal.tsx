@@ -34,15 +34,15 @@ export function VehicleEvalModal({ open, onOpenChange }: VehicleEvalModalProps) 
   const vinDecodeMutation = useMutation({
     mutationFn: (vin: string) => api.decodeVIN(vin),
     onSuccess: (data) => {
-      // Populate form fields from VIN decode
-      if (data.Year) setYear(data.Year);
-      if (data.Make) setMake(data.Make);
-      if (data.Model) setModel(data.Model);
-      if (data.Trim) setTrim(data.Trim);
+      // Populate form fields from VIN decode (backend returns lowercase field names)
+      if (data.year) setYear(data.year.toString());
+      if (data.make) setMake(data.make);
+      if (data.model) setModel(data.model);
+      if (data.trim) setTrim(data.trim);
 
       toast({
         title: "VIN Decoded",
-        description: `${data.Year} ${data.Make} ${data.Model}`,
+        description: `${data.year} ${data.make} ${data.model}`,
       });
     },
     onError: (error: Error) => {
