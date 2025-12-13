@@ -2,7 +2,12 @@
  * Auto.dev Market Research Service
  *
  * Integrates with Auto.dev Listings API for competitive market analysis
- * Handles: API calls, mileage range calculation, deduplication, platform parsing
+ * Handles: API calls, mileage range calculation, deduplication
+ *
+ * NOTE: Platform tracking disabled - Auto.dev returns forwarding/tracking URLs
+ * (details.vast.com) instead of direct platform links, making it difficult to
+ * deduce origin platforms of listings. VDP links still work but go through
+ * vast.com redirects.
  */
 
 const fetch = require('node-fetch');

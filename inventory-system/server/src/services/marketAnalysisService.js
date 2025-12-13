@@ -166,22 +166,9 @@ class MarketAnalysisService {
       ? Math.floor((new Date() - new Date(vehicle.date_added)) / (1000 * 60 * 60 * 24))
       : null;
 
-    // Extract platform data
-    const ownVins = await this.getOwnInventoryVINs();
-    const platformData = autodevService.extractPlatformData(marketListings, ownVins);
-
-    logger.info('Platform data extraction complete', {
-      vehicleId: vehicle.id,
-      marketListingsCount: marketListings.length,
-      platformDataCount: platformData.length,
-      sampleListing: marketListings[0] ? {
-        hasVdp: !!marketListings[0].retailListing?.vdp,
-        hasVdpUrl: !!marketListings[0].retailListing?.vdpUrl,
-        vdp: marketListings[0].retailListing?.vdp,
-        vdpUrl: marketListings[0].retailListing?.vdpUrl
-      } : null,
-      samplePlatformData: platformData[0] || null
-    });
+    // NOTE: Platform tracking disabled - Auto.dev returns forwarding/tracking URLs (details.vast.com)
+    // instead of direct platform links, making it difficult to deduce origin platforms of listings.
+    // VDP links still work but go through vast.com redirects.
 
     // Save to database
     const snapshot = await marketDb.saveMarketSnapshot({
@@ -209,11 +196,6 @@ class MarketAnalysisService {
       daysInMarket
     });
 
-    // Save platform tracking
-    if (platformData.length > 0) {
-      await marketDb.saveMarketPlatformTracking(platformData);
-    }
-
     // Update price history
     if (priceStats.median) {
       await marketDb.updatePriceHistory(vehicle.id, priceStats);
@@ -237,7 +219,6 @@ class MarketAnalysisService {
       priceStats,
       marketListings: marketListings.length,
       duplicates: duplicates.length,
-      platformData: platformData.length,
       expandedSearch: searchParams._metadata.expanded_search,
       expansionType: searchParams._metadata.expansion_type
     };

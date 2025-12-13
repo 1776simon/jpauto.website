@@ -56,7 +56,7 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
     );
   }
 
-  const { snapshot, priceHistory, platformDistribution, domAnalysis, competitorListings, marketVelocity } = data;
+  const { snapshot, priceHistory, domAnalysis, competitorListings, marketVelocity } = data;
 
   // Prepare price history for chart
   const priceChartData = (priceHistory || []).map((item: any) => ({
@@ -71,13 +71,6 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
   const priceRange = (snapshot?.maxPrice || 0) - (snapshot?.minPrice || 0);
   const ourPosition = priceRange > 0 ? ((ourPrice - (snapshot?.minPrice || 0)) / priceRange) * 100 : 50;
   const medianPosition = priceRange > 0 ? (((snapshot?.medianPrice || 0) - (snapshot?.minPrice || 0)) / priceRange) * 100 : 50;
-
-  // Platform chart data
-  const platformChartData = (platformDistribution?.distribution || []).map((item: any) => ({
-    name: item.platform || 'Unknown',
-    listings: item.listingCount || 0,
-    uniqueVINs: item.uniqueVINs || 0
-  }));
 
   // DOM histogram data
   const domChartData = domAnalysis?.histogram || [];
@@ -179,57 +172,34 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
             </div>
           )}
 
-          {/* Platform Distribution & DOM Analysis */}
-          {(platformChartData.length > 0 || (domAnalysis?.average)) && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Platform Distribution */}
-              {platformChartData.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Platform Distribution</h3>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={platformChartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-45} textAnchor="end" height={80} />
-                      <YAxis tick={{ fontSize: 12 }} />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="listings" fill="#ff6b35" name="Total Listings" />
-                      <Bar dataKey="uniqueVINs" fill="#0288d1" name="Unique VINs" />
-                    </BarChart>
-                  </ResponsiveContainer>
+          {/* Days on Market Analysis */}
+          {domAnalysis?.average && (
+            <div className="space-y-2">
+              <h3 className="font-semibold">Days on Market Distribution</h3>
+              <div className="mb-3 grid grid-cols-3 gap-2 text-sm">
+                <div className="text-center p-2 rounded border">
+                  <div className="text-2xl font-bold">{domAnalysis.average}</div>
+                  <div className="text-muted-foreground">Avg Days</div>
                 </div>
-              )}
-
-              {/* Days on Market */}
-              {domAnalysis?.average && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Days on Market Distribution</h3>
-                  <div className="mb-3 grid grid-cols-3 gap-2 text-sm">
-                    <div className="text-center p-2 rounded border">
-                      <div className="text-2xl font-bold">{domAnalysis.average}</div>
-                      <div className="text-muted-foreground">Avg Days</div>
-                    </div>
-                    <div className="text-center p-2 rounded border">
-                      <div className="text-2xl font-bold">{domAnalysis.min}</div>
-                      <div className="text-muted-foreground">Fastest</div>
-                    </div>
-                    <div className="text-center p-2 rounded border">
-                      <div className="text-2xl font-bold">{domAnalysis.max}</div>
-                      <div className="text-muted-foreground">Slowest</div>
-                    </div>
-                  </div>
-                  {domChartData.length > 0 && (
-                    <ResponsiveContainer width="100%" height={150}>
-                      <BarChart data={domChartData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="range" tick={{ fontSize: 11 }} />
-                        <YAxis tick={{ fontSize: 12 }} />
-                        <Tooltip />
-                        <Bar dataKey="count" fill="#7cb342" name="Listings" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  )}
+                <div className="text-center p-2 rounded border">
+                  <div className="text-2xl font-bold">{domAnalysis.min}</div>
+                  <div className="text-muted-foreground">Fastest</div>
                 </div>
+                <div className="text-center p-2 rounded border">
+                  <div className="text-2xl font-bold">{domAnalysis.max}</div>
+                  <div className="text-muted-foreground">Slowest</div>
+                </div>
+              </div>
+              {domChartData.length > 0 && (
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={domChartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="range" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="#7cb342" name="Listings" />
+                  </BarChart>
+                </ResponsiveContainer>
               )}
             </div>
           )}
@@ -248,7 +218,6 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
                       <TableHead>Mileage</TableHead>
                       <TableHead>Trim</TableHead>
                       <TableHead>Location</TableHead>
-                      <TableHead>Platforms</TableHead>
                       <TableHead>VDP</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -275,9 +244,6 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
                           <TableCell>{listing.mileage?.toLocaleString() || 'N/A'}</TableCell>
                           <TableCell>{listing.trim || 'N/A'}</TableCell>
                           <TableCell>{listing.location || 'N/A'}</TableCell>
-                          <TableCell className="text-xs">
-                            <Badge variant="outline" className="text-xs">{listing.platformCount || 0} sites</Badge>
-                          </TableCell>
                           <TableCell>
                             {listing.url ? (
                               <Button
@@ -297,26 +263,6 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
                     })}
                   </TableBody>
                 </Table>
-              </div>
-            </div>
-          )}
-
-          {/* Cross-posting Matrix */}
-          {platformDistribution?.crossPostingMatrix && platformDistribution.crossPostingMatrix.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="font-semibold">Cross-Posting Patterns</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                {platformDistribution.crossPostingMatrix.slice(0, 6).map((item: any, index: number) => (
-                  <div key={index} className="p-3 border rounded-lg text-sm">
-                    <div className="font-mono text-xs mb-1">VIN ...{item.vin || 'N/A'}</div>
-                    <div className="font-semibold mb-1">${(item.price || 0).toLocaleString()}</div>
-                    <div className="text-xs text-muted-foreground flex flex-wrap gap-1">
-                      {(item.platforms || []).map((p: string, i: number) => (
-                        <Badge key={i} variant="secondary" className="text-xs">{p}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           )}
