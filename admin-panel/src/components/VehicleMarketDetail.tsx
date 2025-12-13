@@ -4,7 +4,8 @@ import api from "@/services/api";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, TrendingUp, TrendingDown, AlertTriangle, CheckCircle, ExternalLink } from "lucide-react";
 
 interface VehicleMarketDetailProps {
   open: boolean;
@@ -15,6 +16,11 @@ interface VehicleMarketDetailProps {
 }
 
 const COLORS = ['#ff6b35', '#f7931e', '#fdc500', '#7cb342', '#0288d1', '#5e35b1'];
+
+// Format currency for charts
+const formatCurrency = (value: number) => {
+  return `$${value.toLocaleString()}`;
+};
 
 export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName, ourPrice }: VehicleMarketDetailProps) {
   const { data, isLoading } = useQuery({
@@ -161,8 +167,8 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
                 <LineChart data={priceChartData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip />
+                  <YAxis tick={{ fontSize: 12 }} tickFormatter={formatCurrency} />
+                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
                   <Legend />
                   <Line type="monotone" dataKey="Minimum" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
                   <Line type="monotone" dataKey="Median" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
@@ -243,6 +249,7 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
                       <TableHead>Trim</TableHead>
                       <TableHead>Location</TableHead>
                       <TableHead>Platforms</TableHead>
+                      <TableHead>VDP</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -270,6 +277,20 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
                           <TableCell>{listing.location || 'N/A'}</TableCell>
                           <TableCell className="text-xs">
                             <Badge variant="outline" className="text-xs">{listing.platformCount || 0} sites</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {listing.url ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => window.open(listing.url, '_blank')}
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </Button>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">N/A</span>
+                            )}
                           </TableCell>
                         </TableRow>
                       );
