@@ -169,9 +169,6 @@ app.use('/api/market-research', require('./routes/marketResearch'));
 app.use('/api/market-research/history', require('./routes/marketHistory'));
 app.use('/api/market-research/system', require('./routes/marketSystem'));
 
-// Admin Routes (temporary)
-app.use('/api/admin', require('./routes/admin'));
-
 // Standardized error handling
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
