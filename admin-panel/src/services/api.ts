@@ -659,6 +659,11 @@ class ApiService {
     const response = await this.request<{ success: boolean; data: MarketSystemHealth }>('/api/market-research/system/health');
     return response.data;
   }
+
+  async getVehicleMarketDetail(vehicleId: string): Promise<any> {
+    const response = await this.request<{ success: boolean; data: any }>(`/api/market-research/vehicle/${vehicleId}/detail`);
+    return response.data;
+  }
 }
 
 export default new ApiService();

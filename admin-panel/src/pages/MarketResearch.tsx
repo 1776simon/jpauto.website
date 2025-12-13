@@ -1,4 +1,5 @@
 import { AdminLayout } from "@/components/AdminLayout";
+import { VehicleMarketDetail } from "@/components/VehicleMarketDetail";
 import {
   TrendingUp,
   TrendingDown,
@@ -15,6 +16,7 @@ import {
   AlertCircle,
   X,
   History,
+  Eye,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/services/api";
@@ -31,6 +33,8 @@ export default function MarketResearch() {
   const queryClient = useQueryClient();
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [showAllAlerts, setShowAllAlerts] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [detailVehicle, setDetailVehicle] = useState<{id: string; name: string; price: number} | null>(null);
 
   // Fetch market overview
   const { data: overview, isLoading: overviewLoading } = useQuery({
@@ -430,28 +434,47 @@ export default function MarketResearch() {
                           {timeAgo(vehicle.lastAnalyzed)}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedVehicleId(vehicle.id);
-                              analyzeSingleMutation.mutate(vehicle.id);
-                            }}
-                            disabled={analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id}
-                          >
-                            {analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id ? (
-                              <>
-                                <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
-                                Analyzing...
-                              </>
-                            ) : (
-                              <>
-                                <RefreshCw className="h-3 w-3 mr-1" />
-                                Analyze
-                              </>
-                            )}
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDetailVehicle({
+                                  id: vehicle.id,
+                                  name: `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ' ' + vehicle.trim : ''}`,
+                                  price: vehicle.ourPrice
+                                });
+                                setDetailModalOpen(true);
+                              }}
+                              disabled={!vehicle.lastAnalyzed}
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              Details
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedVehicleId(vehicle.id);
+                                analyzeSingleMutation.mutate(vehicle.id);
+                              }}
+                              disabled={analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id}
+                            >
+                              {analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id ? (
+                                <>
+                                  <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                                  Analyzing...
+                                </>
+                              ) : (
+                                <>
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  Analyze
+                                </>
+                              )}
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -536,6 +559,17 @@ export default function MarketResearch() {
           </Card>
         )}
       </div>
+
+      {/* Vehicle Market Detail Modal */}
+      {detailVehicle && (
+        <VehicleMarketDetail
+          open={detailModalOpen}
+          onOpenChange={setDetailModalOpen}
+          vehicleId={detailVehicle.id}
+          vehicleName={detailVehicle.name}
+          ourPrice={detailVehicle.price}
+        />
+      )}
     </AdminLayout>
   );
 }
