@@ -1048,7 +1048,7 @@ class MarketDatabaseService {
         dealer,
         platforms: sources.map(s => s.name || s).join(', '),
         platformCount: sources.length,
-        url: listing.retailListing?.vdpUrl || listing.url || null
+        url: listing.retailListing?.vdp || listing.retailListing?.vdpUrl || listing.url || null
       };
     }).sort((a, b) => a.price - b.price);
   }

@@ -175,7 +175,9 @@ class MarketAnalysisService {
       marketListingsCount: marketListings.length,
       platformDataCount: platformData.length,
       sampleListing: marketListings[0] ? {
+        hasVdp: !!marketListings[0].retailListing?.vdp,
         hasVdpUrl: !!marketListings[0].retailListing?.vdpUrl,
+        vdp: marketListings[0].retailListing?.vdp,
         vdpUrl: marketListings[0].retailListing?.vdpUrl
       } : null,
       samplePlatformData: platformData[0] || null

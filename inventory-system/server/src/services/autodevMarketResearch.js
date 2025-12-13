@@ -291,7 +291,8 @@ class AutoDevMarketResearchService {
 
     listings.forEach(listing => {
       const vin = listing.vehicle?.vin;
-      const vdpUrl = listing.retailListing?.vdpUrl;
+      // Auto.dev uses 'vdp' not 'vdpUrl'
+      const vdpUrl = listing.retailListing?.vdp || listing.retailListing?.vdpUrl;
 
       if (!vin || !vdpUrl) return;
 
