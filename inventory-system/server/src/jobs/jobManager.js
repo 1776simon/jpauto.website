@@ -10,7 +10,7 @@ const marketCleanupJob = require('./marketCleanupJob');
 const storageMonitoringJob = require('./storageMonitoringJob');
 const marketDb = require('../services/marketDatabaseService');
 const logger = require('../config/logger');
-const { parseExpression } = require('cron-parser');
+const { CronExpressionParser } = require('cron-parser');
 
 class JobManager {
   constructor() {
@@ -90,7 +90,7 @@ class JobManager {
    */
   getNextRunTime(cronSchedule) {
     try {
-      const interval = parseExpression(cronSchedule, {
+      const interval = CronExpressionParser.parse(cronSchedule, {
         tz: 'America/Los_Angeles'
       });
       return interval.next().toDate();
