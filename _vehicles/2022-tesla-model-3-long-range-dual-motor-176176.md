@@ -1,0 +1,104 @@
+---
+layout: vehicle
+title: 2022 TESLA Model 3 Long Range Dual Motor
+year: 2022
+make: TESLA
+model: Model 3
+trim: Long Range Dual Motor
+price: '21000.00'
+mileage: 32250
+vin: 5YJ3E1EB5NF176176
+status: available
+featured: false
+exterior_color: White
+interior_color: White
+transmission: Automatic
+engine: Electric
+fuel_type: Electric
+drivetrain: AWD
+title_status: Salvage
+mpg_city: 100
+mpg_highway: 100
+features: []
+images:
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/ad9c55eb-7bd2-462a-98f7-81f6d7f86110.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/2cd23c2a-87a8-44d6-b4e5-3cdbcb7086e5.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/a36ff017-e879-4eaf-a4d9-2e74038f74f3.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/8a2c6b57-27b1-430d-8f16-b2509303bb39.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/281962ce-2500-4913-947e-730a223b29cb.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/b1f8c6a6-c950-4905-960c-245c45df75a0.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/d1f3e606-c6f2-4fee-99f7-b0b3595ba6ee.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/98613ffc-a589-4211-93ee-36e584f642f3.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/df850552-4cf7-4475-b8cf-7f000c0fbeb2.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/0fab2bc2-b227-463a-aeaa-df431814fa84.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/03af9f43-b13e-4fe6-855e-0306c1cbf25f.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/d763b585-5c04-4171-9fb7-f5e8b1bcf80a.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/5c14e054-b098-43f6-b2cd-3e049d1bddc8.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/259afc80-f2d0-4e50-a9de-d41d528bcd17.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/a6ca4714-9344-495e-9fab-86a0d9b441d4.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/d6912ad6-b5cd-4b1c-8704-06c737c96c41.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/0a7704fa-5a3e-4bfa-8c0d-377bd199217d.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/e4afdaf4-e672-4c0b-9e89-9e68fc0e8b1a.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/df5e4f3f-6905-4b69-9523-5faa32abf690.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/0ede2095-a0db-4ed1-9264-ef0fee8ee474.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/8e1287dc-63e8-44d8-b059-991252924655.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/fa09d193-0961-4ac2-8aa3-72ebacfaecc3.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/524b1eed-3fa4-4384-b91d-264001573c47.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/182e09cb-599a-4b40-8ce5-1521bbb93170.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/6203959d-a195-45f5-b511-3ed60915c05d.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/01b35472-7c18-43de-b445-86741bf16bfb.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/99bfc65d-f686-4a3f-80e1-97cc5bcb34f5.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/6cea4670-0171-4a4b-bd76-60e31e9203d9.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/806f875b-1dbc-43b9-86b1-f6d8fb3192cf.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/c2283b7a-7b93-4a55-a5f8-ee5450209336.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/87ac96e3-1651-4f26-bb29-8a00150d6742.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/2499f62e-9f1d-4851-b221-8eebba9335c1.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/675e4660-dda6-4a23-b49f-93b6f7f65426.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/5513e4f8-2f89-480a-9fe5-71375e8f0372.jpeg
+primary_image: >-
+  https://cdn.jpautomotivegroup.com/vehicles/5YJ3E1EB5NF176176/full/ad9c55eb-7bd2-462a-98f7-81f6d7f86110.jpeg
+previous_owners: '1'
+accident_history: '1'
+service_records_on_file: 5-10
+carfax_available: false
+date_added: '2025-12-12'
+---
+This 2022 TESLA Model 3 Long Range Dual Motor is now available at JP Auto. With 32,250 miles, this vehicle comes with a salvage title. 
+
+Fuel economy: 100/100 MPG (city/highway). 
+
+**Schedule a test drive today!**
