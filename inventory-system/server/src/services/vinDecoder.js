@@ -58,9 +58,6 @@ class VINDecoderService {
         throw new Error('VIN not found in NHTSA database');
       }
 
-      // Log the raw response for debugging
-      logger.info(`Raw NHTSA response for VIN ${cleanVIN}:`, JSON.stringify(data, null, 2));
-
       // Extract and normalize the relevant fields from NHTSA
       const decodedData = this.normalizeVehicleData(data.Results);
 
@@ -85,8 +82,6 @@ class VINDecoderService {
           // MPG values will remain null (already set in normalizeVehicleData)
         }
       }
-
-      logger.info(`Final decoded data:`, JSON.stringify(decodedData, null, 2));
 
       return decodedData;
     } catch (error) {
@@ -133,10 +128,7 @@ class VINDecoderService {
       manufacturer: this.getValueByVariable(results, 'Manufacturer Name'),
       plantCity: this.getValueByVariable(results, 'Plant City'),
       plantCountry: this.getValueByVariable(results, 'Plant Country'),
-      series: this.getValueByVariable(results, 'Series'),
-
-      // Raw data for debugging
-      _rawData: results
+      series: this.getValueByVariable(results, 'Series')
     };
   }
 

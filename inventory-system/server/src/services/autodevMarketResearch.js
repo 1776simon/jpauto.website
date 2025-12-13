@@ -60,16 +60,6 @@ class AutoDevMarketResearchService {
 
       const data = await response.json();
 
-      // Enhanced debug logging to see full API response
-      logger.info('Auto.dev API Response', {
-        statusCode: response.status,
-        totalResults: data.data?.length || 0,
-        pagination: data.pagination || null,
-        firstListing: data.data?.[0] || null, // See what a result looks like
-        rawResponseKeys: Object.keys(data), // See structure of response
-        vehicle: `${vehicle.year} ${vehicle.make} ${vehicle.model}`
-      });
-
       logger.info('Market listings fetched successfully', {
         total: data.data?.length || 0,
         vehicle: `${vehicle.year} ${vehicle.make} ${vehicle.model}`
