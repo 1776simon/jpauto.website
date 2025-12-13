@@ -804,6 +804,39 @@ class MarketDatabaseService {
           : snapshot.listings_data;
       }
 
+      // Get platform tracking data for this snapshot
+      const [platformTracking] = await sequelize.query(`
+        SELECT vin, platform, listing_url, price, dealer_name
+        FROM market_platform_tracking
+        WHERE snapshot_id = $1
+        ORDER BY vin, platform
+      `, {
+        bind: [snapshot.id]
+      });
+
+      // Group platforms by VIN
+      const platformsByVin = {};
+      platformTracking.forEach(track => {
+        if (!platformsByVin[track.vin]) {
+          platformsByVin[track.vin] = [];
+        }
+        platformsByVin[track.vin].push({
+          name: track.platform,
+          url: track.listing_url,
+          price: track.price,
+          dealer: track.dealer_name
+        });
+      });
+
+      // Merge platform data into listings
+      listings = listings.map(listing => {
+        const vin = listing.vehicle?.vin || listing.vin;
+        return {
+          ...listing,
+          sources: platformsByVin[vin] || []
+        };
+      });
+
       // Get price history (30 days)
       const priceHistory = await this.getPriceHistory(vehicleId, 30);
 
