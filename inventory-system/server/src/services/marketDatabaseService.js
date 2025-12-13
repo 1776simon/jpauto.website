@@ -795,7 +795,14 @@ class MarketDatabaseService {
       }
 
       const snapshot = latestSnapshot[0];
-      const listings = snapshot.listings_data || [];
+
+      // Parse listings_data if it's a string
+      let listings = [];
+      if (snapshot.listings_data) {
+        listings = typeof snapshot.listings_data === 'string'
+          ? JSON.parse(snapshot.listings_data)
+          : snapshot.listings_data;
+      }
 
       // Get price history (30 days)
       const priceHistory = await this.getPriceHistory(vehicleId, 30);
