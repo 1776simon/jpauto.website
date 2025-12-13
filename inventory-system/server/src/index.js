@@ -163,6 +163,7 @@ app.use('/api/exports', require('./routes/exports'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/migrations', require('./routes/migrations'));
 app.use('/api/vin', require('./routes/vin'));
+app.use('/api/vin-evaluation', require('./routes/vinEvaluation'));
 
 // Market Research Routes
 app.use('/api/market-research', require('./routes/marketResearch'));

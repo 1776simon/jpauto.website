@@ -664,6 +664,20 @@ class ApiService {
     const response = await this.request<{ success: boolean; data: any }>(`/api/market-research/vehicle/${vehicleId}/detail`);
     return response.data;
   }
+
+  // ===== VIN Evaluation endpoints =====
+  async evaluateVIN(vehicleData: { vin: string; year: number; make: string; model: string; trim?: string; mileage: number }): Promise<any> {
+    const response = await this.request<{ success: boolean; data: any }>('/api/vin-evaluation/evaluate', {
+      method: 'POST',
+      body: JSON.stringify(vehicleData),
+    });
+    return response.data;
+  }
+
+  async checkVINCache(vin: string): Promise<{ cached: boolean; cacheAge: string | null }> {
+    const response = await this.request<{ success: boolean; data: { cached: boolean; cacheAge: string | null } }>(`/api/vin-evaluation/cache/${vin}`);
+    return response.data;
+  }
 }
 
 export default new ApiService();

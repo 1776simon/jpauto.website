@@ -77,6 +77,9 @@ class MarketCleanupJob {
       // Clean up old alerts
       const deletedAlerts = await marketDb.cleanupOldAlerts();
 
+      // Clean up old VIN evaluation cache (1 week retention)
+      const deletedVinEvaluations = await marketDb.cleanupOldVinEvaluations();
+
       const completedAt = new Date();
       const duration = Date.now() - startTime;
 
@@ -85,6 +88,7 @@ class MarketCleanupJob {
         success: true,
         deletedSnapshots,
         deletedAlerts,
+        deletedVinEvaluations,
         duration,
         timestamp: this.lastRun
       };

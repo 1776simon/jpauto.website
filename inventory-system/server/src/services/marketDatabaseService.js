@@ -552,6 +552,35 @@ class MarketDatabaseService {
   }
 
   /**
+   * Clean up old VIN evaluation cache entries
+   * Retention: 1 week (7 days)
+   */
+  async cleanupOldVinEvaluations() {
+    const retentionDays = 7; // 1 week retention for VIN evaluation cache
+
+    try {
+      const [result] = await sequelize.query(`
+        DELETE FROM vin_evaluation_cache
+        WHERE created_at < NOW() - INTERVAL '${retentionDays} days'
+      `);
+
+      const deletedCount = result.rowCount || 0;
+
+      logger.info('VIN evaluation cache cleanup complete', {
+        deletedEntries: deletedCount,
+        retentionDays
+      });
+
+      return deletedCount;
+    } catch (error) {
+      logger.error('VIN evaluation cache cleanup failed', {
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
    * Get storage usage statistics
    */
   async getStorageUsage() {

@@ -1,8 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LayoutDashboard, FileText, Package, Download, TrendingUp, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, FileText, Package, Download, TrendingUp, LogOut, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { VehicleEvalModal } from "@/components/VehicleEvalModal";
+import { useState } from "react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,6 +14,7 @@ interface SidebarProps {
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const location = useLocation();
   const { user, logout } = useAuth();
+  const [vehicleEvalModalOpen, setVehicleEvalModalOpen] = useState(false);
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -19,6 +22,10 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
     { icon: Package, label: "Inventory", href: "/dashboard/inventory" },
     { icon: TrendingUp, label: "Market Research", href: "/dashboard/market-research" },
     { icon: Download, label: "Export", href: "/dashboard/export" },
+  ];
+
+  const actionItems = [
+    { icon: Search, label: "Vehicle Eval", action: () => setVehicleEvalModalOpen(true) },
   ];
 
   const isActive = (href: string) => {
@@ -83,8 +90,41 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   </li>
                 );
               })}
+
+              {/* Separator */}
+              <li className="pt-4 pb-2">
+                <div className="border-t border-sidebar-border"></div>
+              </li>
+
+              {/* Action Items (Buttons) */}
+              {actionItems.map((item, index) => {
+                const Icon = item.icon;
+                return (
+                  <li key={index}>
+                    <button
+                      onClick={() => {
+                        item.action();
+                        // Close sidebar on mobile after action
+                        if (window.innerWidth < 768) {
+                          onToggle();
+                        }
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
+                        "text-sidebar-foreground hover:bg-sidebar-accent"
+                      )}
+                    >
+                      <Icon className="w-5 h-5 flex-shrink-0" />
+                      <span>{item.label}</span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </nav>
+
+          {/* Vehicle Eval Modal */}
+          <VehicleEvalModal open={vehicleEvalModalOpen} onOpenChange={setVehicleEvalModalOpen} />
 
           {/* Footer Section */}
           <div className="border-t border-sidebar-border p-6 space-y-4">
