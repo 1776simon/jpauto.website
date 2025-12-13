@@ -58,7 +58,7 @@ class MarketCleanupJob {
   /**
    * Run the job manually
    */
-  async run() {
+  async run(triggeredBy = 'scheduled') {
     if (this.isRunning) {
       logger.warn('Market cleanup job already running, skipping...');
       return { success: false, message: 'Job already running' };
@@ -66,6 +66,7 @@ class MarketCleanupJob {
 
     this.isRunning = true;
     const startTime = Date.now();
+    const startedAt = new Date();
 
     logger.info('Market cleanup job started');
 
@@ -73,9 +74,10 @@ class MarketCleanupJob {
       // Clean up old snapshots
       const deletedCount = await marketDb.cleanupOldSnapshots();
 
+      const completedAt = new Date();
       const duration = Date.now() - startTime;
 
-      this.lastRun = new Date();
+      this.lastRun = completedAt;
       this.lastResult = {
         success: true,
         deletedSnapshots: deletedCount,
@@ -83,10 +85,23 @@ class MarketCleanupJob {
         timestamp: this.lastRun
       };
 
+      // Save to database
+      await marketDb.saveJobExecution({
+        jobName: 'marketCleanup',
+        status: 'success',
+        startedAt,
+        completedAt,
+        durationMs: duration,
+        resultData: this.lastResult,
+        errorMessage: null,
+        triggeredBy
+      });
+
       logger.info('Market cleanup job completed successfully', this.lastResult);
 
       return this.lastResult;
     } catch (error) {
+      const completedAt = new Date();
       const duration = Date.now() - startTime;
 
       logger.error('Market cleanup job failed', {
@@ -95,13 +110,25 @@ class MarketCleanupJob {
         duration
       });
 
-      this.lastRun = new Date();
+      this.lastRun = completedAt;
       this.lastResult = {
         success: false,
         error: error.message,
         duration,
         timestamp: this.lastRun
       };
+
+      // Save to database
+      await marketDb.saveJobExecution({
+        jobName: 'marketCleanup',
+        status: 'failed',
+        startedAt,
+        completedAt,
+        durationMs: duration,
+        resultData: null,
+        errorMessage: error.message,
+        triggeredBy
+      });
 
       return this.lastResult;
     } finally {

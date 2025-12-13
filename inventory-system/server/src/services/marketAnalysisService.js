@@ -405,7 +405,7 @@ class MarketAnalysisService {
           priceDeltaPercent: v.price_delta_percent ? parseFloat(v.price_delta_percent) : null,
           position: v.competitive_position || null,
           percentileRank: v.percentile_rank ? parseFloat(v.percentile_rank) : null,
-          listingsFound: v.total_listings || 0,
+          listingsFound: v.unique_listings || 0,
           lastAnalyzed: v.last_analyzed || null,
           daysInMarket: v.days_in_market || 0,
           expandedSearch: searchMetadata.expanded_search || false,

@@ -10,6 +10,7 @@ const cron = require('node-cron');
 const marketAnalysisService = require('../services/marketAnalysisService');
 const marketAlertService = require('../services/marketAlertService');
 const marketEmailService = require('../services/marketEmailService');
+const marketDb = require('../services/marketDatabaseService');
 const logger = require('../config/logger');
 
 class MarketResearchJob {
@@ -60,7 +61,7 @@ class MarketResearchJob {
   /**
    * Run the job manually
    */
-  async run() {
+  async run(triggeredBy = 'scheduled') {
     if (this.isRunning) {
       logger.warn('Market research job already running, skipping...');
       return { success: false, message: 'Job already running' };
@@ -68,6 +69,7 @@ class MarketResearchJob {
 
     this.isRunning = true;
     const startTime = Date.now();
+    const startedAt = new Date();
 
     logger.info('Market research job started');
 
@@ -126,9 +128,10 @@ class MarketResearchJob {
         logger.info('No pending alerts, skipping email');
       }
 
+      const completedAt = new Date();
       const duration = Date.now() - startTime;
 
-      this.lastRun = new Date();
+      this.lastRun = completedAt;
       this.lastResult = {
         success: true,
         vehiclesAnalyzed: successCount,
@@ -140,10 +143,23 @@ class MarketResearchJob {
         timestamp: this.lastRun
       };
 
+      // Save to database
+      await marketDb.saveJobExecution({
+        jobName: 'marketResearch',
+        status: 'success',
+        startedAt,
+        completedAt,
+        durationMs: duration,
+        resultData: this.lastResult,
+        errorMessage: null,
+        triggeredBy
+      });
+
       logger.info('Market research job completed successfully', this.lastResult);
 
       return this.lastResult;
     } catch (error) {
+      const completedAt = new Date();
       const duration = Date.now() - startTime;
 
       logger.error('Market research job failed', {
@@ -152,13 +168,25 @@ class MarketResearchJob {
         duration
       });
 
-      this.lastRun = new Date();
+      this.lastRun = completedAt;
       this.lastResult = {
         success: false,
         error: error.message,
         duration,
         timestamp: this.lastRun
       };
+
+      // Save to database
+      await marketDb.saveJobExecution({
+        jobName: 'marketResearch',
+        status: 'failed',
+        startedAt,
+        completedAt,
+        durationMs: duration,
+        resultData: null,
+        errorMessage: error.message,
+        triggeredBy
+      });
 
       return this.lastResult;
     } finally {

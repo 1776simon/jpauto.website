@@ -139,12 +139,13 @@ router.post('/analyze-all', async (req, res) => {
  */
 router.get('/alerts', async (req, res) => {
   try {
-    const { severity, limit = 50, vehicleId } = req.query;
+    const { severity, limit = 50, vehicleId, includeDismissed } = req.query;
 
     const alerts = await marketAlertService.getRecentAlerts({
       severity: severity || null,
       limit: parseInt(limit),
-      vehicleId: vehicleId ? parseInt(vehicleId) : null
+      vehicleId: vehicleId ? parseInt(vehicleId) : null,
+      includeDismissed: includeDismissed === 'true'
     });
 
     res.json({
@@ -153,6 +154,66 @@ router.get('/alerts', async (req, res) => {
     });
   } catch (error) {
     logger.error('Failed to get alerts', {
+      error: error.message
+    });
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/market-research/alerts/:id/dismiss
+ * Dismiss a specific alert
+ */
+router.post('/alerts/:id/dismiss', async (req, res) => {
+  try {
+    const alertId = parseInt(req.params.id);
+
+    await marketAlertService.dismissAlert(alertId);
+
+    res.json({
+      success: true,
+      message: 'Alert dismissed successfully'
+    });
+  } catch (error) {
+    logger.error('Failed to dismiss alert', {
+      alertId: req.params.id,
+      error: error.message
+    });
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/market-research/alerts/dismiss-all
+ * Dismiss multiple alerts
+ */
+router.post('/alerts/dismiss-all', async (req, res) => {
+  try {
+    const { alertIds } = req.body;
+
+    if (!alertIds || !Array.isArray(alertIds) || alertIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'alertIds array is required'
+      });
+    }
+
+    await marketAlertService.dismissAlerts(alertIds);
+
+    res.json({
+      success: true,
+      message: `${alertIds.length} alerts dismissed successfully`
+    });
+  } catch (error) {
+    logger.error('Failed to dismiss alerts', {
       error: error.message
     });
 
@@ -219,7 +280,7 @@ router.get('/dashboard-widget', async (req, res) => {
  */
 router.get('/jobs/status', async (req, res) => {
   try {
-    const status = jobManager.getStatus();
+    const status = await jobManager.getStatus();
 
     res.json({
       success: true,

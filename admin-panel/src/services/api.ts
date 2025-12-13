@@ -625,10 +625,23 @@ class ApiService {
     });
   }
 
-  async getMarketAlerts(params?: { severity?: string; limit?: number; vehicleId?: string }): Promise<MarketAlert[]> {
+  async getMarketAlerts(params?: { severity?: string; limit?: number; vehicleId?: string; includeDismissed?: boolean }): Promise<MarketAlert[]> {
     const query = new URLSearchParams(params as any).toString();
     const response = await this.request<{ success: boolean; data: MarketAlert[] }>(`/api/market-research/alerts${query ? '?' + query : ''}`);
     return response.data;
+  }
+
+  async dismissAlert(alertId: number): Promise<void> {
+    await this.request(`/api/market-research/alerts/${alertId}/dismiss`, {
+      method: 'POST',
+    });
+  }
+
+  async dismissAllAlerts(alertIds: number[]): Promise<void> {
+    await this.request('/api/market-research/alerts/dismiss-all', {
+      method: 'POST',
+      body: JSON.stringify({ alertIds }),
+    });
   }
 
   async getMarketJobsStatus(): Promise<Record<string, JobStatus>> {

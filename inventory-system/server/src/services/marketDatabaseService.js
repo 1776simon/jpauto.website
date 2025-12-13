@@ -568,6 +568,160 @@ class MarketDatabaseService {
       });
     }
   }
+
+  /**
+   * Dismiss an alert
+   */
+  async dismissAlert(alertId) {
+    try {
+      await sequelize.query(`
+        UPDATE market_alerts
+        SET dismissed = true, dismissed_at = NOW()
+        WHERE id = $1
+      `, {
+        bind: [alertId]
+      });
+
+      logger.info('Alert dismissed', { alertId });
+    } catch (error) {
+      logger.error('Failed to dismiss alert', {
+        alertId,
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Dismiss multiple alerts
+   */
+  async dismissAlerts(alertIds) {
+    if (!alertIds || alertIds.length === 0) return;
+
+    try {
+      await sequelize.query(`
+        UPDATE market_alerts
+        SET dismissed = true, dismissed_at = NOW()
+        WHERE id = ANY($1::int[])
+      `, {
+        bind: [alertIds]
+      });
+
+      logger.info('Alerts dismissed', { count: alertIds.length });
+    } catch (error) {
+      logger.error('Failed to dismiss alerts', {
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Save job execution history
+   */
+  async saveJobExecution(data) {
+    const {
+      jobName,
+      status,
+      startedAt,
+      completedAt,
+      durationMs,
+      resultData,
+      errorMessage,
+      triggeredBy
+    } = data;
+
+    try {
+      const [execution] = await sequelize.query(`
+        INSERT INTO job_execution_history (
+          job_name,
+          status,
+          started_at,
+          completed_at,
+          duration_ms,
+          result_data,
+          error_message,
+          triggered_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *
+      `, {
+        bind: [
+          jobName,
+          status,
+          startedAt,
+          completedAt,
+          durationMs,
+          resultData ? JSON.stringify(resultData) : null,
+          errorMessage,
+          triggeredBy || 'scheduled'
+        ]
+      });
+
+      logger.info('Job execution saved', {
+        executionId: execution[0].id,
+        jobName,
+        status
+      });
+
+      return execution[0];
+    } catch (error) {
+      logger.error('Failed to save job execution', {
+        jobName,
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Get latest job execution for a specific job
+   */
+  async getLatestJobExecution(jobName) {
+    try {
+      const [executions] = await sequelize.query(`
+        SELECT *
+        FROM job_execution_history
+        WHERE job_name = $1 AND status != 'running'
+        ORDER BY started_at DESC
+        LIMIT 1
+      `, {
+        bind: [jobName]
+      });
+
+      return executions.length > 0 ? executions[0] : null;
+    } catch (error) {
+      logger.error('Failed to get latest job execution', {
+        jobName,
+        error: error.message
+      });
+      return null;
+    }
+  }
+
+  /**
+   * Get job execution history
+   */
+  async getJobExecutionHistory(jobName, limit = 10) {
+    try {
+      const [executions] = await sequelize.query(`
+        SELECT *
+        FROM job_execution_history
+        WHERE job_name = $1
+        ORDER BY started_at DESC
+        LIMIT $2
+      `, {
+        bind: [jobName, limit]
+      });
+
+      return executions;
+    } catch (error) {
+      logger.error('Failed to get job execution history', {
+        jobName,
+        error: error.message
+      });
+      return [];
+    }
+  }
 }
 
 module.exports = new MarketDatabaseService();

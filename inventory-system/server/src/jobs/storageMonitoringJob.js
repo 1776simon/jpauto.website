@@ -66,7 +66,7 @@ class StorageMonitoringJob {
   /**
    * Run the job manually
    */
-  async run() {
+  async run(triggeredBy = 'scheduled') {
     if (this.isRunning) {
       logger.warn('Storage monitoring job already running, skipping...');
       return { success: false, message: 'Job already running' };
@@ -74,6 +74,7 @@ class StorageMonitoringJob {
 
     this.isRunning = true;
     const startTime = Date.now();
+    const startedAt = new Date();
 
     logger.info('Storage monitoring job started');
 
@@ -134,9 +135,10 @@ class StorageMonitoringJob {
         });
       }
 
+      const completedAt = new Date();
       const duration = Date.now() - startTime;
 
-      this.lastRun = new Date();
+      this.lastRun = completedAt;
       this.lastResult = {
         success: true,
         totalSizeMB,
@@ -147,10 +149,23 @@ class StorageMonitoringJob {
         timestamp: this.lastRun
       };
 
+      // Save to database
+      await marketDb.saveJobExecution({
+        jobName: 'storageMonitoring',
+        status: 'success',
+        startedAt,
+        completedAt,
+        durationMs: duration,
+        resultData: this.lastResult,
+        errorMessage: null,
+        triggeredBy
+      });
+
       logger.info('Storage monitoring job completed successfully', this.lastResult);
 
       return this.lastResult;
     } catch (error) {
+      const completedAt = new Date();
       const duration = Date.now() - startTime;
 
       logger.error('Storage monitoring job failed', {
@@ -159,13 +174,25 @@ class StorageMonitoringJob {
         duration
       });
 
-      this.lastRun = new Date();
+      this.lastRun = completedAt;
       this.lastResult = {
         success: false,
         error: error.message,
         duration,
         timestamp: this.lastRun
       };
+
+      // Save to database
+      await marketDb.saveJobExecution({
+        jobName: 'storageMonitoring',
+        status: 'failed',
+        startedAt,
+        completedAt,
+        durationMs: duration,
+        resultData: null,
+        errorMessage: error.message,
+        triggeredBy
+      });
 
       return this.lastResult;
     } finally {

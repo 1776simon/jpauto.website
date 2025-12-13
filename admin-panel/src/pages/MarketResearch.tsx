@@ -13,6 +13,8 @@ import {
   Play,
   Info,
   AlertCircle,
+  X,
+  History,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/services/api";
@@ -28,6 +30,7 @@ export default function MarketResearch() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+  const [showAllAlerts, setShowAllAlerts] = useState(false);
 
   // Fetch market overview
   const { data: overview, isLoading: overviewLoading } = useQuery({
@@ -38,8 +41,8 @@ export default function MarketResearch() {
 
   // Fetch recent alerts
   const { data: alerts } = useQuery({
-    queryKey: ["marketAlerts"],
-    queryFn: () => api.getMarketAlerts({ limit: 10 }),
+    queryKey: ["marketAlerts", showAllAlerts],
+    queryFn: () => api.getMarketAlerts({ limit: showAllAlerts ? 100 : 10, includeDismissed: showAllAlerts }),
   });
 
   // Fetch job status
@@ -106,6 +109,25 @@ export default function MarketResearch() {
     onError: (error: Error) => {
       toast({
         title: "Job Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Dismiss alert mutation
+  const dismissAlertMutation = useMutation({
+    mutationFn: (alertId: number) => api.dismissAlert(alertId),
+    onSuccess: () => {
+      toast({
+        title: "Alert Dismissed",
+        description: "The alert has been hidden.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["marketAlerts"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to Dismiss",
         description: error.message,
         variant: "destructive",
       });
@@ -253,11 +275,23 @@ export default function MarketResearch() {
         {alerts && alerts.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5" />
-                Recent Alerts
-              </CardTitle>
-              <CardDescription>Price changes and market alerts</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5" />
+                    {showAllAlerts ? "All Alerts" : "Recent Alerts"}
+                  </CardTitle>
+                  <CardDescription>Price changes and market alerts</CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAllAlerts(!showAllAlerts)}
+                >
+                  <History className="h-4 w-4 mr-2" />
+                  {showAllAlerts ? "Show Recent Only" : "View All History"}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -279,6 +313,15 @@ export default function MarketResearch() {
                         {timeAgo(alert.created_at)}
                       </p>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => dismissAlertMutation.mutate(alert.id)}
+                      disabled={dismissAlertMutation.isPending}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -440,7 +483,10 @@ export default function MarketResearch() {
                         )}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        <p>Schedule: {status.schedule}</p>
+                        <p>Schedule: {status.humanReadableSchedule || status.schedule}</p>
+                        {status.nextRun && (
+                          <p>Next run: {new Date(status.nextRun).toLocaleString()}</p>
+                        )}
                         <p>Last run: {timeAgo(status.lastRun)}</p>
                         {status.lastResult && (
                           <p>

@@ -411,7 +411,7 @@ class MarketAlertService {
    * Get recent alerts with filtering
    */
   async getRecentAlerts(options = {}) {
-    const { severity = null, limit = 50, vehicleId = null } = options;
+    const { severity = null, limit = 50, vehicleId = null, includeDismissed = false } = options;
 
     try {
       let query = `
@@ -430,6 +430,11 @@ class MarketAlertService {
 
       const binds = [];
       let bindIndex = 1;
+
+      // Filter out dismissed alerts by default
+      if (!includeDismissed) {
+        query += ` AND a.dismissed = false`;
+      }
 
       if (severity) {
         query += ` AND a.severity = $${bindIndex}`;
@@ -458,6 +463,22 @@ class MarketAlertService {
       });
       throw error;
     }
+  }
+
+  /**
+   * Dismiss an alert
+   */
+  async dismissAlert(alertId) {
+    const marketDb = require('./marketDatabaseService');
+    return await marketDb.dismissAlert(alertId);
+  }
+
+  /**
+   * Dismiss multiple alerts
+   */
+  async dismissAlerts(alertIds) {
+    const marketDb = require('./marketDatabaseService');
+    return await marketDb.dismissAlerts(alertIds);
   }
 }
 
