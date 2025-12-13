@@ -762,6 +762,269 @@ class MarketDatabaseService {
       return [];
     }
   }
+
+  /**
+   * Get detailed market analysis for a vehicle
+   * Returns: price trends, platform distribution, DOM analysis, listings
+   */
+  async getVehicleMarketDetail(vehicleId) {
+    try {
+      // Get latest snapshot with full listings data
+      const [latestSnapshot] = await sequelize.query(`
+        SELECT
+          id,
+          listings_data,
+          unique_listings,
+          median_price,
+          min_price,
+          max_price,
+          snapshot_date
+        FROM market_snapshots
+        WHERE vehicle_id = $1
+        ORDER BY snapshot_date DESC
+        LIMIT 1
+      `, {
+        bind: [vehicleId]
+      });
+
+      if (!latestSnapshot || latestSnapshot.length === 0) {
+        return {
+          hasMarketData: false,
+          message: 'No market data available for this vehicle'
+        };
+      }
+
+      const snapshot = latestSnapshot[0];
+      const listings = snapshot.listings_data || [];
+
+      // Get price history (30 days)
+      const priceHistory = await this.getPriceHistory(vehicleId, 30);
+
+      // Calculate platform distribution
+      const platformDistribution = this.calculatePlatformDistribution(listings);
+
+      // Calculate days on market
+      const domAnalysis = this.calculateDaysOnMarket(listings);
+
+      // Prepare individual listings with enhanced data
+      const competitorListings = this.prepareCompetitorListings(listings);
+
+      // Calculate market velocity indicators
+      const marketVelocity = this.calculateMarketVelocity(priceHistory, domAnalysis);
+
+      return {
+        hasMarketData: true,
+        snapshot: {
+          date: snapshot.snapshot_date,
+          uniqueListings: snapshot.unique_listings,
+          medianPrice: parseFloat(snapshot.median_price || 0),
+          minPrice: parseFloat(snapshot.min_price || 0),
+          maxPrice: parseFloat(snapshot.max_price || 0)
+        },
+        priceHistory: priceHistory.reverse(), // Oldest first for charts
+        platformDistribution,
+        domAnalysis,
+        competitorListings,
+        marketVelocity
+      };
+    } catch (error) {
+      logger.error('Failed to get vehicle market detail', {
+        vehicleId,
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Calculate platform distribution from listings
+   */
+  calculatePlatformDistribution(listings) {
+    const platformCounts = {};
+    const vinsByPlatform = {};
+    const crossPostingMatrix = {};
+
+    listings.forEach(listing => {
+      const vin = listing.vin;
+      const platforms = listing.sources || [];
+
+      // Track VIN's platforms
+      if (!crossPostingMatrix[vin]) {
+        crossPostingMatrix[vin] = {
+          vin: vin.slice(-4),
+          platforms: [],
+          price: listing.price
+        };
+      }
+
+      platforms.forEach(source => {
+        const platform = source.name || 'Unknown';
+
+        // Count platforms
+        platformCounts[platform] = (platformCounts[platform] || 0) + 1;
+
+        // Track VINs per platform
+        if (!vinsByPlatform[platform]) {
+          vinsByPlatform[platform] = new Set();
+        }
+        vinsByPlatform[platform].add(vin);
+
+        // Add to cross-posting matrix
+        if (!crossPostingMatrix[vin].platforms.includes(platform)) {
+          crossPostingMatrix[vin].platforms.push(platform);
+        }
+      });
+    });
+
+    // Convert to arrays
+    const distribution = Object.entries(platformCounts).map(([name, count]) => ({
+      platform: name,
+      listingCount: count,
+      uniqueVINs: vinsByPlatform[name].size
+    })).sort((a, b) => b.listingCount - a.listingCount);
+
+    const matrix = Object.values(crossPostingMatrix);
+
+    return {
+      distribution,
+      crossPostingMatrix: matrix,
+      totalPlatforms: Object.keys(platformCounts).length
+    };
+  }
+
+  /**
+   * Calculate days on market statistics
+   */
+  calculateDaysOnMarket(listings) {
+    const domValues = [];
+    const today = new Date();
+
+    listings.forEach(listing => {
+      if (listing.listedDate) {
+        const listedDate = new Date(listing.listedDate);
+        const days = Math.floor((today - listedDate) / (1000 * 60 * 60 * 24));
+        if (days >= 0) {
+          domValues.push({
+            vin: listing.vin.slice(-4),
+            days,
+            price: listing.price
+          });
+        }
+      }
+    });
+
+    if (domValues.length === 0) {
+      return {
+        average: null,
+        min: null,
+        max: null,
+        histogram: [],
+        listings: []
+      };
+    }
+
+    const days = domValues.map(v => v.days);
+    const average = Math.round(days.reduce((a, b) => a + b, 0) / days.length);
+    const min = Math.min(...days);
+    const max = Math.max(...days);
+
+    // Create histogram buckets
+    const histogram = [
+      { range: '0-30 days', count: days.filter(d => d <= 30).length },
+      { range: '31-60 days', count: days.filter(d => d > 30 && d <= 60).length },
+      { range: '61-90 days', count: days.filter(d => d > 60 && d <= 90).length },
+      { range: '90+ days', count: days.filter(d => d > 90).length }
+    ];
+
+    return {
+      average,
+      min,
+      max,
+      histogram,
+      listings: domValues.sort((a, b) => a.days - b.days)
+    };
+  }
+
+  /**
+   * Prepare competitor listings with enhanced data
+   */
+  prepareCompetitorListings(listings) {
+    return listings.map(listing => ({
+      vinLast4: listing.vin ? listing.vin.slice(-4) : 'N/A',
+      vin: listing.vin,
+      price: listing.price,
+      mileage: listing.mileage,
+      trim: listing.trim || 'Base',
+      location: listing.location?.city || 'Unknown',
+      dealer: listing.dealerName || 'Private',
+      platforms: (listing.sources || []).map(s => s.name).join(', '),
+      platformCount: (listing.sources || []).length,
+      url: listing.url || null
+    })).sort((a, b) => a.price - b.price);
+  }
+
+  /**
+   * Calculate market velocity indicators
+   */
+  calculateMarketVelocity(priceHistory, domAnalysis) {
+    if (!priceHistory || priceHistory.length < 2) {
+      return {
+        trend: 'unknown',
+        message: 'Insufficient data to determine market velocity'
+      };
+    }
+
+    // Get recent price changes (last 2 weeks)
+    const recentHistory = priceHistory.slice(-14);
+    const twoWeeksAgo = recentHistory[0];
+    const latest = recentHistory[recentHistory.length - 1];
+
+    if (!twoWeeksAgo || !latest) {
+      return {
+        trend: 'unknown',
+        message: 'Insufficient price history'
+      };
+    }
+
+    const minPriceChange = twoWeeksAgo.min_price && latest.min_price
+      ? ((latest.min_price - twoWeeksAgo.min_price) / twoWeeksAgo.min_price) * 100
+      : 0;
+
+    const medianPriceChange = twoWeeksAgo.median_price && latest.median_price
+      ? ((latest.median_price - twoWeeksAgo.median_price) / twoWeeksAgo.median_price) * 100
+      : 0;
+
+    // Determine market type
+    let trend = 'stable';
+    let message = '';
+
+    if (minPriceChange < -5 || medianPriceChange < -5) {
+      trend = 'buyers_market';
+      message = `⚠️ BUYER'S MARKET - Min price dropping ${Math.abs(minPriceChange).toFixed(1)}% over 2 weeks`;
+
+      if (domAnalysis.average > 40) {
+        message += `. Average DOM: ${domAnalysis.average} days (slow market). Recommendation: Price competitively at or below $${latest.min_price?.toLocaleString()} for quick sale.`;
+      }
+    } else if (minPriceChange > 5 || medianPriceChange > 5) {
+      trend = 'sellers_market';
+      message = `✅ SELLER'S MARKET - Prices rising ${minPriceChange.toFixed(1)}% over 2 weeks`;
+
+      if (domAnalysis.average < 25) {
+        message += `. Average DOM: ${domAnalysis.average} days (fast market). Recommendation: Hold current pricing or increase.`;
+      }
+    } else {
+      trend = 'stable';
+      message = `📊 STABLE MARKET - Prices holding steady. Average DOM: ${domAnalysis.average || 'N/A'} days.`;
+    }
+
+    return {
+      trend,
+      message,
+      minPriceChange: minPriceChange.toFixed(2),
+      medianPriceChange: medianPriceChange.toFixed(2),
+      averageDom: domAnalysis.average
+    };
+  }
 }
 
 module.exports = new MarketDatabaseService();

@@ -225,6 +225,35 @@ router.post('/alerts/dismiss-all', async (req, res) => {
 });
 
 /**
+ * GET /api/market-research/vehicle/:id/detail
+ * Get detailed market analysis for a specific vehicle
+ * Returns: price trends, platform distribution, DOM analysis, competitor listings
+ */
+router.get('/vehicle/:id/detail', async (req, res) => {
+  try {
+    const vehicleId = req.params.id;
+
+    const marketDb = require('../services/marketDatabaseService');
+    const detail = await marketDb.getVehicleMarketDetail(vehicleId);
+
+    res.json({
+      success: true,
+      data: detail
+    });
+  } catch (error) {
+    logger.error('Failed to get vehicle market detail', {
+      vehicleId: req.params.id,
+      error: error.message
+    });
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * GET /api/market-research/dashboard-widget
  * Get data for dashboard widget
  */
