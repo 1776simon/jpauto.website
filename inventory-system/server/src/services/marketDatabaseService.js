@@ -809,6 +809,12 @@ class MarketDatabaseService {
         .map(l => l.vehicle?.vin || l.vin)
         .filter(v => v);
 
+      logger.info('Querying platform tracking for VINs', {
+        vehicleId,
+        vinCount: vins.length,
+        sampleVins: vins.slice(0, 3)
+      });
+
       // Get platform tracking data for these VINs
       const [platformTracking] = vins.length > 0 ? await sequelize.query(`
         SELECT vin, platform, listing_url, price, dealer_name
@@ -818,6 +824,12 @@ class MarketDatabaseService {
       `, {
         bind: [vins]
       }) : [[]];
+
+      logger.info('Platform tracking results', {
+        vehicleId,
+        platformCount: platformTracking.length,
+        samplePlatform: platformTracking[0] || null
+      });
 
       // Group platforms by VIN
       const platformsByVin = {};
@@ -1003,7 +1015,23 @@ class MarketDatabaseService {
   prepareCompetitorListings(listings) {
     return listings.map(listing => {
       const vin = listing.vehicle?.vin || listing.vin;
-      const price = listing.retailListing?.price || listing.price || 0;
+
+      // Extract price with multiple fallbacks
+      let price = 0;
+      if (listing.retailListing?.price && listing.retailListing.price > 0) {
+        price = listing.retailListing.price;
+      } else if (listing.price && listing.price > 0) {
+        price = listing.price;
+      } else if (listing.sources && listing.sources.length > 0) {
+        // Try to get price from sources
+        const sourcePrices = listing.sources
+          .map(s => s.price)
+          .filter(p => p && p > 0);
+        if (sourcePrices.length > 0) {
+          price = Math.min(...sourcePrices); // Use lowest price
+        }
+      }
+
       const mileage = listing.retailListing?.miles || listing.mileage;
       const trim = listing.vehicle?.trim || listing.trim || 'Base';
       const city = listing.retailListing?.city || listing.location?.city || 'Unknown';
