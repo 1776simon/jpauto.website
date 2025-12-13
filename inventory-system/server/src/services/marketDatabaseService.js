@@ -804,15 +804,20 @@ class MarketDatabaseService {
           : snapshot.listings_data;
       }
 
-      // Get platform tracking data for this snapshot
-      const [platformTracking] = await sequelize.query(`
+      // Get all VINs from listings
+      const vins = listings
+        .map(l => l.vehicle?.vin || l.vin)
+        .filter(v => v);
+
+      // Get platform tracking data for these VINs
+      const [platformTracking] = vins.length > 0 ? await sequelize.query(`
         SELECT vin, platform, listing_url, price, dealer_name
         FROM market_platform_tracking
-        WHERE snapshot_id = $1
+        WHERE vin = ANY($1::text[])
         ORDER BY vin, platform
       `, {
-        bind: [snapshot.id]
-      });
+        bind: [vins]
+      }) : [[]];
 
       // Group platforms by VIN
       const platformsByVin = {};
@@ -823,7 +828,7 @@ class MarketDatabaseService {
         platformsByVin[track.vin].push({
           name: track.platform,
           url: track.listing_url,
-          price: track.price,
+          price: parseFloat(track.price || 0),
           dealer: track.dealer_name
         });
       });
