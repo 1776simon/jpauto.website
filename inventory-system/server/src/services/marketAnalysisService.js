@@ -203,7 +203,7 @@ class MarketAnalysisService {
 
     // Update price history
     if (priceStats.median) {
-      await marketDb.updatePriceHistory(vehicle.id, priceStats.median);
+      await marketDb.updatePriceHistory(vehicle.id, priceStats);
     }
 
     logger.info('Market analysis complete', {

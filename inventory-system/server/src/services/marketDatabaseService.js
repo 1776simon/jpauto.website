@@ -189,11 +189,13 @@ class MarketDatabaseService {
   /**
    * Update price history with cumulative changes
    */
-  async updatePriceHistory(vehicleId, medianPrice) {
+  async updatePriceHistory(vehicleId, priceStats) {
     try {
+      const { median, min, max } = priceStats;
+
       // Get historical data for cumulative calculations
       const [history] = await sequelize.query(`
-        SELECT date, median_price
+        SELECT date, median_price, min_price
         FROM market_price_history
         WHERE vehicle_id = $1
         ORDER BY date DESC
@@ -205,7 +207,7 @@ class MarketDatabaseService {
       const today = new Date().toISOString().split('T')[0];
 
       // Calculate cumulative changes
-      const changes = this.calculateCumulativeChanges(history, medianPrice);
+      const changes = this.calculateCumulativeChanges(history, median);
 
       // Insert or update today's record
       await sequelize.query(`
@@ -213,25 +215,31 @@ class MarketDatabaseService {
           vehicle_id,
           date,
           median_price,
+          min_price,
+          max_price,
           change_1week,
           change_2week,
           change_1month,
           alert_sent_1week,
           alert_sent_2week,
           created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, false, false, NOW())
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, false, NOW())
         ON CONFLICT (vehicle_id, date)
         DO UPDATE SET
           median_price = $3,
-          change_1week = $4,
-          change_2week = $5,
-          change_1month = $6,
+          min_price = $4,
+          max_price = $5,
+          change_1week = $6,
+          change_2week = $7,
+          change_1month = $8,
           created_at = NOW()
       `, {
         bind: [
           vehicleId,
           today,
-          medianPrice,
+          median,
+          min,
+          max,
           changes.change1Week,
           changes.change2Week,
           changes.change1Month
@@ -240,7 +248,9 @@ class MarketDatabaseService {
 
       logger.info('Price history updated', {
         vehicleId,
-        medianPrice,
+        median,
+        min,
+        max,
         changes
       });
     } catch (error) {
@@ -287,6 +297,8 @@ class MarketDatabaseService {
         SELECT
           date,
           median_price,
+          min_price,
+          max_price,
           change_1week,
           change_2week,
           change_1month
@@ -494,6 +506,34 @@ class MarketDatabaseService {
       return deletedCount;
     } catch (error) {
       logger.error('Cleanup failed', {
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Clean up old alerts (6 months retention)
+   */
+  async cleanupOldAlerts() {
+    const retentionDays = parseInt(process.env.MARKET_SNAPSHOT_RETENTION_DAYS) || 180;
+
+    try {
+      const [result] = await sequelize.query(`
+        DELETE FROM market_alerts
+        WHERE created_at < NOW() - INTERVAL '${retentionDays} days'
+      `);
+
+      const deletedCount = result.rowCount || 0;
+
+      logger.info('Alert cleanup complete', {
+        deletedAlerts: deletedCount,
+        retentionDays
+      });
+
+      return deletedCount;
+    } catch (error) {
+      logger.error('Alert cleanup failed', {
         error: error.message
       });
       throw error;

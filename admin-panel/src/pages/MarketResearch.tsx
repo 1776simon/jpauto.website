@@ -271,29 +271,29 @@ export default function MarketResearch() {
           })}
         </div>
 
-        {/* Recent Alerts */}
-        {alerts && alerts.length > 0 && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5" />
-                    {showAllAlerts ? "All Alerts" : "Recent Alerts"}
-                  </CardTitle>
-                  <CardDescription>Price changes and market alerts</CardDescription>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowAllAlerts(!showAllAlerts)}
-                >
-                  <History className="h-4 w-4 mr-2" />
-                  {showAllAlerts ? "Show Recent Only" : "View All History"}
-                </Button>
+        {/* Recent Alerts - Always Show */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  {showAllAlerts ? "All Alerts" : "Recent Alerts"}
+                </CardTitle>
+                <CardDescription>Price changes and market alerts</CardDescription>
               </div>
-            </CardHeader>
-            <CardContent>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAllAlerts(!showAllAlerts)}
+              >
+                <History className="h-4 w-4 mr-2" />
+                {showAllAlerts ? "Show Recent Only" : "View All History"}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {alerts && alerts.length > 0 ? (
               <div className="space-y-3">
                 {alerts.map((alert) => (
                   <div
@@ -325,9 +325,19 @@ export default function MarketResearch() {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        )}
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <CheckCircle2 className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p className="font-medium">No {showAllAlerts ? '' : 'Recent '}Alerts</p>
+                <p className="text-sm mt-1">
+                  {showAllAlerts
+                    ? "All alerts have been dismissed or there are no alerts yet."
+                    : "All recent alerts have been dismissed. Click 'View All History' to see older alerts."}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Vehicles Table */}
         <Card>
@@ -482,14 +492,27 @@ export default function MarketResearch() {
                           <XCircle className="h-4 w-4 text-red-500" />
                         )}
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        <p>Schedule: {status.humanReadableSchedule || status.schedule}</p>
+                      <div className="text-sm space-y-1">
+                        <p className="text-muted-foreground">
+                          <span className="font-medium">Schedule:</span> {status.humanReadableSchedule || status.schedule}
+                        </p>
                         {status.nextRun && (
-                          <p>Next run: {new Date(status.nextRun).toLocaleString()}</p>
+                          <p className="text-primary font-medium">
+                            <Clock className="h-3 w-3 inline mr-1" />
+                            Next run: {new Date(status.nextRun).toLocaleString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            })}
+                          </p>
                         )}
-                        <p>Last run: {timeAgo(status.lastRun)}</p>
+                        <p className="text-muted-foreground">
+                          Last run: {timeAgo(status.lastRun)}
+                        </p>
                         {status.lastResult && (
-                          <p>
+                          <p className="text-muted-foreground">
                             Status: {status.lastResult.success ? "✓ Success" : "✗ Failed"}
                             {status.lastResult.vehiclesAnalyzed !== undefined &&
                               ` - ${status.lastResult.vehiclesAnalyzed} vehicles analyzed`}

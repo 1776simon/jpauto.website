@@ -72,7 +72,10 @@ class MarketCleanupJob {
 
     try {
       // Clean up old snapshots
-      const deletedCount = await marketDb.cleanupOldSnapshots();
+      const deletedSnapshots = await marketDb.cleanupOldSnapshots();
+
+      // Clean up old alerts
+      const deletedAlerts = await marketDb.cleanupOldAlerts();
 
       const completedAt = new Date();
       const duration = Date.now() - startTime;
@@ -80,7 +83,8 @@ class MarketCleanupJob {
       this.lastRun = completedAt;
       this.lastResult = {
         success: true,
-        deletedSnapshots: deletedCount,
+        deletedSnapshots,
+        deletedAlerts,
         duration,
         timestamp: this.lastRun
       };
