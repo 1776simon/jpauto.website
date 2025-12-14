@@ -660,11 +660,6 @@ class ApiService {
     return response.data;
   }
 
-  async getVehicleMarketDetail(vehicleId: string): Promise<any> {
-    const response = await this.request<{ success: boolean; data: any }>(`/api/market-research/vehicle/${vehicleId}/detail`);
-    return response.data;
-  }
-
   // ===== VIN Evaluation endpoints =====
   async evaluateVIN(vehicleData: { vin: string; year: number; make: string; model: string; trim?: string; mileage: number; forceRefresh?: boolean }): Promise<any> {
     const response = await this.request<{ success: boolean; data: any }>('/api/vin-evaluation/evaluate', {

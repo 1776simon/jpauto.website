@@ -116,8 +116,8 @@ class VinEvaluationService {
       count: priceStats.count
     });
 
-    // Extract sample listings for display (top 10)
-    const sampleListings = this.extractSampleListings(marketListings, 10);
+    // Extract sample listings for display (top 50 for pagination)
+    const sampleListings = this.extractSampleListings(marketListings, 50);
 
     // Save to cache
     await this.saveToCache({
@@ -300,7 +300,7 @@ class VinEvaluationService {
   /**
    * Extract sample listings for display
    */
-  extractSampleListings(listings, limit = 10) {
+  extractSampleListings(listings, limit = 50) {
     return listings.slice(0, limit).map(listing => {
       const vin = listing.vehicle?.vin || null;
       const vinLast4 = vin ? vin.slice(-4) : null;

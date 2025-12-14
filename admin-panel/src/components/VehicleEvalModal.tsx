@@ -6,10 +6,11 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import api from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Search, ArrowLeft, TrendingUp, TrendingDown, ExternalLink, RefreshCw, AlertCircle } from "lucide-react";
+import { Loader2, Search, ArrowLeft, TrendingUp, TrendingDown, ExternalLink, RefreshCw, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface VehicleEvalModalProps {
   open: boolean;
@@ -32,6 +33,10 @@ export function VehicleEvalModal({ open, onOpenChange }: VehicleEvalModalProps) 
   const [evaluationResults, setEvaluationResults] = useState<any>(null);
   const [cacheInfo, setCacheInfo] = useState<{ cached: boolean; cacheAge: string | null; mileage?: number } | null>(null);
   const [forceRefresh, setForceRefresh] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   // VIN decode mutation
   const vinDecodeMutation = useMutation({
@@ -89,6 +94,7 @@ export function VehicleEvalModal({ open, onOpenChange }: VehicleEvalModalProps) 
     onSuccess: (data) => {
       setEvaluationResults(data);
       setStep('results');
+      setCurrentPage(1); // Reset to first page
 
       if (data.fromCache) {
         toast({
@@ -157,6 +163,7 @@ export function VehicleEvalModal({ open, onOpenChange }: VehicleEvalModalProps) 
     setEvaluationResults(null);
     setCacheInfo(null);
     setForceRefresh(false);
+    setCurrentPage(1);
     setVin('');
     setYear('');
     setMake('');
@@ -194,6 +201,19 @@ export function VehicleEvalModal({ open, onOpenChange }: VehicleEvalModalProps) 
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
+  };
+
+  // Pagination helpers
+  const getPaginatedListings = () => {
+    if (!evaluationResults?.marketData?.sampleListings) return [];
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return evaluationResults.marketData.sampleListings.slice(startIndex, endIndex);
+  };
+
+  const getTotalPages = () => {
+    if (!evaluationResults?.marketData?.sampleListings) return 0;
+    return Math.ceil(evaluationResults.marketData.sampleListings.length / itemsPerPage);
   };
 
   return (
@@ -423,9 +443,16 @@ export function VehicleEvalModal({ open, onOpenChange }: VehicleEvalModalProps) 
 
             {/* Sample Listings */}
             {evaluationResults.marketData.sampleListings && evaluationResults.marketData.sampleListings.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="font-semibold">Sample Competitor Listings</h3>
-                <div className="border rounded-lg">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-semibold">Sample Competitor Listings</h3>
+                  <span className="text-sm text-muted-foreground">
+                    Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, evaluationResults.marketData.sampleListings.length)} of {evaluationResults.marketData.sampleListings.length}
+                  </span>
+                </div>
+
+                {/* Desktop: Table View */}
+                <div className="hidden md:block border rounded-lg">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -439,7 +466,7 @@ export function VehicleEvalModal({ open, onOpenChange }: VehicleEvalModalProps) 
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {evaluationResults.marketData.sampleListings.map((listing: any, index: number) => {
+                      {getPaginatedListings().map((listing: any, index: number) => {
                         const price = listing.price || 0;
                         const medianPrice = evaluationResults.marketData.medianPrice || 0;
                         return (
@@ -482,6 +509,108 @@ export function VehicleEvalModal({ open, onOpenChange }: VehicleEvalModalProps) 
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Mobile: Card View */}
+                <div className="md:hidden space-y-3">
+                  {getPaginatedListings().map((listing: any, index: number) => {
+                    const price = listing.price || 0;
+                    const medianPrice = evaluationResults.marketData.medianPrice || 0;
+                    const priceDelta = price - medianPrice;
+                    return (
+                      <Card key={index} className="overflow-hidden">
+                        <CardContent className="p-4">
+                          {/* Header: VIN and Price */}
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <div className="text-xs text-muted-foreground font-mono">VIN ...{listing.vinLast4 || 'N/A'}</div>
+                              <div className="text-2xl font-bold mt-1">{formatCurrency(price)}</div>
+                            </div>
+                            {listing.url && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(listing.url, '_blank')}
+                              >
+                                <ExternalLink className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                            )}
+                          </div>
+
+                          {/* Price Delta Badge */}
+                          <div className="mb-3">
+                            {priceDelta < 0 ? (
+                              <Badge variant="outline" className="text-green-600 border-green-600">
+                                <TrendingDown className="h-3 w-3 mr-1" />
+                                {formatCurrency(Math.abs(priceDelta))} below median
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-red-600 border-red-600">
+                                <TrendingUp className="h-3 w-3 mr-1" />
+                                {formatCurrency(priceDelta)} above median
+                              </Badge>
+                            )}
+                          </div>
+
+                          {/* Details Grid */}
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <div className="text-muted-foreground">Mileage</div>
+                              <div className="font-medium">{listing.mileage?.toLocaleString() || 'N/A'}</div>
+                            </div>
+                            <div>
+                              <div className="text-muted-foreground">Trim</div>
+                              <div className="font-medium">{listing.trim || 'N/A'}</div>
+                            </div>
+                            <div className="col-span-2">
+                              <div className="text-muted-foreground">Location</div>
+                              <div className="font-medium">{listing.location || 'N/A'}</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+
+                {/* Pagination Controls */}
+                {getTotalPages() > 1 && (
+                  <div className="flex justify-center items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: getTotalPages() }, (_, i) => i + 1).map(page => (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          className="w-9"
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.min(getTotalPages(), p + 1))}
+                      disabled={currentPage === getTotalPages()}
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 
