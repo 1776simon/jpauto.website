@@ -2,14 +2,14 @@
  * Market Research Scheduled Job
  *
  * Schedule: Every 3 days at midnight PST
- * Process: Analyze all vehicles → Detect alerts → Send email
+ * Process: Analyze all vehicles → Detect alerts → Store in database
+ * Alerts are viewable in the admin dashboard (no email notifications)
  * User specified: 20 vehicles × 1 token every 3 days = ~200 tokens/month
  */
 
 const cron = require('node-cron');
 const marketAnalysisService = require('../services/marketAnalysisService');
 const marketAlertService = require('../services/marketAlertService');
-const marketEmailService = require('../services/marketEmailService');
 const marketDb = require('../services/marketDatabaseService');
 const logger = require('../config/logger');
 
@@ -102,31 +102,12 @@ class MarketResearchJob {
         alertsDetected: allAlerts.length
       });
 
-      // Step 3: Get all pending alerts (not yet emailed)
-      const pendingAlerts = await marketAlertService.getPendingAlerts();
-
-      logger.info('Pending alerts retrieved', {
-        count: pendingAlerts.length
+      // Alerts are now stored in database and viewable in admin dashboard
+      logger.info('Market research analysis complete', {
+        vehiclesAnalyzed: successCount,
+        failures: failureCount,
+        alertsDetected: allAlerts.length
       });
-
-      // Step 4: Send email if there are pending alerts
-      let emailSent = false;
-      if (pendingAlerts.length > 0) {
-        logger.info('Sending alert email...');
-
-        await marketEmailService.sendAlertEmail(pendingAlerts);
-        emailSent = true;
-
-        // Mark alerts as emailed
-        const alertIds = pendingAlerts.map(a => a.id);
-        await marketAlertService.markAlertsAsEmailed(alertIds);
-
-        logger.info('Alert email sent successfully', {
-          alertCount: pendingAlerts.length
-        });
-      } else {
-        logger.info('No pending alerts, skipping email');
-      }
 
       const completedAt = new Date();
       const duration = Date.now() - startTime;
@@ -137,8 +118,6 @@ class MarketResearchJob {
         vehiclesAnalyzed: successCount,
         failures: failureCount,
         alertsDetected: allAlerts.length,
-        pendingAlerts: pendingAlerts.length,
-        emailSent,
         duration,
         timestamp: this.lastRun
       };

@@ -66,6 +66,10 @@ export function VehicleEvalModal({ open, onOpenChange }: VehicleEvalModalProps) 
             cacheAge: cacheData.cacheAge,
             mileage: cachedEval.mileage
           });
+          // Auto-populate mileage from cached data
+          if (cachedEval.mileage) {
+            setMileage(cachedEval.mileage.toString());
+          }
         } else {
           setCacheInfo({ cached: false, cacheAge: null });
         }

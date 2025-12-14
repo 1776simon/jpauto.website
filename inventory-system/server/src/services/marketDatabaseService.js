@@ -440,60 +440,6 @@ class MarketDatabaseService {
     }
   }
 
-  /**
-   * Get pending alerts (not emailed)
-   */
-  async getPendingAlerts() {
-    try {
-      const [alerts] = await sequelize.query(`
-        SELECT
-          a.*,
-          i.year,
-          i.make,
-          i.model,
-          i.trim,
-          i.vin,
-          i.price
-        FROM market_alerts a
-        JOIN inventory i ON i.id = a.vehicle_id
-        WHERE a.emailed = false
-        ORDER BY a.severity DESC, a.created_at DESC
-      `);
-
-      return alerts;
-    } catch (error) {
-      logger.error('Failed to get pending alerts', {
-        error: error.message
-      });
-      throw error;
-    }
-  }
-
-  /**
-   * Mark alerts as emailed
-   */
-  async markAlertsAsEmailed(alertIds) {
-    if (!alertIds || alertIds.length === 0) return;
-
-    try {
-      await sequelize.query(`
-        UPDATE market_alerts
-        SET emailed = true, emailed_at = NOW()
-        WHERE id = ANY($1::int[])
-      `, {
-        bind: [alertIds]
-      });
-
-      logger.info('Alerts marked as emailed', {
-        count: alertIds.length
-      });
-    } catch (error) {
-      logger.error('Failed to mark alerts as emailed', {
-        error: error.message
-      });
-      throw error;
-    }
-  }
 
   /**
    * Clean up old snapshots (6 months retention)

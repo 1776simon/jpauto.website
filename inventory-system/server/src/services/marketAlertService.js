@@ -394,20 +394,6 @@ class MarketAlertService {
   }
 
   /**
-   * Get pending alerts (not yet emailed)
-   */
-  async getPendingAlerts() {
-    return await marketDb.getPendingAlerts();
-  }
-
-  /**
-   * Mark alerts as emailed
-   */
-  async markAlertsAsEmailed(alertIds) {
-    return await marketDb.markAlertsAsEmailed(alertIds);
-  }
-
-  /**
    * Get recent alerts with filtering
    */
   async getRecentAlerts(options = {}) {
