@@ -15,11 +15,11 @@ const logger = require('../config/logger');
 class VinEvaluationService {
   /**
    * Evaluate a vehicle by VIN with caching
-   * @param {Object} vehicleData - { vin, year, make, model, trim, mileage }
+   * @param {Object} vehicleData - { vin, year, make, model, trim, mileage, forceRefresh }
    * @returns {Object} - Market summary data
    */
   async evaluateVehicle(vehicleData) {
-    const { vin, year, make, model, trim, mileage } = vehicleData;
+    const { vin, year, make, model, trim, mileage, forceRefresh } = vehicleData;
 
     // Validate required fields
     if (!vin || !year || !make || !model || !mileage) {
@@ -31,11 +31,12 @@ class VinEvaluationService {
       year,
       make,
       model,
-      trim
+      trim,
+      forceRefresh: forceRefresh || false
     });
 
-    // Check cache first (entries less than 1 week old)
-    const cachedData = await this.getCachedEvaluation(vin);
+    // Check cache first (entries less than 1 week old) unless force refresh
+    const cachedData = !forceRefresh ? await this.getCachedEvaluation(vin) : null;
     if (cachedData) {
       logger.info('VIN evaluation loaded from cache', {
         vin,
@@ -63,8 +64,14 @@ class VinEvaluationService {
       };
     }
 
-    // Not cached - fetch from Auto.dev
-    logger.info('VIN evaluation not cached, fetching from Auto.dev', { vin });
+    // Not cached or force refresh - fetch from Auto.dev
+    if (forceRefresh) {
+      logger.info('VIN evaluation force refresh requested, bypassing cache', { vin });
+      // Delete old cache entry
+      await this.deleteCachedEvaluation(vin);
+    } else {
+      logger.info('VIN evaluation not cached, fetching from Auto.dev', { vin });
+    }
 
     // Get all our inventory VINs to exclude from market data
     const ownVins = await this.getOwnInventoryVins();
@@ -175,6 +182,28 @@ class VinEvaluationService {
         error: error.message
       });
       return null; // On error, proceed with fresh lookup
+    }
+  }
+
+  /**
+   * Delete cached evaluation for a VIN
+   */
+  async deleteCachedEvaluation(vin) {
+    try {
+      await sequelize.query(`
+        DELETE FROM vin_evaluation_cache
+        WHERE vin = $1
+      `, {
+        bind: [vin]
+      });
+
+      logger.info('VIN evaluation cache deleted', { vin });
+    } catch (error) {
+      logger.error('Failed to delete VIN evaluation cache', {
+        vin,
+        error: error.message
+      });
+      // Don't throw - cache deletion is optional
     }
   }
 

@@ -666,7 +666,7 @@ class ApiService {
   }
 
   // ===== VIN Evaluation endpoints =====
-  async evaluateVIN(vehicleData: { vin: string; year: number; make: string; model: string; trim?: string; mileage: number }): Promise<any> {
+  async evaluateVIN(vehicleData: { vin: string; year: number; make: string; model: string; trim?: string; mileage: number; forceRefresh?: boolean }): Promise<any> {
     const response = await this.request<{ success: boolean; data: any }>('/api/vin-evaluation/evaluate', {
       method: 'POST',
       body: JSON.stringify(vehicleData),

@@ -22,7 +22,7 @@ router.use(isAuthenticated);
  */
 router.post('/evaluate', async (req, res) => {
   try {
-    const { vin, year, make, model, trim, mileage } = req.body;
+    const { vin, year, make, model, trim, mileage, forceRefresh } = req.body;
 
     // Validate required fields
     if (!vin || !year || !make || !model || !mileage) {
@@ -53,6 +53,7 @@ router.post('/evaluate', async (req, res) => {
       year,
       make,
       model,
+      forceRefresh: forceRefresh || false,
       user: req.user?.email
     });
 
@@ -63,7 +64,8 @@ router.post('/evaluate', async (req, res) => {
       make,
       model,
       trim: trim || null,
-      mileage: parseInt(mileage)
+      mileage: parseInt(mileage),
+      forceRefresh: forceRefresh || false
     });
 
     logger.info('VIN evaluation completed', {
