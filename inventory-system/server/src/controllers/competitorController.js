@@ -339,7 +339,7 @@ exports.validateCompetitorUrl = async (req, res) => {
       // Return preview (first 5 vehicles)
       const preview = vehicles.slice(0, 5);
 
-      res.json({
+      return res.json({
         success: true,
         message: `Found ${vehicles.length} vehicles`,
         platformType,
@@ -369,7 +369,7 @@ exports.validateCompetitorUrl = async (req, res) => {
         message = 'Website is blocking automated requests. Playwright scraper will be used.';
       }
 
-      res.json({
+      return res.json({
         success: false,
         errorType,
         message,
