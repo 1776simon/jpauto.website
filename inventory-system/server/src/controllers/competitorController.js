@@ -349,7 +349,14 @@ exports.validateCompetitorUrl = async (req, res) => {
       });
 
     } catch (error) {
-      logger.error('Validation error:', error);
+      // Extract safe error info for logging
+      const errorInfo = {
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        url: inventoryUrl
+      };
+      logger.error('Validation error:', errorInfo);
 
       let errorType = 'UNKNOWN_ERROR';
       let message = error.message;
@@ -372,7 +379,7 @@ exports.validateCompetitorUrl = async (req, res) => {
     }
 
   } catch (error) {
-    logger.error('Error validating competitor URL:', error);
+    logger.error('Error validating competitor URL:', { message: error.message, stack: error.stack });
     res.status(500).json({ error: 'Failed to validate URL' });
   }
 };

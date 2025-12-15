@@ -38,8 +38,23 @@ const consoleFormat = winston.format.combine(
     let log = `${timestamp} ${level}: ${message}`;
 
     // Include metadata inline (single line, compact)
+    // Use a custom replacer to handle circular references
     if (Object.keys(metadata).length > 0) {
-      log += ` ${JSON.stringify(metadata)}`;
+      try {
+        const seen = new WeakSet();
+        const cleanMetadata = JSON.stringify(metadata, (key, value) => {
+          if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) {
+              return '[Circular]';
+            }
+            seen.add(value);
+          }
+          return value;
+        });
+        log += ` ${cleanMetadata}`;
+      } catch (err) {
+        log += ` [Could not stringify metadata]`;
+      }
     }
 
     // Include stack trace if present (keep on separate line for errors)
