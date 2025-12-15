@@ -1,4 +1,4 @@
-import { useQuery } from "@tantml:invoke name="@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import api from "@/services/api";
 import {
   Dialog,
