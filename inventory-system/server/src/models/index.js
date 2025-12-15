@@ -2,6 +2,10 @@ const { sequelize } = require('../config/database');
 const User = require('./User');
 const PendingSubmission = require('./PendingSubmission');
 const Inventory = require('./Inventory');
+const Competitor = require('./Competitor');
+const CompetitorInventory = require('./CompetitorInventory');
+const CompetitorPriceHistory = require('./CompetitorPriceHistory');
+const CompetitorMetrics = require('./CompetitorMetrics');
 
 // Define associations
 User.hasMany(PendingSubmission, {
@@ -34,6 +38,37 @@ Inventory.belongsTo(User, {
   as: 'updater'
 });
 
+// Competitor associations
+Competitor.hasMany(CompetitorInventory, {
+  foreignKey: 'competitorId',
+  as: 'inventory'
+});
+
+Competitor.hasMany(CompetitorMetrics, {
+  foreignKey: 'competitorId',
+  as: 'metrics'
+});
+
+CompetitorInventory.belongsTo(Competitor, {
+  foreignKey: 'competitorId',
+  as: 'competitor'
+});
+
+CompetitorInventory.hasMany(CompetitorPriceHistory, {
+  foreignKey: 'competitorInventoryId',
+  as: 'priceHistory'
+});
+
+CompetitorPriceHistory.belongsTo(CompetitorInventory, {
+  foreignKey: 'competitorInventoryId',
+  as: 'vehicle'
+});
+
+CompetitorMetrics.belongsTo(Competitor, {
+  foreignKey: 'competitorId',
+  as: 'competitor'
+});
+
 // Sync models with database
 const syncDatabase = async (options = {}) => {
   try {
@@ -50,5 +85,9 @@ module.exports = {
   User,
   PendingSubmission,
   Inventory,
+  Competitor,
+  CompetitorInventory,
+  CompetitorPriceHistory,
+  CompetitorMetrics,
   syncDatabase
 };

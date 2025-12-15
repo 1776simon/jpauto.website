@@ -132,7 +132,8 @@ app.get('/', (req, res) => {
       inventory: '/api/inventory',
       exports: '/api/exports',
       users: '/api/users',
-      marketResearch: '/api/market-research'
+      marketResearch: '/api/market-research',
+      competitors: '/api/competitors'
     }
   });
 });
@@ -169,6 +170,9 @@ app.use('/api/vin-evaluation', require('./routes/vinEvaluation'));
 app.use('/api/market-research', require('./routes/marketResearch'));
 app.use('/api/market-research/history', require('./routes/marketHistory'));
 app.use('/api/market-research/system', require('./routes/marketSystem'));
+
+// Competitor Tracking Routes
+app.use('/api/competitors', require('./routes/competitors'));
 
 // Standardized error handling
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
