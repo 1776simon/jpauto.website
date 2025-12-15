@@ -357,130 +357,247 @@ export default function MarketResearch() {
                 <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
             ) : overview?.vehicles && overview.vehicles.length > 0 ? (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Vehicle</TableHead>
-                      <TableHead>Our Price</TableHead>
-                      <TableHead>Market Median</TableHead>
-                      <TableHead>Delta</TableHead>
-                      <TableHead>Position</TableHead>
-                      <TableHead>Listings</TableHead>
-                      <TableHead>Last Analyzed</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {overview.vehicles.map((vehicle) => (
-                      <TableRow key={vehicle.id} className="cursor-pointer hover:bg-muted/50">
-                        <TableCell className="font-medium">
-                          <div className="flex items-start gap-2">
-                            <div>
-                              <div className="flex items-center gap-1.5">
-                                {vehicle.year} {vehicle.make} {vehicle.model}
-                                <TooltipProvider>
-                                  {vehicle.expandedSearch && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Info className="h-4 w-4 text-blue-500 cursor-help" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Results include listings outside of normal ranges</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                  {vehicle.titleStatus && vehicle.titleStatus.toLowerCase() !== 'clean' && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <AlertCircle className="h-4 w-4 text-amber-500 cursor-help" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Non-clean title ({vehicle.titleStatus})</p>
-                                        <p className="text-xs text-muted-foreground">Market prices shown are for clean title vehicles</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                </TooltipProvider>
-                              </div>
-                              {vehicle.trim && (
-                                <div className="text-xs text-muted-foreground">{vehicle.trim}</div>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{formatCurrency(vehicle.ourPrice)}</TableCell>
-                        <TableCell>{formatCurrency(vehicle.medianMarketPrice)}</TableCell>
-                        <TableCell>
-                          {vehicle.priceDeltaPercent !== null && vehicle.priceDeltaPercent !== undefined ? (
-                            <span
-                              className={
-                                vehicle.priceDeltaPercent < 0
-                                  ? "text-green-500"
-                                  : vehicle.priceDeltaPercent > 0
-                                  ? "text-red-500"
-                                  : ""
-                              }
-                            >
-                              {formatCurrency(vehicle.priceDelta)} ({formatPercent(vehicle.priceDeltaPercent)})
-                            </span>
-                          ) : (
-                            "N/A"
-                          )}
-                        </TableCell>
-                        <TableCell>{getPositionBadge(vehicle.position)}</TableCell>
-                        <TableCell>{vehicle.listingsFound || 0}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {timeAgo(vehicle.lastAnalyzed)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setDetailVehicle({
-                                  id: vehicle.id,
-                                  name: `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ' ' + vehicle.trim : ''}`,
-                                  price: vehicle.ourPrice
-                                });
-                                setDetailModalOpen(true);
-                              }}
-                              disabled={!vehicle.lastAnalyzed}
-                            >
-                              <Eye className="h-3 w-3 mr-1" />
-                              Details
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedVehicleId(vehicle.id);
-                                analyzeSingleMutation.mutate(vehicle.id);
-                              }}
-                              disabled={analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id}
-                            >
-                              {analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id ? (
-                                <>
-                                  <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
-                                  Analyzing...
-                                </>
-                              ) : (
-                                <>
-                                  <RefreshCw className="h-3 w-3 mr-1" />
-                                  Analyze
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        </TableCell>
+              <>
+                {/* Desktop: Table View */}
+                <div className="hidden md:block rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Vehicle</TableHead>
+                        <TableHead>Our Price</TableHead>
+                        <TableHead>Market Median</TableHead>
+                        <TableHead>Delta</TableHead>
+                        <TableHead>Position</TableHead>
+                        <TableHead>Listings</TableHead>
+                        <TableHead>Last Analyzed</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                    </TableHeader>
+                    <TableBody>
+                      {overview.vehicles.map((vehicle) => (
+                        <TableRow key={vehicle.id} className="cursor-pointer hover:bg-muted/50">
+                          <TableCell className="font-medium">
+                            <div className="flex items-start gap-2">
+                              <div>
+                                <div className="flex items-center gap-1.5">
+                                  {vehicle.year} {vehicle.make} {vehicle.model}
+                                  <TooltipProvider>
+                                    {vehicle.expandedSearch && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Results include listings outside of normal ranges</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                    {vehicle.titleStatus && vehicle.titleStatus.toLowerCase() !== 'clean' && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <AlertCircle className="h-4 w-4 text-amber-500 cursor-help" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Non-clean title ({vehicle.titleStatus})</p>
+                                          <p className="text-xs text-muted-foreground">Market prices shown are for clean title vehicles</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                  </TooltipProvider>
+                                </div>
+                                {vehicle.trim && (
+                                  <div className="text-xs text-muted-foreground">{vehicle.trim}</div>
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>{formatCurrency(vehicle.ourPrice)}</TableCell>
+                          <TableCell>{formatCurrency(vehicle.medianMarketPrice)}</TableCell>
+                          <TableCell>
+                            {vehicle.priceDeltaPercent !== null && vehicle.priceDeltaPercent !== undefined ? (
+                              <span
+                                className={
+                                  vehicle.priceDeltaPercent < 0
+                                    ? "text-green-500"
+                                    : vehicle.priceDeltaPercent > 0
+                                    ? "text-red-500"
+                                    : ""
+                                }
+                              >
+                                {formatCurrency(vehicle.priceDelta)} ({formatPercent(vehicle.priceDeltaPercent)})
+                              </span>
+                            ) : (
+                              "N/A"
+                            )}
+                          </TableCell>
+                          <TableCell>{getPositionBadge(vehicle.position)}</TableCell>
+                          <TableCell>{vehicle.listingsFound || 0}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {timeAgo(vehicle.lastAnalyzed)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDetailVehicle({
+                                    id: vehicle.id,
+                                    name: `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ' ' + vehicle.trim : ''}`,
+                                    price: vehicle.ourPrice
+                                  });
+                                  setDetailModalOpen(true);
+                                }}
+                                disabled={!vehicle.lastAnalyzed}
+                              >
+                                <Eye className="h-3 w-3 mr-1" />
+                                Details
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedVehicleId(vehicle.id);
+                                  analyzeSingleMutation.mutate(vehicle.id);
+                                }}
+                                disabled={analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id}
+                              >
+                                {analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id ? (
+                                  <>
+                                    <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                                    Analyzing...
+                                  </>
+                                ) : (
+                                  <>
+                                    <RefreshCw className="h-3 w-3 mr-1" />
+                                    Analyze
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile: Card View */}
+                <div className="md:hidden space-y-3">
+                  {overview.vehicles.map((vehicle) => (
+                    <Card key={vehicle.id} className="overflow-hidden">
+                      <CardContent className="p-4">
+                        {/* Header: Vehicle Name and Our Price */}
+                        <div className="mb-3">
+                          <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                            {vehicle.year} {vehicle.make} {vehicle.model}
+                            {vehicle.expandedSearch && (
+                              <Info className="h-4 w-4 text-blue-500" />
+                            )}
+                            {vehicle.titleStatus && vehicle.titleStatus.toLowerCase() !== 'clean' && (
+                              <AlertCircle className="h-4 w-4 text-amber-500" />
+                            )}
+                          </div>
+                          {vehicle.trim && (
+                            <div className="text-xs text-muted-foreground mb-2">{vehicle.trim}</div>
+                          )}
+                          <div className="text-2xl font-bold">{formatCurrency(vehicle.ourPrice)}</div>
+                        </div>
+
+                        {/* Price Delta Badge */}
+                        {vehicle.priceDeltaPercent !== null && vehicle.priceDeltaPercent !== undefined ? (
+                          <div className="mb-3">
+                            {vehicle.priceDeltaPercent < 0 ? (
+                              <Badge variant="outline" className="text-green-600 border-green-600">
+                                <TrendingDown className="h-3 w-3 mr-1" />
+                                {formatCurrency(Math.abs(vehicle.priceDelta))} below median ({formatPercent(vehicle.priceDeltaPercent)})
+                              </Badge>
+                            ) : vehicle.priceDeltaPercent > 0 ? (
+                              <Badge variant="outline" className="text-red-600 border-red-600">
+                                <TrendingUp className="h-3 w-3 mr-1" />
+                                {formatCurrency(vehicle.priceDelta)} above median ({formatPercent(vehicle.priceDeltaPercent)})
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline">
+                                At median price
+                              </Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="mb-3">
+                            <Badge variant="secondary">No market data</Badge>
+                          </div>
+                        )}
+
+                        {/* Details Grid */}
+                        <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                          <div>
+                            <div className="text-muted-foreground">Market Median</div>
+                            <div className="font-medium">{formatCurrency(vehicle.medianMarketPrice)}</div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Position</div>
+                            <div className="font-medium">{getPositionBadge(vehicle.position)}</div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Listings Found</div>
+                            <div className="font-medium">{vehicle.listingsFound || 0}</div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Last Analyzed</div>
+                            <div className="font-medium">{timeAgo(vehicle.lastAnalyzed)}</div>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1"
+                            onClick={() => {
+                              setDetailVehicle({
+                                id: vehicle.id,
+                                name: `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ' ' + vehicle.trim : ''}`,
+                                price: vehicle.ourPrice
+                              });
+                              setDetailModalOpen(true);
+                            }}
+                            disabled={!vehicle.lastAnalyzed}
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            Details
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1"
+                            onClick={() => {
+                              setSelectedVehicleId(vehicle.id);
+                              analyzeSingleMutation.mutate(vehicle.id);
+                            }}
+                            disabled={analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id}
+                          >
+                            {analyzeSingleMutation.isPending && selectedVehicleId === vehicle.id ? (
+                              <>
+                                <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                                Analyzing...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                                Analyze
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <p>No market data available</p>
