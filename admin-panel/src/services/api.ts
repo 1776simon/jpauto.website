@@ -673,6 +673,67 @@ class ApiService {
     const response = await this.request<{ success: boolean; data: { cached: boolean; cacheAge: string | null } }>(`/api/vin-evaluation/cache/${vin}`);
     return response.data;
   }
+
+  // ===== Competitor Tracking endpoints =====
+  async getCompetitors(): Promise<any[]> {
+    return this.request('/api/competitors');
+  }
+
+  async getCompetitorById(id: string): Promise<any> {
+    return this.request(`/api/competitors/${id}`);
+  }
+
+  async createCompetitor(data: { name: string; inventoryUrl: string; websiteUrl?: string }): Promise<any> {
+    return this.request('/api/competitors', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateCompetitor(id: string, data: { name?: string; inventoryUrl?: string; websiteUrl?: string; active?: boolean }): Promise<any> {
+    return this.request(`/api/competitors/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteCompetitor(id: string): Promise<any> {
+    return this.request(`/api/competitors/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async validateCompetitorUrl(inventoryUrl: string): Promise<any> {
+    return this.request('/api/competitors/validate', {
+      method: 'POST',
+      body: JSON.stringify({ inventoryUrl }),
+    });
+  }
+
+  async scrapeCompetitor(id: string): Promise<any> {
+    return this.request(`/api/competitors/${id}/scrape`, {
+      method: 'POST',
+    });
+  }
+
+  async getCompetitorInventory(id: string, page = 1, limit = 50): Promise<any> {
+    return this.request(`/api/competitors/${id}/inventory?page=${page}&limit=${limit}`);
+  }
+
+  async getCompetitorSales(id: string, month?: number, year?: number): Promise<any> {
+    let url = `/api/competitors/${id}/sales`;
+    if (month || year) {
+      const params = new URLSearchParams();
+      if (month) params.append('month', month.toString());
+      if (year) params.append('year', year.toString());
+      url += `?${params.toString()}`;
+    }
+    return this.request(url);
+  }
+
+  async getCompetitorMetrics(id: string, days = 30): Promise<any> {
+    return this.request(`/api/competitors/${id}/metrics?days=${days}`);
+  }
 }
 
 export default new ApiService();

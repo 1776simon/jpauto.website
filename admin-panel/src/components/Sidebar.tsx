@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LayoutDashboard, FileText, Package, Download, TrendingUp, LogOut, Search } from "lucide-react";
+import { Menu, X, LayoutDashboard, FileText, Package, Download, TrendingUp, LogOut, Search, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
     { icon: FileText, label: "Submissions", href: "/dashboard/submissions" },
     { icon: Package, label: "Inventory", href: "/dashboard/inventory" },
     { icon: TrendingUp, label: "Market Research", href: "/dashboard/market-research" },
+    { icon: Users, label: "Competitor Tracking", href: "/dashboard/competitor-tracking" },
     { icon: Download, label: "Export", href: "/dashboard/export" },
   ];
 

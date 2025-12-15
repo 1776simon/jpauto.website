@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import Submissions from "./pages/Submissions";
 import Inventory from "./pages/Inventory";
 import MarketResearch from "./pages/MarketResearch";
+import CompetitorTracking from "./pages/CompetitorTracking";
 import Export from "./pages/Export";
 import NotFound from "./pages/NotFound";
 
@@ -59,6 +60,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <MarketResearch />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/competitor-tracking"
+                element={
+                  <ProtectedRoute>
+                    <CompetitorTracking />
                   </ProtectedRoute>
                 }
               />
