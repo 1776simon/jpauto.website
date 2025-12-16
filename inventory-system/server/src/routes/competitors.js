@@ -10,7 +10,8 @@ const {
   scrapeCompetitor,
   getCompetitorInventory,
   getCompetitorSales,
-  getCompetitorMetrics
+  getCompetitorMetrics,
+  checkOrphanedInventory
 } = require('../controllers/competitorController');
 const {
   isAuthenticated,
@@ -27,6 +28,12 @@ const { handleValidationErrors } = require('../middleware/validation');
 router.get('/',
   isManagerOrAdmin,
   getAllCompetitors
+);
+
+// Diagnostic: Check for orphaned inventory records (must come before /:id)
+router.get('/diagnostic/orphaned',
+  isManagerOrAdmin,
+  checkOrphanedInventory
 );
 
 // Get competitor by ID

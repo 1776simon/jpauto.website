@@ -12,6 +12,7 @@ const {
 const { queueScrape, checkMemory } = require('../services/competitorScraper');
 const logger = require('../config/logger');
 const { Op } = require('sequelize');
+const { sequelize } = require('../config/database');
 
 /**
  * GET /api/competitors
@@ -530,5 +531,45 @@ exports.getCompetitorMetrics = async (req, res) => {
   } catch (error) {
     logger.error('Error fetching competitor metrics:', error);
     res.status(500).json({ error: 'Failed to fetch metrics' });
+  }
+};
+
+/**
+ * GET /api/competitors/diagnostic/orphaned
+ * Check for orphaned inventory records (no matching competitor)
+ */
+exports.checkOrphanedInventory = async (req, res) => {
+  try {
+    // Find inventory records where competitor doesn't exist
+    const orphanedRecords = await sequelize.query(`
+      SELECT ci.id, ci.competitor_id, ci.vin, ci.stock_number, ci.year, ci.make, ci.model
+      FROM competitor_inventory ci
+      LEFT JOIN competitors c ON ci.competitor_id = c.id
+      WHERE c.id IS NULL
+      LIMIT 100
+    `, {
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    // Count total orphaned records
+    const [countResult] = await sequelize.query(`
+      SELECT COUNT(*) as count
+      FROM competitor_inventory ci
+      LEFT JOIN competitors c ON ci.competitor_id = c.id
+      WHERE c.id IS NULL
+    `, {
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    res.json({
+      total: parseInt(countResult.count),
+      sample: orphanedRecords,
+      message: orphanedRecords.length > 0
+        ? `Found ${countResult.count} orphaned inventory records`
+        : 'No orphaned inventory records found'
+    });
+  } catch (error) {
+    logger.error('Error checking orphaned inventory:', error);
+    res.status(500).json({ error: 'Failed to check orphaned inventory' });
   }
 };
