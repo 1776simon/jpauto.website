@@ -27,6 +27,12 @@ const dealercenter = {
       try {
         const $elem = $(elem);
 
+        // Debug: Log full HTML of first element to understand structure
+        if (i === 0) {
+          logger.info(`First element HTML sample: ${$elem.html().substring(0, 500)}...`);
+          logger.info(`First element classes: ${$elem.attr('class')}`);
+        }
+
         // Extract VIN (multiple possible locations)
         let vin = null;
 
