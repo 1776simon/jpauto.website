@@ -78,15 +78,15 @@ const dealercenter = {
           logger.info(`First element classes: ${$elem.attr('class')}`);
         }
 
-        // Extract VIN (multiple possible locations)
+        // Extract VIN (use .first() to avoid duplicate desktop/mobile versions)
         let vin = null;
 
         // Method 1: data-vin attribute
-        vin = $elem.find('[data-vin]').attr('data-vin');
+        vin = $elem.find('[data-vin]').first().attr('data-vin');
 
-        // Method 2: VIN field value
+        // Method 2: VIN field value (use .first() to get only desktop version)
         if (!vin) {
-          vin = $elem.find('.dws-vehicle-field-vin .dws-vehicle-listing-item-field-value').text().trim();
+          vin = $elem.find('.dws-vehicle-field-vin .dws-vehicle-listing-item-field-value').first().text().trim();
         }
 
         // Method 3: Look for text that looks like a VIN (17 alphanumeric characters)
@@ -96,12 +96,12 @@ const dealercenter = {
           if (vinMatch) vin = vinMatch[1];
         }
 
-        // Extract stock number
-        let stock_number = $elem.find('.dws-vehicle-field-stock-number .dws-vehicle-listing-item-field-value').text().trim();
+        // Extract stock number (use .first() to avoid duplicate desktop/mobile versions)
+        let stock_number = $elem.find('.dws-vehicle-field-stock-number .dws-vehicle-listing-item-field-value').first().text().trim();
 
         // Fallback 1: Look for common stock number patterns
         if (!stock_number) {
-          stock_number = $elem.find('[class*="stock"], .stock-number, [data-stock]').first().text().trim();
+          stock_number = $elem.find('[class*="stock"] .dws-vehicle-listing-item-field-value').first().text().trim();
         }
 
         // Fallback 2: Extract from URL
@@ -120,12 +120,13 @@ const dealercenter = {
           if (stockMatch) stock_number = stockMatch[1];
         }
 
-        // Extract vehicle details with flexible selectors
-        let title = $elem.find('.dws-listing-title, .dws-vehicle-title').text().trim();
+        // Extract title from parent container (it's outside the info element)
+        const $titleContainer = $elem.closest('.list-group, .col-md-4, [class*="container"]').first();
+        let title = $titleContainer.find('.dws-listing-title a').first().text().trim();
 
         // Fallback: try other common title selectors
         if (!title) {
-          title = $elem.find('h2, h3, h4, .title, [class*="title"], [class*="name"]').first().text().trim();
+          title = $titleContainer.find('.dws-listing-title, .dws-vehicle-title, h2, h3, h4, .title, [class*="title"]').first().text().trim();
         }
 
         const titleMatch = title.match(/(\d{4})\s+([A-Za-z]+)\s+([A-Za-z0-9\s]+)/);
@@ -137,8 +138,8 @@ const dealercenter = {
         // Extract trim
         const trim = $elem.find('.dws-vehicle-field-trim .dws-vehicle-listing-item-field-value, .dws-listing-specs-item.dws-vehicle-field-trim .dws-vehicle-listing-item-field-value').text().trim();
 
-        // Extract mileage with flexible selectors
-        let mileageText = $elem.find('.dws-vehicle-field-mileage .dws-vehicle-listing-item-field-value, .dws-listing-specs-item.dws-vehicle-field-mileage .dws-vehicle-listing-item-field-value').text().trim();
+        // Extract mileage (use .first() to avoid duplicate desktop/mobile versions)
+        let mileageText = $elem.find('.dws-vehicle-field-mileage .dws-vehicle-listing-item-field-value').first().text().trim();
 
         // Fallback: look for text containing "mi" or "miles"
         if (!mileageText) {
@@ -149,27 +150,30 @@ const dealercenter = {
 
         const mileage = mileageText ? parseInt(mileageText.replace(/,/g, '')) : null;
 
-        // Extract price with multiple fallbacks
-        // First, try to find the full vehicle card container (go up to parent)
-        const $vehicleCard = $elem.closest('[class*="vehicle"]:not([class*="field"]):not([class*="icon"])') || $elem;
+        // Extract price - it's in a parent container, not in the current element
+        // Go up to find the full vehicle card
+        const $vehicleCard = $elem.closest('.list-group, .col-md-4, [class*="container"]').first();
 
-        let priceText = $vehicleCard.find('[data-sales-price]').attr('data-sales-price');
+        let priceText = null;
+
+        // Method 1: Specific Dealer Center price class
+        priceText = $vehicleCard.find('.dws-vehicle-price-value').first().text().trim();
 
         if (!priceText) {
-          // Try common price selectors in the full card
-          priceText = $vehicleCard.find('.dws-listing-price, .price, [class*="price"]:not([class*="icon"]), .amount, [class*="amount"]').first().text().trim();
+          // Method 2: data-sales-price attribute
+          priceText = $vehicleCard.find('[data-sales-price]').first().attr('data-sales-price');
         }
 
         if (!priceText) {
-          // Try in current element as fallback
-          priceText = $elem.find('.dws-listing-price, .price, [class*="price"]:not([class*="icon"]), .amount, [class*="amount"]').first().text().trim();
+          // Method 3: Common price selectors
+          priceText = $vehicleCard.find('.dws-listing-price, .price, [class*="price"]:not([class*="icon"])').first().text().trim();
         }
 
         if (!priceText) {
-          // Fallback: look for text that looks like a price ($X,XXX) in the full card
+          // Method 4: Regex fallback - find $XXX,XXX pattern
           const allText = $vehicleCard.text();
           const priceMatch = allText.match(/\$(\d{1,3}(?:,\d{3})+)/);
-          if (priceMatch) priceText = priceMatch[1];
+          if (priceMatch) priceText = priceMatch[0]; // Keep the $ sign for parsing
         }
 
         const price = priceText ? parseFloat(priceText.replace(/[$,]/g, '')) : null;
