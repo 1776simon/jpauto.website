@@ -38,25 +38,45 @@ const dealercenter = {
           vin = $elem.find('.dws-vehicle-field-vin .dws-vehicle-listing-item-field-value').text().trim();
         }
 
-        // Method 3: Capital One button data-vin
+        // Method 3: Look for text that looks like a VIN (17 alphanumeric characters)
         if (!vin) {
-          vin = $elem.find('[data-vin]').first().attr('data-vin');
+          const allText = $elem.text();
+          const vinMatch = allText.match(/\b([A-HJ-NPR-Z0-9]{17})\b/);
+          if (vinMatch) vin = vinMatch[1];
         }
 
         // Extract stock number
         let stock_number = $elem.find('.dws-vehicle-field-stock-number .dws-vehicle-listing-item-field-value').text().trim();
 
-        // Fallback: extract from URL
+        // Fallback 1: Look for common stock number patterns
+        if (!stock_number) {
+          stock_number = $elem.find('[class*="stock"], .stock-number, [data-stock]').first().text().trim();
+        }
+
+        // Fallback 2: Extract from URL
         if (!stock_number) {
           const href = $elem.find('a[href*="/inventory/"]').attr('href');
           if (href) {
-            const match = href.match(/\/inventory\/[^/]+\/[^/]+\/([^/]+)/);
+            const match = href.match(/\/inventory\/[^/]+\/[^/]+\/([^/?]+)/);
             if (match) stock_number = match[1];
           }
         }
 
-        // Extract vehicle details
-        const title = $elem.find('.dws-listing-title, .dws-vehicle-title').text().trim();
+        // Fallback 3: Look for text that says "Stock#" or "Stock:"
+        if (!stock_number) {
+          const allText = $elem.text();
+          const stockMatch = allText.match(/(?:Stock|Stk)[\s#:]*([A-Z0-9-]+)/i);
+          if (stockMatch) stock_number = stockMatch[1];
+        }
+
+        // Extract vehicle details with flexible selectors
+        let title = $elem.find('.dws-listing-title, .dws-vehicle-title').text().trim();
+
+        // Fallback: try other common title selectors
+        if (!title) {
+          title = $elem.find('h2, h3, h4, .title, [class*="title"], [class*="name"]').first().text().trim();
+        }
+
         const titleMatch = title.match(/(\d{4})\s+([A-Za-z]+)\s+([A-Za-z0-9\s]+)/);
 
         const year = titleMatch ? parseInt(titleMatch[1]) : null;
@@ -66,15 +86,33 @@ const dealercenter = {
         // Extract trim
         const trim = $elem.find('.dws-vehicle-field-trim .dws-vehicle-listing-item-field-value, .dws-listing-specs-item.dws-vehicle-field-trim .dws-vehicle-listing-item-field-value').text().trim();
 
-        // Extract mileage
-        const mileageText = $elem.find('.dws-vehicle-field-mileage .dws-vehicle-listing-item-field-value, .dws-listing-specs-item.dws-vehicle-field-mileage .dws-vehicle-listing-item-field-value').text().trim();
+        // Extract mileage with flexible selectors
+        let mileageText = $elem.find('.dws-vehicle-field-mileage .dws-vehicle-listing-item-field-value, .dws-listing-specs-item.dws-vehicle-field-mileage .dws-vehicle-listing-item-field-value').text().trim();
+
+        // Fallback: look for text containing "mi" or "miles"
+        if (!mileageText) {
+          const allText = $elem.text();
+          const mileageMatch = allText.match(/(\d{1,3}(?:,\d{3})*)\s*(?:mi|miles)/i);
+          if (mileageMatch) mileageText = mileageMatch[1];
+        }
+
         const mileage = mileageText ? parseInt(mileageText.replace(/,/g, '')) : null;
 
-        // Extract price
+        // Extract price with multiple fallbacks
         let priceText = $elem.find('[data-sales-price]').attr('data-sales-price');
+
         if (!priceText) {
-          priceText = $elem.find('.dws-listing-price, .price, [class*="price"]').text().trim();
+          // Try common price selectors
+          priceText = $elem.find('.dws-listing-price, .price, [class*="price"], .amount, [class*="amount"]').first().text().trim();
         }
+
+        if (!priceText) {
+          // Fallback: look for text that looks like a price ($X,XXX)
+          const allText = $elem.text();
+          const priceMatch = allText.match(/\$(\d{1,3}(?:,\d{3})+)/);
+          if (priceMatch) priceText = priceMatch[1];
+        }
+
         const price = priceText ? parseFloat(priceText.replace(/[$,]/g, '')) : null;
 
         // Extract color
