@@ -117,7 +117,13 @@ export function AddCompetitorModal({ open, onOpenChange }: AddCompetitorModalPro
       return;
     }
 
-    createMutation.mutate(formData);
+    // Pass usePlaywright flag if detected during validation
+    const competitorData = {
+      ...formData,
+      usePlaywright: validationResult?.requiresPlaywright || false
+    };
+
+    createMutation.mutate(competitorData);
   };
 
   return (
@@ -186,10 +192,12 @@ export function AddCompetitorModal({ open, onOpenChange }: AddCompetitorModalPro
 
         {step === "preview" && validationResult && (
           <div className="space-y-4 py-4">
-            <Alert className="border-green-500 bg-green-50">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
-                Successfully found {validationResult.totalVehicles} vehicles on this page
+            <Alert className={validationResult.requiresPlaywright ? "border-yellow-500 bg-yellow-50" : "border-green-500 bg-green-50"}>
+              <CheckCircle2 className={validationResult.requiresPlaywright ? "h-4 w-4 text-yellow-600" : "h-4 w-4 text-green-600"} />
+              <AlertDescription className={validationResult.requiresPlaywright ? "text-yellow-800" : "text-green-800"}>
+                {validationResult.requiresPlaywright
+                  ? validationResult.message || "Website requires Playwright scraper. Initial scrape will run after adding competitor."
+                  : `Successfully found ${validationResult.totalVehicles} vehicles on this page`}
               </AlertDescription>
             </Alert>
 

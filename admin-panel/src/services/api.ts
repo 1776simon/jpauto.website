@@ -683,7 +683,7 @@ class ApiService {
     return this.request(`/api/competitors/${id}`);
   }
 
-  async createCompetitor(data: { name: string; inventoryUrl: string; websiteUrl?: string }): Promise<any> {
+  async createCompetitor(data: { name: string; inventoryUrl: string; websiteUrl?: string; usePlaywright?: boolean }): Promise<any> {
     return this.request('/api/competitors', {
       method: 'POST',
       body: JSON.stringify(data),

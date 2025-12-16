@@ -190,13 +190,14 @@ exports.getCompetitorById = async (req, res) => {
  */
 exports.createCompetitor = async (req, res) => {
   try {
-    const { name, websiteUrl, inventoryUrl } = req.body;
+    const { name, websiteUrl, inventoryUrl, usePlaywright } = req.body;
 
     // Create competitor
     const competitor = await Competitor.create({
       name,
       websiteUrl,
       inventoryUrl,
+      usePlaywright: usePlaywright || false,
       active: true
     });
 
@@ -369,11 +370,16 @@ exports.validateCompetitorUrl = async (req, res) => {
         message = 'Website is blocking automated requests. Playwright scraper will be used.';
       }
 
+      // For 403 (blocked), return success:true so user can proceed with Playwright
+      // For other errors, return success:false
+      const isBlocked = errorType === 'BLOCKED_403';
+
       return res.json({
-        success: false,
+        success: isBlocked, // true for 403, false for other errors
         errorType,
         message,
-        requiresPlaywright: errorType === 'BLOCKED_403',
+        requiresPlaywright: isBlocked,
+        totalVehicles: 0,
         preview: []
       });
     }
