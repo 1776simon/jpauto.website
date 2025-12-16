@@ -19,13 +19,13 @@ const dealercenter = {
   parse: ($) => {
     const vehicles = [];
 
-    // Find all vehicle listing items (be specific to avoid UI controls)
-    // Look for top-level vehicle containers, not nested elements
+    // Find all vehicle listing items
+    // These nested elements contain VIN/stock, we'll search parent for price
     let elements = $(
-      '.dws-vehicle-listing-item:not(.dws-listing-item-info):not(.dws-listing-item-field), ' +
-      '.vehicle-listing-item, ' +
+      '.dws-vehicle-listing-item-info, ' +
+      '.dws-listing-item:not(.dws-listing-sorting):not(.dws-listing-filter), ' +
       '.vehicle-card, ' +
-      '[class*="vehicle-item"]:not([class*="field"])'
+      '[data-vin]'
     );
 
     // Fallback: If no elements found, try finding containers with vehicle detail links
