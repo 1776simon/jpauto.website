@@ -5,7 +5,7 @@ year: 2023
 make: TESLA
 model: Model Y
 trim: Long Range Dual Motor
-price: '26500.00'
+price: '25500.00'
 mileage: 34500
 vin: 7SAYGDEE2PF863200
 status: available

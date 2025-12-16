@@ -5,7 +5,7 @@ year: 2020
 make: TESLA
 model: Model 3
 trim: Standard Range Plus
-price: '16000.00'
+price: '15500.00'
 mileage: 122100
 vin: 5YJ3E1EA4LF597570
 status: available
