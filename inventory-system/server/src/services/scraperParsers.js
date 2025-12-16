@@ -20,12 +20,12 @@ const dealercenter = {
     const vehicles = [];
 
     // Find all vehicle listing items (be specific to avoid UI controls)
+    // Look for top-level vehicle containers, not nested elements
     let elements = $(
-      '.dws-vehicle-listing-item, ' +
-      '.dws-listing-item:not(.dws-listing-sorting):not(.dws-listing-filter), ' +
+      '.dws-vehicle-listing-item:not(.dws-listing-item-info):not(.dws-listing-item-field), ' +
+      '.vehicle-listing-item, ' +
       '.vehicle-card, ' +
-      '[data-vin], ' +
-      '.inventory-item'
+      '[class*="vehicle-item"]:not([class*="field"])'
     );
 
     // Fallback: If no elements found, try finding containers with vehicle detail links
@@ -135,16 +135,24 @@ const dealercenter = {
         const mileage = mileageText ? parseInt(mileageText.replace(/,/g, '')) : null;
 
         // Extract price with multiple fallbacks
-        let priceText = $elem.find('[data-sales-price]').attr('data-sales-price');
+        // First, try to find the full vehicle card container (go up to parent)
+        const $vehicleCard = $elem.closest('[class*="vehicle"]:not([class*="field"]):not([class*="icon"])') || $elem;
+
+        let priceText = $vehicleCard.find('[data-sales-price]').attr('data-sales-price');
 
         if (!priceText) {
-          // Try common price selectors
-          priceText = $elem.find('.dws-listing-price, .price, [class*="price"], .amount, [class*="amount"]').first().text().trim();
+          // Try common price selectors in the full card
+          priceText = $vehicleCard.find('.dws-listing-price, .price, [class*="price"]:not([class*="icon"]), .amount, [class*="amount"]').first().text().trim();
         }
 
         if (!priceText) {
-          // Fallback: look for text that looks like a price ($X,XXX)
-          const allText = $elem.text();
+          // Try in current element as fallback
+          priceText = $elem.find('.dws-listing-price, .price, [class*="price"]:not([class*="icon"]), .amount, [class*="amount"]').first().text().trim();
+        }
+
+        if (!priceText) {
+          // Fallback: look for text that looks like a price ($X,XXX) in the full card
+          const allText = $vehicleCard.text();
           const priceMatch = allText.match(/\$(\d{1,3}(?:,\d{3})+)/);
           if (priceMatch) priceText = priceMatch[1];
         }
@@ -156,7 +164,7 @@ const dealercenter = {
 
         // Debug logging for first few vehicles
         if (i < 3) {
-          logger.info(`Vehicle ${i}: VIN=${vin}, Stock=${stock_number}, Price=${price}, Title=${title}`);
+          logger.info(`Vehicle ${i}: VIN=${vin}, Stock=${stock_number}, Price=${price}, PriceText="${priceText}", Title=${title}`);
         }
 
         // Only add if we have at least an identifier and price
