@@ -32,14 +32,9 @@ const dealercenter = {
     });
     logger.info(`DWS classes in HTML: ${Array.from(uniqueClasses).slice(0, 20).join(', ')}`);
 
-    // Find all vehicle listing items
-    // These nested elements contain VIN/stock, we'll search parent for price
-    let elements = $(
-      '.dws-vehicle-listing-item-info, ' +
-      '.dws-listing-item:not(.dws-listing-sorting):not(.dws-listing-filter), ' +
-      '.vehicle-card, ' +
-      '[data-vin]'
-    );
+    // Find all vehicle listing items (use specific selector to avoid duplicates)
+    // The element has BOTH classes, so just use the more specific one
+    let elements = $('.dws-vehicle-listing-item-info.dws-listing-item');
 
     logger.info(`Elements found - .dws-vehicle-listing-item-info: ${$('.dws-vehicle-listing-item-info').length}, .dws-listing-item: ${$('.dws-listing-item').length}`);
 
