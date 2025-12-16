@@ -20,7 +20,10 @@ const dealercenter = {
     const vehicles = [];
 
     // Find all vehicle listing items
-    $('.dws-vehicle-listing-item, .dws-listing-item, [class*="dws-listing"]').each((i, elem) => {
+    const elements = $('.dws-vehicle-listing-item, .dws-listing-item, [class*="dws-listing"]');
+    logger.info(`Found ${elements.length} vehicle elements in HTML`);
+
+    elements.each((i, elem) => {
       try {
         const $elem = $(elem);
 
@@ -77,6 +80,11 @@ const dealercenter = {
         // Extract color
         const exterior_color = $elem.find('.dws-vehicle-field-exterior-color .dws-vehicle-listing-item-field-value').text().trim();
 
+        // Debug logging for first few vehicles
+        if (i < 3) {
+          logger.info(`Vehicle ${i}: VIN=${vin}, Stock=${stock_number}, Price=${price}, Title=${title}`);
+        }
+
         // Only add if we have at least an identifier and price
         if ((vin || stock_number) && price) {
           vehicles.push({
@@ -90,6 +98,10 @@ const dealercenter = {
             price,
             exterior_color: exterior_color || null
           });
+        } else {
+          if (i < 3) {
+            logger.warn(`Skipping vehicle ${i}: Missing required data (VIN/Stock: ${vin || stock_number}, Price: ${price})`);
+          }
         }
       } catch (error) {
         logger.warn(`Error parsing Dealer Center vehicle:`, error);
