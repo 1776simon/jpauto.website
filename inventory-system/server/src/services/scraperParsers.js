@@ -122,13 +122,28 @@ const dealercenter = {
       );
 
       if (!loadMoreBtn) {
-        // Check if there's a next page link
-        const nextPage = await page.$('a[href*="page_no="]');
-        if (nextPage) {
-          await nextPage.click();
-          await page.waitForTimeout(3000);
-          attempts++;
-          continue;
+        // Check if there's a next page link with page_no parameter
+        const nextPageLink = await page.$('a[href*="page_no="]');
+        if (nextPageLink) {
+          try {
+            // Get the href and navigate directly instead of clicking
+            const nextUrl = await nextPageLink.getAttribute('href');
+            if (nextUrl) {
+              // If it's a relative URL, construct the full URL
+              const fullUrl = nextUrl.startsWith('http')
+                ? nextUrl
+                : new URL(nextUrl, page.url()).href;
+
+              logger.info(`Navigating to next page: ${fullUrl}`);
+              await page.goto(fullUrl, { waitUntil: 'networkidle', timeout: 30000 });
+              await page.waitForTimeout(2000);
+              attempts++;
+              continue;
+            }
+          } catch (error) {
+            logger.warn(`Failed to navigate to next page: ${error.message}`);
+            break;
+          }
         }
         break;
       }
