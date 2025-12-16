@@ -19,8 +19,38 @@ const dealercenter = {
   parse: ($) => {
     const vehicles = [];
 
-    // Find all vehicle listing items
-    const elements = $('.dws-vehicle-listing-item, .dws-listing-item, [class*="dws-listing"]');
+    // Find all vehicle listing items (be specific to avoid UI controls)
+    let elements = $(
+      '.dws-vehicle-listing-item, ' +
+      '.dws-listing-item:not(.dws-listing-sorting):not(.dws-listing-filter), ' +
+      '.vehicle-card, ' +
+      '[data-vin], ' +
+      '.inventory-item'
+    );
+
+    // Fallback: If no elements found, try finding containers with vehicle detail links
+    if (elements.length === 0) {
+      logger.info('No elements found with standard selectors, trying link-based approach...');
+
+      // Find all links to vehicle detail pages
+      const vehicleLinks = $('a[href*="/inventory/view/"], a[href*="/view/"], a[href*="/details/"]');
+      logger.info(`Found ${vehicleLinks.length} vehicle detail links`);
+
+      // Get the closest parent container for each link (likely the vehicle card)
+      const containers = new Set();
+      vehicleLinks.each((i, link) => {
+        const $link = $(link);
+        // Try to find the vehicle card container (common classes)
+        const $container = $link.closest('.row, .col, [class*="vehicle"], [class*="item"], [class*="card"]');
+        if ($container.length > 0) {
+          containers.add($container[0]);
+        }
+      });
+
+      elements = $(Array.from(containers));
+      logger.info(`Found ${elements.length} unique vehicle containers via links`);
+    }
+
     logger.info(`Found ${elements.length} vehicle elements in HTML`);
 
     elements.each((i, elem) => {
