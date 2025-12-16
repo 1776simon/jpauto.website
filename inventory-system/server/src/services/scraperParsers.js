@@ -124,11 +124,12 @@ const dealercenter = {
           title = $titleContainer.find('.dws-listing-title, .dws-vehicle-title, h2, h3, h4, .title, [class*="title"]').first().text().trim();
         }
 
-        const titleMatch = title.match(/(\d{4})\s+([A-Za-z]+)\s+([A-Za-z0-9\s]+)/);
+        // Updated regex to handle hyphens in make names (e.g., MERCEDES-BENZ)
+        const titleMatch = title.match(/(\d{4})\s+([A-Za-z-]+)\s+([A-Za-z0-9\s-]+)/);
 
         const year = titleMatch ? parseInt(titleMatch[1]) : null;
         const make = titleMatch ? titleMatch[2] : null;
-        const model = titleMatch ? titleMatch[3].split('-')[0].trim() : null;
+        const model = titleMatch ? titleMatch[3].trim() : null;
 
         // Extract trim
         const trim = $elem.find('.dws-vehicle-field-trim .dws-vehicle-listing-item-field-value, .dws-listing-specs-item.dws-vehicle-field-trim .dws-vehicle-listing-item-field-value').text().trim();
@@ -289,7 +290,8 @@ const dealersync = {
 
         // Extract vehicle title
         const title = $elem.find('.ds-listview-vehicle-title, .ds-vehicle-title').text().trim();
-        const titleMatch = title.match(/(\d{4})\s+([A-Za-z]+)\s+([A-Za-z0-9\s]+)/);
+        // Updated regex to handle hyphens in make names (e.g., MERCEDES-BENZ)
+        const titleMatch = title.match(/(\d{4})\s+([A-Za-z-]+)\s+([A-Za-z0-9\s-]+)/);
 
         const year = titleMatch ? parseInt(titleMatch[1]) : null;
         const make = titleMatch ? titleMatch[2] : null;
@@ -405,7 +407,8 @@ const custom = {
 
             // Try to extract year/make/model
             const title = $elem.find('h1, h2, h3, h4, .title, [class*="title"]').first().text().trim();
-            const titleMatch = title.match(/(\d{4})\s+([A-Za-z]+)\s+([A-Za-z0-9\s]+)/);
+            // Updated regex to handle hyphens in make/model names (e.g., MERCEDES-BENZ)
+            const titleMatch = title.match(/(\d{4})\s+([A-Za-z-]+)\s+([A-Za-z0-9\s-]+)/);
 
             if ((vin || stock_number) && price && titleMatch) {
               vehicles.push({
