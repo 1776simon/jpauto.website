@@ -2,8 +2,7 @@
 # This ensures Playwright's Chromium browser dependencies are available
 
 [phases.setup]
-nixPkgs = [
-  "nodejs_20",
+aptPkgs = [
   "libnss3",
   "libnspr4",
   "libatk1.0-0",
@@ -20,14 +19,8 @@ nixPkgs = [
   "libgbm1",
   "libpango-1.0-0",
   "libcairo2",
-  "libasound2"
+  "libasound2",
+  "fonts-liberation",
+  "libappindicator3-1",
+  "xdg-utils"
 ]
-
-[phases.install]
-cmds = [
-  "npm ci",
-  "npx playwright install-deps chromium"
-]
-
-[start]
-cmd = "npm start"
