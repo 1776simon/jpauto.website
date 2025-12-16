@@ -19,6 +19,19 @@ const dealercenter = {
   parse: ($) => {
     const vehicles = [];
 
+    // Debug: Log what classes exist in the HTML
+    const allDivs = $('div[class*="dws"]');
+    const uniqueClasses = new Set();
+    allDivs.each((i, el) => {
+      const classes = $(el).attr('class');
+      if (classes) {
+        classes.split(' ').forEach(cls => {
+          if (cls.includes('dws')) uniqueClasses.add(cls);
+        });
+      }
+    });
+    logger.info(`DWS classes in HTML: ${Array.from(uniqueClasses).slice(0, 20).join(', ')}`);
+
     // Find all vehicle listing items
     // These nested elements contain VIN/stock, we'll search parent for price
     let elements = $(
@@ -27,6 +40,8 @@ const dealercenter = {
       '.vehicle-card, ' +
       '[data-vin]'
     );
+
+    logger.info(`Elements found - .dws-vehicle-listing-item-info: ${$('.dws-vehicle-listing-item-info').length}, .dws-listing-item: ${$('.dws-listing-item').length}`);
 
     // Fallback: If no elements found, try finding containers with vehicle detail links
     if (elements.length === 0) {
