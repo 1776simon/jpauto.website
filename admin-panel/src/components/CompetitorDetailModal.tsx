@@ -176,7 +176,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
     if (totalPages <= 1) return null;
 
     return (
-      <div className="flex items-center justify-between mt-4 px-2">
+      <div className="flex items-center justify-end gap-3 mb-4">
         <div className="text-sm text-muted-foreground">
           Page {currentPage} of {totalPages}
         </div>
@@ -332,6 +332,13 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
           <TabsContent value="current" className="space-y-4">
             {paginatedInventory && paginatedInventory.length > 0 ? (
               <>
+                {/* Pagination */}
+                <PaginationControls
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+
                 {/* Desktop Table */}
                 <div className="hidden md:block border rounded-lg">
                   <Table>
@@ -412,13 +419,6 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                     </Card>
                   ))}
                 </div>
-
-                {/* Pagination */}
-                <PaginationControls
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                />
               </>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
@@ -433,6 +433,13 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
           <TabsContent value="sold" className="space-y-4">
             {paginatedSales && paginatedSales.length > 0 ? (
               <>
+                {/* Pagination */}
+                <PaginationControls
+                  currentPage={soldCurrentPage}
+                  totalPages={soldTotalPages}
+                  onPageChange={setSoldCurrentPage}
+                />
+
                 {/* Desktop Table */}
                 <div className="hidden md:block border rounded-lg">
                   <Table>
@@ -529,13 +536,6 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                     );
                   })}
                 </div>
-
-                {/* Pagination */}
-                <PaginationControls
-                  currentPage={soldCurrentPage}
-                  totalPages={soldTotalPages}
-                  onPageChange={setSoldCurrentPage}
-                />
               </>
             ) : (
               <div className="text-center py-12 text-muted-foreground">

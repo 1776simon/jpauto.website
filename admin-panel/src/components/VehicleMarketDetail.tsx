@@ -5,7 +5,8 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, TrendingUp, TrendingDown, AlertTriangle, CheckCircle, ExternalLink } from "lucide-react";
+import { Loader2, TrendingUp, TrendingDown, AlertTriangle, CheckCircle, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useMemo } from "react";
 
 interface VehicleMarketDetailProps {
   open: boolean;
@@ -23,6 +24,9 @@ const formatCurrency = (value: number) => {
 };
 
 export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName, ourPrice }: VehicleMarketDetailProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
+
   const { data, isLoading } = useQuery({
     queryKey: ["vehicleMarketDetail", vehicleId],
     queryFn: () => api.getVehicleMarketDetail(vehicleId),
@@ -57,6 +61,47 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
   }
 
   const { snapshot, priceHistory, domAnalysis, competitorListings, marketVelocity } = data;
+
+  // Pagination
+  const totalPages = Math.ceil((competitorListings?.length || 0) / pageSize);
+  const paginatedListings = useMemo(() => {
+    if (!competitorListings) return [];
+    const start = (currentPage - 1) * pageSize;
+    return competitorListings.slice(start, start + pageSize);
+  }, [competitorListings, currentPage, pageSize]);
+
+  // Pagination component
+  const PaginationControls = ({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (page: number) => void }) => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex items-center justify-end gap-3 mb-4">
+        <div className="text-sm text-muted-foreground">
+          Page {currentPage} of {totalPages}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
 
   // Prepare price history for chart
   const priceChartData = (priceHistory || []).map((item: any) => ({
@@ -208,6 +253,14 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
           {competitorListings && competitorListings.length > 0 && (
             <div className="space-y-2">
               <h3 className="font-semibold">Competitor Listings ({competitorListings.length})</h3>
+
+              {/* Pagination */}
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+
               <div className="border rounded-lg">
                 <Table>
                   <TableHeader>
@@ -222,7 +275,7 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {competitorListings.map((listing: any, index: number) => {
+                    {paginatedListings.map((listing: any, index: number) => {
                       const price = listing.price || 0;
                       return (
                         <TableRow key={index}>
