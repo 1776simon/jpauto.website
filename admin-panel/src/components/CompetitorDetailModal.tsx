@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "@/services/api";
+import { useState, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, TrendingDown, TrendingUp, AlertCircle, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RefreshCw, TrendingDown, TrendingUp, AlertCircle, Info, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CompetitorDetailModalProps {
   open: boolean;
@@ -20,6 +29,15 @@ interface CompetitorDetailModalProps {
 }
 
 export function CompetitorDetailModal({ open, onOpenChange, competitor }: CompetitorDetailModalProps) {
+  // Filter and pagination state
+  const [currentTab, setCurrentTab] = useState("current");
+  const [yearFilter, setYearFilter] = useState<string>("all");
+  const [makeFilter, setMakeFilter] = useState<string>("all");
+  const [modelFilter, setModelFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [soldCurrentPage, setSoldCurrentPage] = useState(1);
+  const pageSize = 20;
+
   // Fetch detailed competitor data
   const { data: competitorDetail } = useQuery({
     queryKey: ["competitor", competitor.id],
@@ -30,7 +48,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
   // Fetch current inventory
   const { data: inventoryData } = useQuery({
     queryKey: ["competitorInventory", competitor.id],
-    queryFn: () => api.getCompetitorInventory(competitor.id, 1, 100),
+    queryFn: () => api.getCompetitorInventory(competitor.id, 1, 1000), // Fetch all for client-side filtering
     enabled: open,
   });
 
@@ -39,6 +57,17 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
     queryKey: ["competitorSales", competitor.id],
     queryFn: () => api.getCompetitorSales(competitor.id),
     enabled: open,
+  });
+
+  // Reset filters when modal closes
+  useState(() => {
+    if (!open) {
+      setYearFilter("all");
+      setMakeFilter("all");
+      setModelFilter("all");
+      setCurrentPage(1);
+      setSoldCurrentPage(1);
+    }
   });
 
   const formatCurrency = (value: number | null | undefined) => {
@@ -74,6 +103,106 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
   };
 
   const stats = competitorDetail?.stats || competitor.stats || {};
+
+  // Extract unique values for filters
+  const { years, makes, models } = useMemo(() => {
+    const vehicles = inventoryData?.vehicles || [];
+    const yearsSet = new Set<number>();
+    const makesSet = new Set<string>();
+    const modelsSet = new Set<string>();
+
+    vehicles.forEach((v: any) => {
+      if (v.year) yearsSet.add(v.year);
+      if (v.make) makesSet.add(v.make);
+      if (v.model) modelsSet.add(v.model);
+    });
+
+    return {
+      years: Array.from(yearsSet).sort((a, b) => b - a),
+      makes: Array.from(makesSet).sort(),
+      models: Array.from(modelsSet).sort(),
+    };
+  }, [inventoryData]);
+
+  // Filter and paginate current inventory
+  const { filteredInventory, totalPages, paginatedInventory } = useMemo(() => {
+    let filtered = inventoryData?.vehicles || [];
+
+    // Apply filters
+    if (yearFilter !== "all") {
+      filtered = filtered.filter((v: any) => v.year === parseInt(yearFilter));
+    }
+    if (makeFilter !== "all") {
+      filtered = filtered.filter((v: any) => v.make === makeFilter);
+    }
+    if (modelFilter !== "all") {
+      filtered = filtered.filter((v: any) => v.model === modelFilter);
+    }
+
+    // Calculate pagination
+    const total = Math.ceil(filtered.length / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginated = filtered.slice(startIndex, endIndex);
+
+    return {
+      filteredInventory: filtered,
+      totalPages: total,
+      paginatedInventory: paginated,
+    };
+  }, [inventoryData, yearFilter, makeFilter, modelFilter, currentPage, pageSize]);
+
+  // Paginate sold vehicles
+  const { paginatedSales, soldTotalPages } = useMemo(() => {
+    const sales = salesData?.vehicles || [];
+    const total = Math.ceil(sales.length / pageSize);
+    const startIndex = (soldCurrentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginated = sales.slice(startIndex, endIndex);
+
+    return {
+      paginatedSales: paginated,
+      soldTotalPages: total,
+    };
+  }, [salesData, soldCurrentPage, pageSize]);
+
+  // Reset to page 1 when filters change
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [yearFilter, makeFilter, modelFilter]);
+
+  // Pagination component
+  const PaginationControls = ({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (page: number) => void }) => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex items-center justify-between mt-4 px-2">
+        <div className="text-sm text-muted-foreground">
+          Page {currentPage} of {totalPages}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -113,11 +242,86 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
           </Card>
         </div>
 
+        {/* Filters */}
+        <Card className="mb-4">
+          <CardContent className="pt-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">Year</label>
+                <Select value={yearFilter} onValueChange={setYearFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Years" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Years</SelectItem>
+                    {years.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">Make</label>
+                <Select value={makeFilter} onValueChange={setMakeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Makes" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Makes</SelectItem>
+                    {makes.map((make) => (
+                      <SelectItem key={make} value={make}>
+                        {make}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">Model</label>
+                <Select value={modelFilter} onValueChange={setModelFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Models" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Models</SelectItem>
+                    {models.map((model) => (
+                      <SelectItem key={model} value={model}>
+                        {model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {(yearFilter !== "all" || makeFilter !== "all" || modelFilter !== "all") && (
+                <div className="flex items-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setYearFilter("all");
+                      setMakeFilter("all");
+                      setModelFilter("all");
+                    }}
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              )}
+            </div>
+            {filteredInventory.length !== inventoryData?.vehicles?.length && (
+              <div className="mt-3 text-sm text-muted-foreground">
+                Showing {filteredInventory.length} of {inventoryData?.vehicles?.length || 0} vehicles
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Tabs */}
-        <Tabs defaultValue="current" className="w-full">
+        <Tabs defaultValue="current" className="w-full" onValueChange={setCurrentTab}>
           <TabsList>
             <TabsTrigger value="current">
-              Current Inventory ({inventoryData?.vehicles?.length || 0})
+              Current Inventory ({filteredInventory.length})
             </TabsTrigger>
             <TabsTrigger value="sold">
               Sold This Month ({salesData?.vehicles?.length || 0})
@@ -126,7 +330,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
 
           {/* Current Inventory Tab */}
           <TabsContent value="current" className="space-y-4">
-            {inventoryData?.vehicles && inventoryData.vehicles.length > 0 ? (
+            {paginatedInventory && paginatedInventory.length > 0 ? (
               <>
                 {/* Desktop Table */}
                 <div className="hidden md:block border rounded-lg">
@@ -142,7 +346,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {inventoryData.vehicles.map((vehicle: any) => (
+                      {paginatedInventory.map((vehicle: any) => (
                         <TableRow key={vehicle.id}>
                           <TableCell className="font-mono text-xs">
                             <div className="flex items-center gap-2">
@@ -175,7 +379,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
 
                 {/* Mobile Cards */}
                 <div className="md:hidden space-y-3">
-                  {inventoryData.vehicles.map((vehicle: any) => (
+                  {paginatedInventory.map((vehicle: any) => (
                     <Card key={vehicle.id}>
                       <CardContent className="p-4">
                         <div className="mb-2">
@@ -208,6 +412,13 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                     </Card>
                   ))}
                 </div>
+
+                {/* Pagination */}
+                <PaginationControls
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
               </>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
@@ -220,7 +431,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
 
           {/* Sold Vehicles Tab */}
           <TabsContent value="sold" className="space-y-4">
-            {salesData?.vehicles && salesData.vehicles.length > 0 ? (
+            {paginatedSales && paginatedSales.length > 0 ? (
               <>
                 {/* Desktop Table */}
                 <div className="hidden md:block border rounded-lg">
@@ -238,7 +449,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {salesData.vehicles.map((vehicle: any) => {
+                      {paginatedSales.map((vehicle: any) => {
                         const priceChange = parseFloat(vehicle.currentPrice || 0) - parseFloat(vehicle.initialPrice || 0);
                         return (
                           <TableRow key={vehicle.id}>
@@ -277,7 +488,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
 
                 {/* Mobile Cards */}
                 <div className="md:hidden space-y-3">
-                  {salesData.vehicles.map((vehicle: any) => {
+                  {paginatedSales.map((vehicle: any) => {
                     const priceChange = parseFloat(vehicle.currentPrice || 0) - parseFloat(vehicle.initialPrice || 0);
                     return (
                       <Card key={vehicle.id}>
@@ -318,6 +529,13 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                     );
                   })}
                 </div>
+
+                {/* Pagination */}
+                <PaginationControls
+                  currentPage={soldCurrentPage}
+                  totalPages={soldTotalPages}
+                  onPageChange={setSoldCurrentPage}
+                />
               </>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
