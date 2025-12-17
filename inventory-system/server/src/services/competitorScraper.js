@@ -265,24 +265,42 @@ async function heavyScrape(url, platformType) {
     logger.info(`Detected platform: ${detectedPlatform}`);
 
     // Load all vehicles (handle pagination)
-    const vehicleCount = await loadAllVehicles(page, detectedPlatform);
-    logger.info(`Loaded ${vehicleCount} vehicles`);
+    // For platforms that return vehicles directly from loadAll, use those
+    // Otherwise fall back to parsing the final page content
+    const loadedVehicles = await loadAllVehicles(page, detectedPlatform);
 
-    // Get page content
-    const html = await page.content();
-    const $ = cheerio.load(html);
+    let vehicles;
 
-    // Parse vehicles
-    const vehicles = await parsePlatform($, detectedPlatform);
-
-    logger.info(`Parsed ${vehicles.length} vehicles`);
+    // Check if loadAll returned vehicles (array) or just a count (number)
+    if (Array.isArray(loadedVehicles)) {
+      logger.info(`Pagination returned ${loadedVehicles.length} vehicles directly`);
+      vehicles = loadedVehicles;
+    } else {
+      // Fallback: parse the current page content
+      logger.info(`Loaded ${loadedVehicles} vehicle elements, parsing...`);
+      const html = await page.content();
+      const $ = cheerio.load(html);
+      vehicles = await parsePlatform($, detectedPlatform);
+      logger.info(`Parsed ${vehicles.length} vehicles`);
+    }
 
     return vehicles;
 
   } finally {
     // CRITICAL: Always close browser to free memory
-    if (page) await page.close().catch(() => {});
-    if (browser) await browser.close().catch(() => {});
+    logger.info('Closing Playwright browser and page...');
+    if (page) {
+      await page.close().catch((err) => {
+        logger.error('Error closing page:', err);
+      });
+      logger.info('✓ Playwright page closed');
+    }
+    if (browser) {
+      await browser.close().catch((err) => {
+        logger.error('Error closing browser:', err);
+      });
+      logger.info('✓ Playwright browser closed');
+    }
     currentBrowser = null;
 
     checkMemory(); // Check after cleanup

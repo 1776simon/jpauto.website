@@ -211,9 +211,11 @@ const dealercenter = {
 
   /**
    * Load all vehicles (handle pagination)
+   * Returns: array of vehicles parsed from all pages
    */
   loadAll: async (page) => {
-    let previousCount = 0;
+    const cheerio = require('cheerio');
+    const allVehicles = [];
     let attempts = 0;
     const MAX_ATTEMPTS = 50;
     let pageNumber = 1;
@@ -221,17 +223,15 @@ const dealercenter = {
     logger.info(`Starting Dealer Center pagination loading...`);
 
     while (attempts < MAX_ATTEMPTS) {
-      // Count current vehicles on page
-      const currentCount = await page.$$eval('.dws-vehicle-listing-item, .dws-listing-item', els => els.length);
-      logger.info(`Page ${pageNumber}: Found ${currentCount} vehicle elements (previous: ${previousCount})`);
+      // Parse vehicles from current page
+      const html = await page.content();
+      const $ = cheerio.load(html);
+      const vehiclesOnPage = dealercenter.parse($);
 
-      // If count hasn't changed, we've reached the end
-      if (currentCount === previousCount && attempts > 0) {
-        logger.info(`No new vehicles loaded. Pagination complete.`);
-        break;
-      }
+      logger.info(`Page ${pageNumber}: Parsed ${vehiclesOnPage.length} vehicles`);
 
-      previousCount = currentCount;
+      // Add vehicles from this page to collection
+      allVehicles.push(...vehiclesOnPage);
 
       // Look for "Load More" or pagination
       const loadMoreBtn = await page.$(
@@ -288,7 +288,7 @@ const dealercenter = {
       // Found Load More button - click it
       logger.info(`Clicking "Load More" button...`);
       await loadMoreBtn.click();
-      await page.waitForTimeout(3000); // Increased wait time for content to load
+      await page.waitForTimeout(3000);
       attempts++;
       pageNumber++;
     }
@@ -297,8 +297,8 @@ const dealercenter = {
       logger.warn(`Reached maximum pagination attempts (${MAX_ATTEMPTS}). Stopping.`);
     }
 
-    logger.info(`Dealer Center pagination complete: ${previousCount} total vehicle elements across ${pageNumber} page(s)`);
-    return previousCount;
+    logger.info(`Dealer Center pagination complete: ${allVehicles.length} total vehicles collected across ${pageNumber} page(s)`);
+    return allVehicles;
   }
 };
 
