@@ -119,6 +119,22 @@ async function scrapeCompetitor(competitorId) {
         logger.info('Attempting light scrape (axios + cheerio)');
         scrapedVehicles = await lightScrape(competitor.inventoryUrl, competitor.platformType);
         logger.info(`Light scrape successful: ${scrapedVehicles.length} vehicles found`);
+
+        // Check if we should switch to Playwright despite light scrape success
+        // If we found very few vehicles (<20) for a dealership site, likely need JS rendering
+        if (scrapedVehicles.length < 20 && scrapedVehicles.length > 0) {
+          logger.warn(`Only ${scrapedVehicles.length} vehicles found with light scrape. Trying Playwright to check for more...`);
+
+          // Update competitor to use Playwright for future scrapes
+          await competitor.update({
+            usePlaywright: true,
+            scrapeError: `Switched to Playwright: Light scrape found only ${scrapedVehicles.length} vehicles (likely incomplete)`,
+            scrapeErrorType: 'INCOMPLETE_LIGHT_SCRAPE'
+          });
+
+          scrapedVehicles = await heavyScrape(competitor.inventoryUrl, competitor.platformType);
+          logger.info(`Playwright scrape found ${scrapedVehicles.length} vehicles`);
+        }
       } catch (lightError) {
         logger.warn(`Light scrape failed: ${lightError.message}. Falling back to Playwright.`);
 
