@@ -88,7 +88,7 @@ router.get('/:id/inventory',
   isManagerOrAdmin,
   param('id').isUUID(),
   query('page').optional().isInt({ min: 1 }),
-  query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('limit').optional().isInt({ min: 1, max: 5000 }), // Allow high limit for client-side filtering
   handleValidationErrors,
   getCompetitorInventory
 );
