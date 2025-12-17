@@ -216,11 +216,21 @@ const dealercenter = {
     let previousCount = 0;
     let attempts = 0;
     const MAX_ATTEMPTS = 50;
+    let pageNumber = 1;
+
+    logger.info(`Starting Dealer Center pagination loading...`);
 
     while (attempts < MAX_ATTEMPTS) {
+      // Count current vehicles on page
       const currentCount = await page.$$eval('.dws-vehicle-listing-item, .dws-listing-item', els => els.length);
+      logger.info(`Page ${pageNumber}: Found ${currentCount} vehicle elements (previous: ${previousCount})`);
 
-      if (currentCount === previousCount) break;
+      // If count hasn't changed, we've reached the end
+      if (currentCount === previousCount && attempts > 0) {
+        logger.info(`No new vehicles loaded. Pagination complete.`);
+        break;
+      }
+
       previousCount = currentCount;
 
       // Look for "Load More" or pagination
@@ -243,26 +253,51 @@ const dealercenter = {
                 ? nextUrl
                 : new URL(nextUrl, page.url()).href;
 
-              logger.info(`Navigating to next page: ${fullUrl}`);
-              await page.goto(fullUrl, { waitUntil: 'networkidle', timeout: 30000 });
+              pageNumber++;
+              logger.info(`Navigating to page ${pageNumber}: ${fullUrl}`);
+
+              // Use domcontentloaded instead of networkidle (more reliable)
+              await page.goto(fullUrl, {
+                waitUntil: 'domcontentloaded',
+                timeout: 45000
+              });
+
+              // Wait for vehicle elements to appear
+              try {
+                await page.waitForSelector('.dws-vehicle-listing-item, .dws-listing-item', {
+                  timeout: 10000
+                });
+              } catch (e) {
+                logger.warn(`Timeout waiting for vehicle elements on page ${pageNumber}`);
+              }
+
               await page.waitForTimeout(2000);
               attempts++;
               continue;
             }
           } catch (error) {
-            logger.warn(`Failed to navigate to next page: ${error.message}`);
+            logger.warn(`Failed to navigate to page ${pageNumber}: ${error.message}`);
             break;
           }
         }
+
+        logger.info(`No more pagination controls found. Stopping at page ${pageNumber}.`);
         break;
       }
 
+      // Found Load More button - click it
+      logger.info(`Clicking "Load More" button...`);
       await loadMoreBtn.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000); // Increased wait time for content to load
       attempts++;
+      pageNumber++;
     }
 
-    logger.info(`Dealer Center loaded ${previousCount} vehicle elements`);
+    if (attempts >= MAX_ATTEMPTS) {
+      logger.warn(`Reached maximum pagination attempts (${MAX_ATTEMPTS}). Stopping.`);
+    }
+
+    logger.info(`Dealer Center pagination complete: ${previousCount} total vehicle elements across ${pageNumber} page(s)`);
     return previousCount;
   }
 };

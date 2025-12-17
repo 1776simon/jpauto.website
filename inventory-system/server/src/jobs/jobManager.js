@@ -2,12 +2,13 @@
  * Job Manager
  *
  * Centralized control for all scheduled jobs
- * Manages: Market research, cleanup, storage monitoring
+ * Manages: Market research, cleanup, storage monitoring, competitor scraping
  */
 
 const marketResearchJob = require('./marketResearchJob');
 const marketCleanupJob = require('./marketCleanupJob');
 const storageMonitoringJob = require('./storageMonitoringJob');
+const competitorScraperJob = require('./competitorScraperJob');
 const marketDb = require('../services/marketDatabaseService');
 const logger = require('../config/logger');
 const { CronExpressionParser } = require('cron-parser');
@@ -17,7 +18,8 @@ class JobManager {
     this.jobs = {
       marketResearch: marketResearchJob,
       marketCleanup: marketCleanupJob,
-      storageMonitoring: storageMonitoringJob
+      storageMonitoring: storageMonitoringJob,
+      competitorScraper: competitorScraperJob
     };
   }
 
@@ -110,7 +112,8 @@ class JobManager {
     const scheduleMap = {
       '0 0 */3 * *': 'Every 3 days at midnight PST',
       '0 3 * * 0': 'Every Sunday at 3 AM PST',
-      '0 0 * * *': 'Daily at midnight PST'
+      '0 0 * * *': 'Daily at midnight PST',
+      '0 2 * * *': 'Daily at 2 AM PST'
     };
 
     return scheduleMap[cronSchedule] || cronSchedule;
