@@ -396,35 +396,91 @@ const dealersync = {
   },
 
   /**
-   * Load all vehicles (handle "Load More" button)
+   * Load all vehicles (handle "Load More" button and infinite scroll)
    */
   loadAll: async (page) => {
+    const cheerio = require('cheerio');
+    const allVehicles = [];
     let previousCount = 0;
+    let stagnantAttempts = 0;
     let attempts = 0;
     const MAX_ATTEMPTS = 50;
+    const MAX_STAGNANT = 3; // Stop after 3 consecutive attempts with no new vehicles
 
-    while (attempts < MAX_ATTEMPTS) {
+    logger.info('Starting Dealersync loading (Load More + Infinite Scroll)...');
+
+    while (attempts < MAX_ATTEMPTS && stagnantAttempts < MAX_STAGNANT) {
+      // Count current vehicles on page
       const currentCount = await page.$$eval('.ds-vehicle-list-item, .ds-car-griditem', els => els.length);
+      logger.info(`Attempt ${attempts + 1}: Found ${currentCount} vehicle elements (previous: ${previousCount})`);
 
-      if (currentCount === previousCount) break;
-      previousCount = currentCount;
+      // Check if we got new vehicles
+      if (currentCount === previousCount) {
+        stagnantAttempts++;
+        logger.info(`No new vehicles loaded (stagnant: ${stagnantAttempts}/${MAX_STAGNANT})`);
 
-      // Dealersync uses "Load More" button or infinite scroll
+        // If stagnant, we're done
+        if (stagnantAttempts >= MAX_STAGNANT) {
+          logger.info('No new vehicles after multiple attempts. Stopping.');
+          break;
+        }
+      } else {
+        stagnantAttempts = 0; // Reset stagnant counter
+        previousCount = currentCount;
+      }
+
+      // Try method 1: Look for "Load More" button
       const loadMoreBtn = await page.$(
         'button.load-more, a.load-more, ' +
         'button:has-text("Load More"), a:has-text("Load More"), ' +
-        '.ds-load-more'
+        '.ds-load-more, .load-more-btn'
       );
 
-      if (!loadMoreBtn) break;
+      if (loadMoreBtn) {
+        logger.info('Found "Load More" button, clicking...');
+        await loadMoreBtn.click();
+        await page.waitForTimeout(3000); // Wait for content to load
+        attempts++;
+        continue;
+      }
 
-      await loadMoreBtn.click();
+      // Method 2: Infinite scroll - scroll to bottom
+      logger.info('No "Load More" button found, trying infinite scroll...');
+
+      // Get current scroll position
+      const previousHeight = await page.evaluate(() => document.body.scrollHeight);
+
+      // Scroll to bottom
+      await page.evaluate(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      // Wait for potential network requests and new content
       await page.waitForTimeout(2000);
+
+      // Check if page height increased (new content loaded)
+      const newHeight = await page.evaluate(() => document.body.scrollHeight);
+
+      if (newHeight > previousHeight) {
+        logger.info(`Page height increased (${previousHeight} -> ${newHeight}), content may have loaded`);
+      } else {
+        logger.info('Page height unchanged, no new content detected');
+      }
+
       attempts++;
     }
 
-    logger.info(`Dealersync loaded ${previousCount} vehicle elements`);
-    return previousCount;
+    if (attempts >= MAX_ATTEMPTS) {
+      logger.warn(`Reached maximum attempts (${MAX_ATTEMPTS}). Stopping.`);
+    }
+
+    // Parse all vehicles from final page content
+    const html = await page.content();
+    const $ = cheerio.load(html);
+    const vehicles = dealersync.parse($);
+
+    logger.info(`Dealersync loading complete: ${vehicles.length} unique vehicles collected`);
+    return vehicles;
   }
 };
 
