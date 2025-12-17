@@ -205,8 +205,8 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={priceChartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} tickFormatter={formatCurrency} />
+                  <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#ffffff' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#ffffff' }} tickFormatter={formatCurrency} />
                   <Tooltip formatter={(value: number) => formatCurrency(value)} />
                   <Legend />
                   <Line type="monotone" dataKey="Minimum" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
