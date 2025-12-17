@@ -241,8 +241,18 @@ const dealercenter = {
       );
 
       if (!loadMoreBtn) {
-        // Check if there's a next page link with page_no parameter
-        const nextPageLink = await page.$('a[href*="page_no="]');
+        // Look for "Next" page button (chevron/arrow) - more reliable than generic page_no links
+        let nextPageLink = await page.$('a.page-link-chevron[aria-label*="Next"], a[aria-label*="Next page"]');
+
+        // Fallback: Find the next page number link (current page + 1)
+        if (!nextPageLink) {
+          const nextPageNum = pageNumber + 1;
+          nextPageLink = await page.$(`a[href*="page_no=${nextPageNum}"]`);
+          if (nextPageLink) {
+            logger.info(`Found next page link for page ${nextPageNum}`);
+          }
+        }
+
         if (nextPageLink) {
           try {
             // Get the href and navigate directly instead of clicking
@@ -297,8 +307,24 @@ const dealercenter = {
       logger.warn(`Reached maximum pagination attempts (${MAX_ATTEMPTS}). Stopping.`);
     }
 
-    logger.info(`Dealer Center pagination complete: ${allVehicles.length} total vehicles collected across ${pageNumber} page(s)`);
-    return allVehicles;
+    // Deduplicate vehicles by VIN or stock number
+    const uniqueVehicles = [];
+    const seen = new Set();
+
+    for (const vehicle of allVehicles) {
+      const identifier = vehicle.vin || vehicle.stock_number;
+      if (identifier && !seen.has(identifier)) {
+        seen.add(identifier);
+        uniqueVehicles.push(vehicle);
+      }
+    }
+
+    if (uniqueVehicles.length < allVehicles.length) {
+      logger.warn(`Removed ${allVehicles.length - uniqueVehicles.length} duplicate vehicles`);
+    }
+
+    logger.info(`Dealer Center pagination complete: ${uniqueVehicles.length} unique vehicles collected across ${pageNumber} page(s)`);
+    return uniqueVehicles;
   }
 };
 
