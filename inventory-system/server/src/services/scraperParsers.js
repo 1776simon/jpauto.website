@@ -368,8 +368,8 @@ const dealersync = {
         const mileageText = $elem.find('.ds-listview-item-featured-content-tag').first().text().trim();
         const mileage = mileageText ? parseInt(mileageText.replace(/[,\s]/g, '')) : null;
 
-        // Extract price - use the more specific selector for the actual price value
-        const priceText = $elem.find('.ds-listview-value.ds-price-value, .ds-price-value').first().text().trim();
+        // Extract price - use .first() to avoid concatenating multiple price elements
+        const priceText = $elem.find('.ds-listview-price-value, .ds-price').first().text().trim();
         const price = priceText ? parseFloat(priceText.replace(/[$,\s]/g, '')) : null;
 
         // Only add if we have VIN or stock number and price
