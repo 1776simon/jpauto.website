@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "@/services/api";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -60,7 +60,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
   });
 
   // Reset filters when modal closes
-  useState(() => {
+  useEffect(() => {
     if (!open) {
       setYearFilter("all");
       setMakeFilter("all");
@@ -68,7 +68,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
       setCurrentPage(1);
       setSoldCurrentPage(1);
     }
-  });
+  }, [open]);
 
   const formatCurrency = (value: number | null | undefined) => {
     if (value === null || value === undefined) return "N/A";
@@ -167,7 +167,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
   }, [salesData, soldCurrentPage, pageSize]);
 
   // Reset to page 1 when filters change
-  useMemo(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [yearFilter, makeFilter, modelFilter]);
 
