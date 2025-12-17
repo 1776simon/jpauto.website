@@ -351,8 +351,8 @@ const dealersync = {
 
         // Extract vehicle title
         const title = $elem.find('.ds-listview-vehicle-title, .ds-vehicle-title').text().trim();
-        // Updated regex to handle hyphens in make names (e.g., MERCEDES-BENZ)
-        const titleMatch = title.match(/(\d{4})\s+([A-Za-z-]+)\s+([A-Za-z0-9\s-]+)/);
+        // Updated regex to handle hyphens in make names and slashes in model names (e.g., MERCEDES-BENZ, MDX w/Tech)
+        const titleMatch = title.match(/(\d{4})\s+([A-Za-z-]+)\s+([A-Za-z0-9\s/-]+)/);
 
         const year = titleMatch ? parseInt(titleMatch[1]) : null;
         const make = titleMatch ? titleMatch[2] : null;
@@ -396,8 +396,24 @@ const dealersync = {
       }
     });
 
-    logger.info(`Dealersync parser found ${vehicles.length} vehicles`);
-    return vehicles;
+    // Deduplicate vehicles (many sites render desktop + mobile versions)
+    const uniqueVehicles = [];
+    const seen = new Set();
+
+    for (const vehicle of vehicles) {
+      const identifier = vehicle.vin || vehicle.stock_number;
+      if (identifier && !seen.has(identifier)) {
+        seen.add(identifier);
+        uniqueVehicles.push(vehicle);
+      }
+    }
+
+    if (uniqueVehicles.length < vehicles.length) {
+      logger.info(`Removed ${vehicles.length - uniqueVehicles.length} duplicate vehicles (desktop/mobile variants)`);
+    }
+
+    logger.info(`Dealersync parser found ${uniqueVehicles.length} unique vehicles`);
+    return uniqueVehicles;
   },
 
   /**
