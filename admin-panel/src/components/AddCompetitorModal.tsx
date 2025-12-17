@@ -236,6 +236,7 @@ export function AddCompetitorModal({ open, onOpenChange }: AddCompetitorModalPro
                             </TableCell>
                             <TableCell>
                               {vehicle.year} {vehicle.make} {vehicle.model}
+                              {vehicle.trim && <span className="text-muted-foreground"> {vehicle.trim}</span>}
                             </TableCell>
                             <TableCell>
                               {vehicle.price ? `$${vehicle.price.toLocaleString()}` : "N/A"}
