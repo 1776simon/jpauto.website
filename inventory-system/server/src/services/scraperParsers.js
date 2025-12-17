@@ -359,9 +359,23 @@ const dealersync = {
         const model = titleMatch ? titleMatch[3].split('w/')[0].trim() : null;
 
         // Extract trim (from subtitle or title)
-        let trim = $elem.find('h5, .ds-listview-subtitle').text().trim();
+        let trim = $elem.find('h5, .ds-listview-subtitle, .ds-gridview-vehicle-tag-line').text().trim();
         if (!trim && title.includes('w/')) {
           trim = 'w/' + title.split('w/')[1];
+        }
+
+        // Clean up trim - remove common junk phrases
+        if (trim) {
+          trim = trim
+            .replace(/CARFAX Snapshot/gi, '')
+            .replace(/Top Features/gi, '')
+            .replace(/\s+/g, ' ')  // Collapse multiple spaces
+            .trim();
+
+          // If trim is too long (likely contains junk), truncate or clear it
+          if (trim.length > 50) {
+            trim = trim.substring(0, 50).trim();
+          }
         }
 
         // Extract mileage - use .first() to get only the first featured item (which is mileage)

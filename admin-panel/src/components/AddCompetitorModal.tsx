@@ -222,26 +222,30 @@ export function AddCompetitorModal({ open, onOpenChange }: AddCompetitorModalPro
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>VIN/Stock#</TableHead>
-                          <TableHead>Vehicle</TableHead>
-                          <TableHead>Price</TableHead>
-                          <TableHead>Mileage</TableHead>
+                          <TableHead className="w-[180px]">VIN/Stock#</TableHead>
+                          <TableHead className="min-w-[250px]">Vehicle</TableHead>
+                          <TableHead className="w-[120px]">Price</TableHead>
+                          <TableHead className="w-[120px]">Mileage</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {validationResult.preview.map((vehicle: any, index: number) => (
                           <TableRow key={index}>
-                            <TableCell className="font-mono text-xs">
+                            <TableCell className="font-mono text-xs w-[180px]">
                               {vehicle.vin || vehicle.stock_number || "N/A"}
                             </TableCell>
-                            <TableCell>
-                              {vehicle.year} {vehicle.make} {vehicle.model}
-                              {vehicle.trim && <span className="text-muted-foreground"> {vehicle.trim}</span>}
+                            <TableCell className="min-w-[250px]">
+                              <div>
+                                {vehicle.year} {vehicle.make} {vehicle.model}
+                              </div>
+                              {vehicle.trim && (
+                                <div className="text-xs text-muted-foreground">{vehicle.trim}</div>
+                              )}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="w-[120px]">
                               {vehicle.price ? `$${vehicle.price.toLocaleString()}` : "N/A"}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="w-[120px]">
                               {vehicle.mileage ? `${vehicle.mileage.toLocaleString()} mi` : "N/A"}
                             </TableCell>
                           </TableRow>
