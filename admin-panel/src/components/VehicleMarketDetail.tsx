@@ -33,6 +33,15 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
     enabled: open && !!vehicleId,
   });
 
+  // Pagination - must be at top level (before any returns) for hooks rules
+  const competitorListings = data?.competitorListings;
+  const totalPages = Math.ceil((competitorListings?.length || 0) / pageSize);
+  const paginatedListings = useMemo(() => {
+    if (!competitorListings) return [];
+    const start = (currentPage - 1) * pageSize;
+    return competitorListings.slice(start, start + pageSize);
+  }, [competitorListings, currentPage, pageSize]);
+
   if (isLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -60,15 +69,7 @@ export function VehicleMarketDetail({ open, onOpenChange, vehicleId, vehicleName
     );
   }
 
-  const { snapshot, priceHistory, domAnalysis, competitorListings, marketVelocity } = data;
-
-  // Pagination
-  const totalPages = Math.ceil((competitorListings?.length || 0) / pageSize);
-  const paginatedListings = useMemo(() => {
-    if (!competitorListings) return [];
-    const start = (currentPage - 1) * pageSize;
-    return competitorListings.slice(start, start + pageSize);
-  }, [competitorListings, currentPage, pageSize]);
+  const { snapshot, priceHistory, domAnalysis, marketVelocity } = data;
 
   // Pagination component
   const PaginationControls = ({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (page: number) => void }) => {
