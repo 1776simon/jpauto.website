@@ -608,7 +608,7 @@ class ApiService {
   }
 
   async getVehicleMarketDetail(vehicleId: string): Promise<VehicleMarketDetail> {
-    const response = await this.request<{ success: boolean; data: VehicleMarketDetail }>(`/api/market-research/vehicle/${vehicleId}`);
+    const response = await this.request<{ success: boolean; data: VehicleMarketDetail }>(`/api/market-research/vehicle/${vehicleId}/detail`);
     return response.data;
   }
 
