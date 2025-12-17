@@ -25,6 +25,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
@@ -34,6 +41,8 @@ export default function CompetitorTracking() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedCompetitor, setSelectedCompetitor] = useState<any | null>(null);
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [selectedError, setSelectedError] = useState<{ competitorName: string; errorType: string; errorMessage: string } | null>(null);
 
   // Fetch competitors
   const { data: competitors, isLoading } = useQuery({
@@ -248,10 +257,25 @@ export default function CompetitorTracking() {
 
                   {/* Error Display */}
                   {competitor.scrapeError && (
-                    <div className="pt-3 border-t">
-                      <Badge variant="destructive" className="text-xs">
-                        {competitor.scrapeErrorType || "Error"}
-                      </Badge>
+                    <div
+                      className="pt-3 border-t cursor-pointer hover:bg-muted/50 -mx-6 px-6 py-3 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setErrorDialogOpen(true);
+                        setSelectedError({
+                          competitorName: competitor.name,
+                          errorType: competitor.scrapeErrorType || "Error",
+                          errorMessage: competitor.scrapeError
+                        });
+                      }}
+                      title="Click to view full error message"
+                    >
+                      <div className="flex items-center justify-between">
+                        <Badge variant="destructive" className="text-xs">
+                          {competitor.scrapeErrorType || "Error"}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">Click for details</span>
+                      </div>
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                         {competitor.scrapeError}
                       </p>
@@ -292,6 +316,42 @@ export default function CompetitorTracking() {
           competitor={selectedCompetitor}
         />
       )}
+
+      {/* Error Detail Dialog */}
+      <Dialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Scrape Error Details</DialogTitle>
+            <DialogDescription>
+              {selectedError?.competitorName} - {selectedError?.errorType}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Error Message:</label>
+              <div className="mt-2 p-4 bg-muted rounded-md">
+                <pre className="text-xs font-mono whitespace-pre-wrap break-words">
+                  {selectedError?.errorMessage}
+                </pre>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  navigator.clipboard.writeText(selectedError?.errorMessage || "");
+                  toast({
+                    title: "Copied!",
+                    description: "Error message copied to clipboard",
+                  });
+                }}
+              >
+                Copy to Clipboard
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }
