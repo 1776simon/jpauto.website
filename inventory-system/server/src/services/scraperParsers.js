@@ -473,10 +473,19 @@ const dealersync = {
 
       if (loadMoreBtn) {
         logger.info('Found "Load More" button, clicking...');
-        await loadMoreBtn.click();
-        await page.waitForTimeout(3000); // Wait for content to load
-        attempts++;
-        continue;
+        try {
+          await loadMoreBtn.click({ timeout: 5000 }); // Shorter timeout
+          await page.waitForTimeout(3000); // Wait for content to load
+          attempts++;
+          continue;
+        } catch (error) {
+          // Button exists but isn't clickable (hidden/disabled) = all vehicles loaded
+          if (error.name === 'TimeoutError') {
+            logger.info('Load More button no longer clickable (all vehicles loaded)');
+            break;
+          }
+          throw error; // Re-throw other errors
+        }
       }
 
       // Method 2: Infinite scroll - scroll to bottom
