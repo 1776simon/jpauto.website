@@ -433,7 +433,7 @@ const dealersync = {
   /**
    * Load all vehicles (handle "Load More" button and infinite scroll)
    */
-  loadAll: async (page) => {
+  loadAll: async (page, batchProcessor = null) => {
     const cheerio = require('cheerio');
     const allVehicles = [];
     let previousCount = 0;
@@ -441,6 +441,9 @@ const dealersync = {
     let attempts = 0;
     const MAX_ATTEMPTS = 50;
     const MAX_STAGNANT = 3; // Stop after 3 consecutive attempts with no new vehicles
+    const BATCH_SIZE = 150;
+    const MAX_TOTAL_VEHICLES = 500; // Safety limit
+    let lastProcessedCount = 0; // Track how many vehicles we've processed so far
 
     logger.info('Starting Dealersync loading (Load More + Infinite Scroll)...');
 
@@ -462,6 +465,32 @@ const dealersync = {
       } else {
         stagnantAttempts = 0; // Reset stagnant counter
         previousCount = currentCount;
+
+        // BATCH PROCESSING: Process and save vehicles when we hit batch size
+        const newVehiclesCount = currentCount - lastProcessedCount;
+        if (batchProcessor && newVehiclesCount >= BATCH_SIZE) {
+          logger.info(`Batch threshold reached (${newVehiclesCount} new vehicles). Processing batch...`);
+
+          // Parse current page content
+          const html = await page.content();
+          const $ = cheerio.load(html);
+          const parsedVehicles = dealersync.parse($);
+
+          // Get only the new vehicles (skip already processed ones)
+          const newVehicles = parsedVehicles.slice(lastProcessedCount);
+
+          if (newVehicles.length > 0) {
+            await batchProcessor(newVehicles);
+            lastProcessedCount = parsedVehicles.length;
+            logger.info(`Batch processed. Total processed so far: ${lastProcessedCount}`);
+
+            // Check safety limit
+            if (lastProcessedCount >= MAX_TOTAL_VEHICLES) {
+              logger.warn(`Reached safety limit of ${MAX_TOTAL_VEHICLES} vehicles. Stopping.`);
+              break;
+            }
+          }
+        }
       }
 
       // Try method 1: Look for "Load More" button
@@ -522,6 +551,15 @@ const dealersync = {
     const html = await page.content();
     const $ = cheerio.load(html);
     const vehicles = dealersync.parse($);
+
+    // If batch processing was enabled, process any remaining vehicles
+    if (batchProcessor && vehicles.length > lastProcessedCount) {
+      const remainingVehicles = vehicles.slice(lastProcessedCount);
+      logger.info(`Processing final batch of ${remainingVehicles.length} vehicles...`);
+      await batchProcessor(remainingVehicles);
+      logger.info(`Dealersync loading complete: ${vehicles.length} total vehicles processed in batches`);
+      return []; // Return empty array since all were processed in batches
+    }
 
     logger.info(`Dealersync loading complete: ${vehicles.length} unique vehicles collected`);
     return vehicles;

@@ -132,7 +132,7 @@ async function scrapeCompetitor(competitorId) {
             scrapeErrorType: 'INCOMPLETE_LIGHT_SCRAPE'
           });
 
-          scrapedVehicles = await heavyScrape(competitor.inventoryUrl, competitor.platformType);
+          scrapedVehicles = await heavyScrape(competitor.inventoryUrl, competitor.platformType, competitor.id);
           logger.info(`Playwright scrape found ${scrapedVehicles.length} vehicles`);
         }
       } catch (lightError) {
@@ -145,11 +145,32 @@ async function scrapeCompetitor(competitorId) {
           scrapeErrorType: lightError.type || 'LIGHT_SCRAPE_FAILED'
         });
 
-        scrapedVehicles = await heavyScrape(competitor.inventoryUrl, competitor.platformType);
+        scrapedVehicles = await heavyScrape(competitor.inventoryUrl, competitor.platformType, competitor.id);
       }
     } else {
       logger.info('Using Playwright (heavy scrape)');
-      scrapedVehicles = await heavyScrape(competitor.inventoryUrl, competitor.platformType);
+      scrapedVehicles = await heavyScrape(competitor.inventoryUrl, competitor.platformType, competitor.id);
+    }
+
+    // If batch processing was used, vehicles were already saved
+    // Empty array means all vehicles were processed in batches
+    if (scrapedVehicles.length === 0 && competitor.usePlaywright) {
+      logger.info('All vehicles processed in batches during scraping');
+
+      // Get final stats from database
+      const finalCount = await CompetitorInventory.count({
+        where: { competitorId: competitor.id, status: 'active' }
+      });
+
+      logger.info(`Scrape completed successfully for ${competitor.name}: ${finalCount} total vehicles`);
+
+      await competitor.update({
+        lastSuccessfulScrapeAt: new Date(),
+        scrapeError: null,
+        scrapeErrorType: null
+      });
+
+      return { added: 0, updated: 0, sold: 0, total: finalCount };
     }
 
     // Validate scraped data
@@ -159,7 +180,7 @@ async function scrapeCompetitor(competitorId) {
       throw new Error(`Scrape validation failed: ${validation.errors.join(', ')}`);
     }
 
-    // Process scraped vehicles
+    // Process scraped vehicles (for non-batch processing or light scrape)
     const result = await processScrapeResults(competitor.id, scrapedVehicles);
 
     // Update competitor
@@ -239,8 +260,11 @@ async function lightScrape(url, platformType) {
 
 /**
  * Heavy scraping with Playwright
+ * @param {string} url - URL to scrape
+ * @param {string} platformType - Platform type
+ * @param {number} competitorId - Competitor ID for batch processing
  */
-async function heavyScrape(url, platformType) {
+async function heavyScrape(url, platformType, competitorId = null) {
   let browser = null;
   let page = null;
 
@@ -280,10 +304,17 @@ async function heavyScrape(url, platformType) {
     const detectedPlatform = platformType || await detectPlatformPlaywright(page);
     logger.info(`Detected platform: ${detectedPlatform}`);
 
-    // Load all vehicles (handle pagination)
+    // Create batch processor if competitor ID provided
+    const batchProcessor = competitorId ? async (vehicles) => {
+      logger.info(`Processing batch of ${vehicles.length} vehicles...`);
+      await processScrapeResults(competitorId, vehicles);
+      logger.info(`Batch saved and memory cleared`);
+    } : null;
+
+    // Load all vehicles (handle pagination with batch processing)
     // For platforms that return vehicles directly from loadAll, use those
     // Otherwise fall back to parsing the final page content
-    const loadedVehicles = await loadAllVehicles(page, detectedPlatform);
+    const loadedVehicles = await loadAllVehicles(page, detectedPlatform, batchProcessor);
 
     let vehicles;
 
@@ -326,12 +357,12 @@ async function heavyScrape(url, platformType) {
 /**
  * Load all vehicles (handle "Load More" buttons, pagination)
  */
-async function loadAllVehicles(page, platformType) {
+async function loadAllVehicles(page, platformType, batchProcessor = null) {
   // Platform-specific loading strategies
   const loaders = require('./scraperParsers');
 
   if (loaders[platformType] && loaders[platformType].loadAll) {
-    return await loaders[platformType].loadAll(page);
+    return await loaders[platformType].loadAll(page, batchProcessor);
   }
 
   // Generic loader
