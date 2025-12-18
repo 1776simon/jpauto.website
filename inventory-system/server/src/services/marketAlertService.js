@@ -26,9 +26,9 @@ class MarketAlertService {
     const alerts = [];
 
     try {
-      // Alert Type 1: Price vs Median
-      const priceAlert = await this.checkPriceVsMedian(vehicleId, analysisResult);
-      if (priceAlert) alerts.push(priceAlert);
+      // Alert Type 1: Price vs Median (DISABLED per user request)
+      // const priceAlert = await this.checkPriceVsMedian(vehicleId, analysisResult);
+      // if (priceAlert) alerts.push(priceAlert);
 
       // Alert Type 2: Cumulative Market Median Change
       const medianChangeAlert = await this.checkCumulativeMedianChange(vehicleId);

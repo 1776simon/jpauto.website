@@ -117,7 +117,15 @@ async function scrapeCompetitor(competitorId) {
     if (!competitor.usePlaywright) {
       try {
         logger.info('Attempting light scrape (axios + cheerio)');
-        scrapedVehicles = await lightScrape(competitor.inventoryUrl, competitor.platformType);
+        const lightResult = await lightScrape(competitor.inventoryUrl, competitor.platformType);
+        scrapedVehicles = lightResult.vehicles;
+
+        // Save detected platform if not already set
+        if (lightResult.detectedPlatform && !competitor.platformType) {
+          await competitor.update({ platformType: lightResult.detectedPlatform });
+          logger.info(`Platform type detected and saved: ${lightResult.detectedPlatform}`);
+        }
+
         logger.info(`Light scrape successful: ${scrapedVehicles.length} vehicles found`);
 
         // Check if we should switch to Playwright despite light scrape success
@@ -132,7 +140,15 @@ async function scrapeCompetitor(competitorId) {
             scrapeErrorType: 'INCOMPLETE_LIGHT_SCRAPE'
           });
 
-          scrapedVehicles = await heavyScrape(competitor.inventoryUrl, competitor.platformType, competitor.id);
+          const heavyResult = await heavyScrape(competitor.inventoryUrl, competitor.platformType, competitor.id);
+          scrapedVehicles = heavyResult.vehicles;
+
+          // Save detected platform if not already set
+          if (heavyResult.detectedPlatform && !competitor.platformType) {
+            await competitor.update({ platformType: heavyResult.detectedPlatform });
+            logger.info(`Platform type detected and saved: ${heavyResult.detectedPlatform}`);
+          }
+
           logger.info(`Playwright scrape found ${scrapedVehicles.length} vehicles`);
         }
       } catch (lightError) {
@@ -145,11 +161,25 @@ async function scrapeCompetitor(competitorId) {
           scrapeErrorType: lightError.type || 'LIGHT_SCRAPE_FAILED'
         });
 
-        scrapedVehicles = await heavyScrape(competitor.inventoryUrl, competitor.platformType, competitor.id);
+        const heavyResult = await heavyScrape(competitor.inventoryUrl, competitor.platformType, competitor.id);
+        scrapedVehicles = heavyResult.vehicles;
+
+        // Save detected platform if not already set
+        if (heavyResult.detectedPlatform && !competitor.platformType) {
+          await competitor.update({ platformType: heavyResult.detectedPlatform });
+          logger.info(`Platform type detected and saved: ${heavyResult.detectedPlatform}`);
+        }
       }
     } else {
       logger.info('Using Playwright (heavy scrape)');
-      scrapedVehicles = await heavyScrape(competitor.inventoryUrl, competitor.platformType, competitor.id);
+      const heavyResult = await heavyScrape(competitor.inventoryUrl, competitor.platformType, competitor.id);
+      scrapedVehicles = heavyResult.vehicles;
+
+      // Save detected platform if not already set
+      if (heavyResult.detectedPlatform && !competitor.platformType) {
+        await competitor.update({ platformType: heavyResult.detectedPlatform });
+        logger.info(`Platform type detected and saved: ${heavyResult.detectedPlatform}`);
+      }
     }
 
     // If batch processing was used, vehicles were already saved
@@ -243,7 +273,7 @@ async function lightScrape(url, platformType) {
       throw error;
     }
 
-    return vehicles;
+    return { vehicles, detectedPlatform };
 
   } catch (error) {
     if (error.type) throw error;
@@ -331,7 +361,7 @@ async function heavyScrape(url, platformType, competitorId = null) {
       logger.info(`Parsed ${vehicles.length} vehicles`);
     }
 
-    return vehicles;
+    return { vehicles, detectedPlatform };
 
   } finally {
     // CRITICAL: Always close browser to free memory

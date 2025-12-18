@@ -256,29 +256,44 @@ export default function CompetitorTracking() {
                   </div>
 
                   {/* Price Distribution */}
-                  {competitor.stats?.priceDistribution && (
-                    <div className="pt-3 border-t">
-                      <div className="text-xs text-muted-foreground mb-2">Price Distribution</div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Under $10k:</span>
-                          <span className="font-semibold">{competitor.stats.priceDistribution.under10k}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">$10k-$20k:</span>
-                          <span className="font-semibold">{competitor.stats.priceDistribution.from10to20k}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">$20k-$30k:</span>
-                          <span className="font-semibold">{competitor.stats.priceDistribution.from20to30k}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Over $30k:</span>
-                          <span className="font-semibold">{competitor.stats.priceDistribution.over30k}</span>
+                  {competitor.stats?.priceDistribution && (() => {
+                    const dist = competitor.stats.priceDistribution;
+                    const total = dist.under10k + dist.from10to20k + dist.from20to30k + dist.over30k;
+
+                    if (total === 0) return null;
+
+                    const ranges = [
+                      { label: '<$10k', value: dist.under10k, color: 'bg-blue-500' },
+                      { label: '$10-20k', value: dist.from10to20k, color: 'bg-green-500' },
+                      { label: '$20-30k', value: dist.from20to30k, color: 'bg-yellow-500' },
+                      { label: '>$30k', value: dist.over30k, color: 'bg-red-500' }
+                    ];
+
+                    return (
+                      <div className="pt-3 border-t">
+                        <div className="text-xs text-muted-foreground mb-3">Price Distribution</div>
+                        <div className="space-y-2">
+                          {ranges.map((range) => {
+                            const percentage = (range.value / total) * 100;
+                            return (
+                              <div key={range.label} className="space-y-1">
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="text-muted-foreground">{range.label}</span>
+                                  <span className="font-semibold">{range.value} ({percentage.toFixed(0)}%)</span>
+                                </div>
+                                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full ${range.color} transition-all duration-300`}
+                                    style={{ width: `${percentage}%` }}
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Error Display */}
                   {competitor.scrapeError && (
