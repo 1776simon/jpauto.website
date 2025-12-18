@@ -255,6 +255,31 @@ export default function CompetitorTracking() {
                     </div>
                   </div>
 
+                  {/* Price Distribution */}
+                  {competitor.stats?.priceDistribution && (
+                    <div className="pt-3 border-t">
+                      <div className="text-xs text-muted-foreground mb-2">Price Distribution</div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Under $10k:</span>
+                          <span className="font-semibold">{competitor.stats.priceDistribution.under10k}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">$10k-$20k:</span>
+                          <span className="font-semibold">{competitor.stats.priceDistribution.from10to20k}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">$20k-$30k:</span>
+                          <span className="font-semibold">{competitor.stats.priceDistribution.from20to30k}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Over $30k:</span>
+                          <span className="font-semibold">{competitor.stats.priceDistribution.over30k}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Error Display */}
                   {competitor.scrapeError && (
                     <div

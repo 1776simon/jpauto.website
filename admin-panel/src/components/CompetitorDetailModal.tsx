@@ -104,25 +104,43 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
 
   const stats = competitorDetail?.stats || competitor.stats || {};
 
-  // Extract unique values for filters
+  // Extract unique values for filters with counts
   const { years, makes, models } = useMemo(() => {
     const vehicles = inventoryData?.vehicles || [];
-    const yearsSet = new Set<number>();
-    const makesSet = new Set<string>();
-    const modelsSet = new Set<string>();
+    const yearCounts: Record<number, number> = {};
+    const makeCounts: Record<string, number> = {};
+    const modelCounts: Record<string, number> = {};
 
+    // Count occurrences considering current filters
     vehicles.forEach((v: any) => {
-      if (v.year) yearsSet.add(v.year);
-      if (v.make) makesSet.add(v.make);
-      if (v.model) modelsSet.add(v.model);
+      // Year counts (consider make and model filters)
+      if (v.year && (makeFilter === "all" || v.make === makeFilter) && (modelFilter === "all" || v.model === modelFilter)) {
+        yearCounts[v.year] = (yearCounts[v.year] || 0) + 1;
+      }
+
+      // Make counts (consider year and model filters)
+      if (v.make && (yearFilter === "all" || v.year === parseInt(yearFilter)) && (modelFilter === "all" || v.model === modelFilter)) {
+        makeCounts[v.make] = (makeCounts[v.make] || 0) + 1;
+      }
+
+      // Model counts (consider year and make filters)
+      if (v.model && (yearFilter === "all" || v.year === parseInt(yearFilter)) && (makeFilter === "all" || v.make === makeFilter)) {
+        modelCounts[v.model] = (modelCounts[v.model] || 0) + 1;
+      }
     });
 
     return {
-      years: Array.from(yearsSet).sort((a, b) => b - a),
-      makes: Array.from(makesSet).sort(),
-      models: Array.from(modelsSet).sort(),
+      years: Object.entries(yearCounts)
+        .map(([year, count]) => ({ value: parseInt(year), count }))
+        .sort((a, b) => b.value - a.value),
+      makes: Object.entries(makeCounts)
+        .map(([make, count]) => ({ value: make, count }))
+        .sort((a, b) => a.value.localeCompare(b.value)),
+      models: Object.entries(modelCounts)
+        .map(([model, count]) => ({ value: model, count }))
+        .sort((a, b) => a.value.localeCompare(b.value)),
     };
-  }, [inventoryData]);
+  }, [inventoryData, yearFilter, makeFilter, modelFilter]);
 
   // Filter and paginate current inventory
   const { filteredInventory, totalPages, paginatedInventory } = useMemo(() => {
@@ -138,6 +156,13 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
     if (modelFilter !== "all") {
       filtered = filtered.filter((v: any) => v.model === modelFilter);
     }
+
+    // Sort by price (ascending)
+    filtered = filtered.sort((a: any, b: any) => {
+      const priceA = parseFloat(a.currentPrice || 0);
+      const priceB = parseFloat(b.currentPrice || 0);
+      return priceA - priceB;
+    });
 
     // Calculate pagination
     const total = Math.ceil(filtered.length / pageSize);
@@ -255,8 +280,8 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                   <SelectContent>
                     <SelectItem value="all">All Years</SelectItem>
                     {years.map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
+                      <SelectItem key={year.value} value={year.value.toString()}>
+                        {year.value} ({year.count})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -271,8 +296,8 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                   <SelectContent>
                     <SelectItem value="all">All Makes</SelectItem>
                     {makes.map((make) => (
-                      <SelectItem key={make} value={make}>
-                        {make}
+                      <SelectItem key={make.value} value={make.value}>
+                        {make.value} ({make.count})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -287,8 +312,8 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                   <SelectContent>
                     <SelectItem value="all">All Models</SelectItem>
                     {models.map((model) => (
-                      <SelectItem key={model} value={model}>
-                        {model}
+                      <SelectItem key={model.value} value={model.value}>
+                        {model.value} ({model.count})
                       </SelectItem>
                     ))}
                   </SelectContent>

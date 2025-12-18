@@ -76,13 +76,35 @@ exports.getAllCompetitors = async (req, res) => {
           ? soldThisMonth.reduce((sum, v) => sum + parseFloat(v.currentPrice || 0), 0) / soldThisMonth.length
           : null;
 
+        // Price distribution buckets for active inventory
+        const inventoryPrices = await CompetitorInventory.findAll({
+          where: { competitorId: competitor.id, status: 'active' },
+          attributes: ['currentPrice']
+        });
+
+        const priceDistribution = {
+          under10k: 0,
+          from10to20k: 0,
+          from20to30k: 0,
+          over30k: 0
+        };
+
+        inventoryPrices.forEach(v => {
+          const price = parseFloat(v.currentPrice || 0);
+          if (price <= 10000) priceDistribution.under10k++;
+          else if (price <= 20000) priceDistribution.from10to20k++;
+          else if (price <= 30000) priceDistribution.from20to30k++;
+          else priceDistribution.over30k++;
+        });
+
         return {
           ...competitor.toJSON(),
           stats: {
             totalInventory,
             monthlySales,
             avgDaysOnMarket,
-            avgSalePrice: avgSalePrice ? Math.round(avgSalePrice) : null
+            avgSalePrice: avgSalePrice ? Math.round(avgSalePrice) : null,
+            priceDistribution
           }
         };
       })
