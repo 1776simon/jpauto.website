@@ -32,6 +32,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
       'https://consign.jpautomotivegroup.com',
       'https://jp-auto-consignment.pages.dev',
       'https://admin.jpautomotivegroup.com',
+      'https://jp-auto-admin.pages.dev',
       'https://api.jpautomotivegroup.com'
     ];
 
