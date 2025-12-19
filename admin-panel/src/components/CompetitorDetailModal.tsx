@@ -34,6 +34,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
   const [yearFilter, setYearFilter] = useState<string>("all");
   const [makeFilter, setMakeFilter] = useState<string>("all");
   const [modelFilter, setModelFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("price-asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [soldCurrentPage, setSoldCurrentPage] = useState(1);
   const pageSize = 20;
@@ -65,6 +66,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
       setYearFilter("all");
       setMakeFilter("all");
       setModelFilter("all");
+      setSortBy("price-asc");
       setCurrentPage(1);
       setSoldCurrentPage(1);
     }
@@ -157,11 +159,24 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
       filtered = filtered.filter((v: any) => v.model === modelFilter);
     }
 
-    // Sort by price (ascending)
-    filtered = filtered.sort((a: any, b: any) => {
-      const priceA = parseFloat(a.currentPrice || 0);
-      const priceB = parseFloat(b.currentPrice || 0);
-      return priceA - priceB;
+    // Apply sorting
+    filtered = [...filtered].sort((a: any, b: any) => {
+      switch (sortBy) {
+        case "price-asc":
+          return parseFloat(a.currentPrice || 0) - parseFloat(b.currentPrice || 0);
+        case "price-desc":
+          return parseFloat(b.currentPrice || 0) - parseFloat(a.currentPrice || 0);
+        case "days-oldest":
+          return new Date(a.firstSeenAt).getTime() - new Date(b.firstSeenAt).getTime();
+        case "days-newest":
+          return new Date(b.firstSeenAt).getTime() - new Date(a.firstSeenAt).getTime();
+        case "mileage-asc":
+          return (a.mileage || 0) - (b.mileage || 0);
+        case "mileage-desc":
+          return (b.mileage || 0) - (a.mileage || 0);
+        default:
+          return 0;
+      }
     });
 
     // Calculate pagination
@@ -175,7 +190,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
       totalPages: total,
       paginatedInventory: paginated,
     };
-  }, [inventoryData, yearFilter, makeFilter, modelFilter, currentPage, pageSize]);
+  }, [inventoryData, yearFilter, makeFilter, modelFilter, sortBy, currentPage, pageSize]);
 
   // Paginate sold vehicles
   const { paginatedSales, soldTotalPages } = useMemo(() => {
@@ -191,10 +206,10 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
     };
   }, [salesData, soldCurrentPage, pageSize]);
 
-  // Reset to page 1 when filters change
+  // Reset to page 1 when filters or sort change
   useEffect(() => {
     setCurrentPage(1);
-  }, [yearFilter, makeFilter, modelFilter]);
+  }, [yearFilter, makeFilter, modelFilter, sortBy]);
 
   // Pagination component
   const PaginationControls = ({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (page: number) => void }) => {
@@ -270,7 +285,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
         {/* Filters */}
         <Card className="mb-4">
           <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Year</label>
                 <Select value={yearFilter} onValueChange={setYearFilter}>
@@ -334,11 +349,29 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                 </div>
               )}
             </div>
-            {filteredInventory.length !== inventoryData?.vehicles?.length && (
-              <div className="mt-3 text-sm text-muted-foreground">
-                Showing {filteredInventory.length} of {inventoryData?.vehicles?.length || 0} vehicles
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
+              <div className="flex-1 max-w-xs">
+                <label className="text-sm font-medium mb-2 block">Sort By</label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sort by..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                    <SelectItem value="days-oldest">Days Listed: Oldest First</SelectItem>
+                    <SelectItem value="days-newest">Days Listed: Newest First</SelectItem>
+                    <SelectItem value="mileage-asc">Mileage: Low to High</SelectItem>
+                    <SelectItem value="mileage-desc">Mileage: High to Low</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            )}
+              {filteredInventory.length !== inventoryData?.vehicles?.length && (
+                <div className="text-sm text-muted-foreground">
+                  Showing {filteredInventory.length} of {inventoryData?.vehicles?.length || 0} vehicles
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -374,6 +407,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                         <TableHead>Mileage</TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead>Days Listed</TableHead>
+                        <TableHead>Date Added</TableHead>
                         <TableHead>Last Updated</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -400,6 +434,9 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                           <TableCell>{vehicle.mileage ? vehicle.mileage.toLocaleString() : "N/A"}</TableCell>
                           <TableCell className="font-semibold">{formatCurrency(vehicle.currentPrice)}</TableCell>
                           <TableCell>{calculateDaysOnMarket(vehicle.firstSeenAt)} days</TableCell>
+                          <TableCell className="text-sm">
+                            {vehicle.firstSeenAt ? new Date(vehicle.firstSeenAt).toLocaleDateString() : "N/A"}
+                          </TableCell>
                           <TableCell className="text-sm text-muted-foreground">
                             {timeAgo(vehicle.lastUpdatedAt)}
                           </TableCell>
@@ -430,7 +467,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                           {formatCurrency(vehicle.currentPrice)}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="grid grid-cols-2 gap-2 text-sm mb-2">
                           <div>
                             <div className="text-muted-foreground">Mileage</div>
                             <div className="font-medium">{vehicle.mileage?.toLocaleString() || "N/A"}</div>
@@ -439,6 +476,10 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                             <div className="text-muted-foreground">Days Listed</div>
                             <div className="font-medium">{calculateDaysOnMarket(vehicle.firstSeenAt)} days</div>
                           </div>
+                        </div>
+
+                        <div className="text-xs text-muted-foreground">
+                          Added: {vehicle.firstSeenAt ? new Date(vehicle.firstSeenAt).toLocaleDateString() : "N/A"}
                         </div>
                       </CardContent>
                     </Card>
@@ -546,7 +587,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                             )}
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="grid grid-cols-2 gap-2 text-sm mb-2">
                             <div>
                               <div className="text-muted-foreground">Mileage</div>
                               <div className="font-medium">{vehicle.mileage?.toLocaleString() || "N/A"}</div>
@@ -555,6 +596,10 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                               <div className="text-muted-foreground">Days on Market</div>
                               <div className="font-medium">{vehicle.daysOnMarket || 0} days</div>
                             </div>
+                          </div>
+
+                          <div className="text-xs text-muted-foreground">
+                            Sold: {vehicle.soldAt ? new Date(vehicle.soldAt).toLocaleDateString() : "N/A"}
                           </div>
                         </CardContent>
                       </Card>
