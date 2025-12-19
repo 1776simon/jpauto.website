@@ -402,18 +402,21 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead>Date Added</TableHead>
                         <TableHead>VIN/Stock#</TableHead>
                         <TableHead>Vehicle</TableHead>
                         <TableHead>Mileage</TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead>Days Listed</TableHead>
-                        <TableHead>Date Added</TableHead>
                         <TableHead>Last Updated</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {paginatedInventory.map((vehicle: any) => (
                         <TableRow key={vehicle.id}>
+                          <TableCell className="text-sm">
+                            {vehicle.firstSeenAt ? new Date(vehicle.firstSeenAt).toLocaleDateString() : "N/A"}
+                          </TableCell>
                           <TableCell className="font-mono text-xs">
                             <div className="flex items-center gap-2">
                               {vehicle.vin || vehicle.stockNumber || "N/A"}
@@ -434,9 +437,6 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                           <TableCell>{vehicle.mileage ? vehicle.mileage.toLocaleString() : "N/A"}</TableCell>
                           <TableCell className="font-semibold">{formatCurrency(vehicle.currentPrice)}</TableCell>
                           <TableCell>{calculateDaysOnMarket(vehicle.firstSeenAt)} days</TableCell>
-                          <TableCell className="text-sm">
-                            {vehicle.firstSeenAt ? new Date(vehicle.firstSeenAt).toLocaleDateString() : "N/A"}
-                          </TableCell>
                           <TableCell className="text-sm text-muted-foreground">
                             {timeAgo(vehicle.lastUpdatedAt)}
                           </TableCell>
@@ -511,6 +511,7 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead>Sold Date</TableHead>
                         <TableHead>VIN/Stock#</TableHead>
                         <TableHead>Vehicle</TableHead>
                         <TableHead>Mileage</TableHead>
@@ -518,7 +519,6 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                         <TableHead>Sale Price</TableHead>
                         <TableHead>Price Change</TableHead>
                         <TableHead>Days on Market</TableHead>
-                        <TableHead>Sold Date</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -526,6 +526,9 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                         const priceChange = parseFloat(vehicle.currentPrice || 0) - parseFloat(vehicle.initialPrice || 0);
                         return (
                           <TableRow key={vehicle.id}>
+                            <TableCell className="text-sm">
+                              {vehicle.soldAt ? new Date(vehicle.soldAt).toLocaleDateString() : "N/A"}
+                            </TableCell>
                             <TableCell className="font-mono text-xs">
                               {vehicle.vin || vehicle.stockNumber || "N/A"}
                             </TableCell>
@@ -549,9 +552,6 @@ export function CompetitorDetailModal({ open, onOpenChange, competitor }: Compet
                               )}
                             </TableCell>
                             <TableCell>{vehicle.daysOnMarket || 0} days</TableCell>
-                            <TableCell className="text-sm">
-                              {vehicle.soldAt ? new Date(vehicle.soldAt).toLocaleDateString() : "N/A"}
-                            </TableCell>
                           </TableRow>
                         );
                       })}
