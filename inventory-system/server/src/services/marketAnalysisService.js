@@ -14,8 +14,8 @@ class MarketAnalysisService {
   /**
    * Analyze a single vehicle against market with 3-tier fallback
    * Tier 1: Original search
-   * Tier 2: ±50k miles expansion
-   * Tier 3: ±1 year expansion
+   * Tier 2: ±50k miles expansion (±100k total range)
+   * Tier 3: ±1 year + ±50k miles expansion
    */
   async analyzeVehicle(vehicleId, options = {}) {
     const { manual = false } = options;
@@ -46,11 +46,11 @@ class MarketAnalysisService {
         return await this.saveAnalysisResults(vehicle, result);
       }
 
-      logger.info('Tier 1 failed (original search), trying Tier 2 (±50k miles)', {
+      logger.info('Tier 1 failed (original search), trying Tier 2 (±50k miles, 100k total range)', {
         vehicleId
       });
 
-      // Tier 2: ±50k miles expansion
+      // Tier 2: ±50k miles expansion (100k total range)
       result = await this.performSearch(vehicle, ownVins, {
         expansion: 50000,
         yearRange: null,
@@ -61,13 +61,13 @@ class MarketAnalysisService {
         return await this.saveAnalysisResults(vehicle, result);
       }
 
-      logger.info('Tier 2 failed (±50k miles), trying Tier 3 (±1 year)', {
+      logger.info('Tier 2 failed (±50k miles), trying Tier 3 (±1 year + ±50k miles)', {
         vehicleId
       });
 
-      // Tier 3: ±1 year expansion
+      // Tier 3: ±1 year + ±50k miles expansion
       result = await this.performSearch(vehicle, ownVins, {
-        expansion: 0,
+        expansion: 50000,
         yearRange: '±1',
         tier: 3
       });
