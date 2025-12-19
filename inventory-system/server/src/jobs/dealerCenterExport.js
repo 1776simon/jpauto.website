@@ -13,10 +13,10 @@ const runDealerCenterExport = async () => {
   try {
     logger.info('Starting DealerCenter export job...');
 
-    // Fetch all active inventory
+    // Fetch only available inventory (exclude pending, sold, hold, etc.)
     const vehicles = await Inventory.findAll({
       where: {
-        status: ['available', 'pending']
+        status: 'available'
       },
       order: [['id', 'DESC']]
     });
@@ -57,7 +57,7 @@ const runDealerCenterExport = async () => {
 
 /**
  * Schedule daily DealerCenter exports
- * Runs daily at 2:00 AM
+ * Runs daily at 10:00 PM PST
  */
 const scheduleDealerCenterExport = () => {
   // Use cron schedule from config
@@ -74,9 +74,14 @@ const scheduleDealerCenterExport = () => {
       logger.error('Scheduled export failed:', error);
       // Could send alert/notification here
     }
+  }, {
+    timezone: 'America/Los_Angeles' // PST/PDT
   });
 
-  logger.info('DealerCenter export scheduled successfully');
+  logger.info('DealerCenter export scheduled successfully', {
+    schedule,
+    timezone: 'America/Los_Angeles'
+  });
 };
 
 module.exports = {

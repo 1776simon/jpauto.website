@@ -39,7 +39,7 @@ module.exports = {
       return `29007654_${year}${month}${day}.csv`;
     },
     remotePath: '/', // Root directory on FTP server
-    schedule: '0 2 * * *', // Daily at 2:00 AM (cron format)
+    schedule: '0 22 * * *', // Daily at 10:00 PM PST (cron format)
     includeHeaders: true
   },
 

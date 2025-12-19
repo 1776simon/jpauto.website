@@ -136,57 +136,6 @@ class MarketDatabaseService {
   }
 
   /**
-   * Save or update platform tracking
-   */
-  async saveMarketPlatformTracking(platformDataArray) {
-    if (!platformDataArray || platformDataArray.length === 0) {
-      return;
-    }
-
-    try {
-      for (const data of platformDataArray) {
-        const { vin, platform, isOwnVehicle, price, dealerName, listingUrl } = data;
-
-        await sequelize.query(`
-          INSERT INTO market_platform_tracking (
-            vin,
-            platform,
-            is_own_vehicle,
-            price,
-            dealer_name,
-            listing_url,
-            first_seen,
-            last_seen,
-            times_seen,
-            created_at,
-            updated_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW(), 1, NOW(), NOW())
-          ON CONFLICT (vin, platform)
-          DO UPDATE SET
-            price = $4,
-            dealer_name = $5,
-            listing_url = $6,
-            last_seen = NOW(),
-            times_seen = market_platform_tracking.times_seen + 1,
-            updated_at = NOW()
-        `, {
-          bind: [vin, platform, isOwnVehicle, price, dealerName, listingUrl]
-        });
-      }
-
-      logger.info('Platform tracking updated', {
-        count: platformDataArray.length,
-        ownVehicles: platformDataArray.filter(d => d.isOwnVehicle).length
-      });
-    } catch (error) {
-      logger.error('Failed to save platform tracking', {
-        error: error.message
-      });
-      throw error;
-    }
-  }
-
-  /**
    * Update price history with cumulative changes
    */
   async updatePriceHistory(vehicleId, priceStats) {
@@ -325,32 +274,6 @@ class MarketDatabaseService {
     } catch (error) {
       logger.error('Failed to get price history', {
         vehicleId,
-        error: error.message
-      });
-      throw error;
-    }
-  }
-
-  /**
-   * Get platform tracking for a VIN
-   */
-  async getVehiclePlatformTracking(vin) {
-    if (!vin) return [];
-
-    try {
-      const [tracking] = await sequelize.query(`
-        SELECT *
-        FROM market_platform_tracking
-        WHERE vin = $1
-        ORDER BY last_seen DESC
-      `, {
-        bind: [vin]
-      });
-
-      return tracking;
-    } catch (error) {
-      logger.error('Failed to get platform tracking', {
-        vin,
         error: error.message
       });
       throw error;
@@ -790,61 +713,8 @@ class MarketDatabaseService {
           : snapshot.listings_data;
       }
 
-      // Get all VINs from listings
-      const vins = listings
-        .map(l => l.vehicle?.vin || l.vin)
-        .filter(v => v);
-
-      logger.info('Querying platform tracking for VINs', {
-        vehicleId,
-        vinCount: vins.length,
-        sampleVins: vins.slice(0, 3)
-      });
-
-      // Get platform tracking data for these VINs
-      const [platformTracking] = vins.length > 0 ? await sequelize.query(`
-        SELECT vin, platform, listing_url, price, dealer_name
-        FROM market_platform_tracking
-        WHERE vin = ANY($1::text[])
-        ORDER BY vin, platform
-      `, {
-        bind: [vins]
-      }) : [[]];
-
-      logger.info('Platform tracking results', {
-        vehicleId,
-        platformCount: platformTracking.length,
-        samplePlatform: platformTracking[0] || null
-      });
-
-      // Group platforms by VIN
-      const platformsByVin = {};
-      platformTracking.forEach(track => {
-        if (!platformsByVin[track.vin]) {
-          platformsByVin[track.vin] = [];
-        }
-        platformsByVin[track.vin].push({
-          name: track.platform,
-          url: track.listing_url,
-          price: parseFloat(track.price || 0),
-          dealer: track.dealer_name
-        });
-      });
-
-      // Merge platform data into listings
-      listings = listings.map(listing => {
-        const vin = listing.vehicle?.vin || listing.vin;
-        return {
-          ...listing,
-          sources: platformsByVin[vin] || []
-        };
-      });
-
       // Get price history (30 days)
       const priceHistory = await this.getPriceHistory(vehicleId, 30);
-
-      // Calculate platform distribution
-      const platformDistribution = this.calculatePlatformDistribution(listings);
 
       // Calculate days on market
       const domAnalysis = this.calculateDaysOnMarket(listings);
@@ -865,7 +735,6 @@ class MarketDatabaseService {
           maxPrice: parseFloat(snapshot.max_price || 0)
         },
         priceHistory: priceHistory.reverse(), // Oldest first for charts
-        platformDistribution,
         domAnalysis,
         competitorListings,
         marketVelocity
@@ -877,65 +746,6 @@ class MarketDatabaseService {
       });
       throw error;
     }
-  }
-
-  /**
-   * Calculate platform distribution from listings
-   */
-  calculatePlatformDistribution(listings) {
-    const platformCounts = {};
-    const vinsByPlatform = {};
-    const crossPostingMatrix = {};
-
-    listings.forEach(listing => {
-      const vin = listing.vehicle?.vin || listing.vin;
-      const price = listing.retailListing?.price || listing.price || 0;
-      const platforms = listing.sources || [];
-
-      if (!vin) return; // Skip if no VIN
-
-      // Track VIN's platforms
-      if (!crossPostingMatrix[vin]) {
-        crossPostingMatrix[vin] = {
-          vin: vin.slice(-4),
-          platforms: [],
-          price
-        };
-      }
-
-      platforms.forEach(source => {
-        const platform = source.name || source || 'Unknown';
-
-        // Count platforms
-        platformCounts[platform] = (platformCounts[platform] || 0) + 1;
-
-        // Track VINs per platform
-        if (!vinsByPlatform[platform]) {
-          vinsByPlatform[platform] = new Set();
-        }
-        vinsByPlatform[platform].add(vin);
-
-        // Add to cross-posting matrix
-        if (!crossPostingMatrix[vin].platforms.includes(platform)) {
-          crossPostingMatrix[vin].platforms.push(platform);
-        }
-      });
-    });
-
-    // Convert to arrays
-    const distribution = Object.entries(platformCounts).map(([name, count]) => ({
-      platform: name,
-      listingCount: count,
-      uniqueVINs: vinsByPlatform[name].size
-    })).sort((a, b) => b.listingCount - a.listingCount);
-
-    const matrix = Object.values(crossPostingMatrix);
-
-    return {
-      distribution,
-      crossPostingMatrix: matrix,
-      totalPlatforms: Object.keys(platformCounts).length
-    };
   }
 
   /**
@@ -1008,21 +818,12 @@ class MarketDatabaseService {
         price = listing.retailListing.price;
       } else if (listing.price && listing.price > 0) {
         price = listing.price;
-      } else if (listing.sources && listing.sources.length > 0) {
-        // Try to get price from sources
-        const sourcePrices = listing.sources
-          .map(s => s.price)
-          .filter(p => p && p > 0);
-        if (sourcePrices.length > 0) {
-          price = Math.min(...sourcePrices); // Use lowest price
-        }
       }
 
       const mileage = listing.retailListing?.miles || listing.mileage;
       const trim = listing.vehicle?.trim || listing.trim || 'Base';
       const city = listing.retailListing?.city || listing.location?.city || 'Unknown';
       const dealer = listing.retailListing?.dealer || listing.retailListing?.dealerName || listing.dealerName || 'Private';
-      const sources = listing.sources || [];
 
       return {
         vinLast4: vin ? vin.slice(-4) : 'N/A',
@@ -1032,8 +833,6 @@ class MarketDatabaseService {
         trim,
         location: city,
         dealer,
-        platforms: sources.map(s => s.name || s).join(', '),
-        platformCount: sources.length,
         url: listing.retailListing?.vdp || listing.retailListing?.vdpUrl || listing.url || null
       };
     }).sort((a, b) => a.price - b.price);

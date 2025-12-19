@@ -42,10 +42,6 @@ class MarketAlertService {
       const competitorAlert = await this.checkCompetitorPricing(vehicleId, analysisResult);
       if (competitorAlert) alerts.push(competitorAlert);
 
-      // Alert Type 5: Own Vehicle on External Platform
-      const platformAlert = await this.checkOwnVehicleOnPlatform(vehicleId, analysisResult);
-      if (platformAlert) alerts.push(platformAlert);
-
       // Save all detected alerts
       for (const alert of alerts) {
         await marketDb.saveAlert(alert);
@@ -332,65 +328,6 @@ class MarketAlertService {
     }
 
     return null;
-  }
-
-  /**
-   * Alert Type 5: Own Vehicle Detected on External Platform
-   */
-  async checkOwnVehicleOnPlatform(vehicleId, analysisResult) {
-    const { vehicle } = analysisResult;
-
-    if (!vehicle.vin) {
-      return null;
-    }
-
-    try {
-      const [tracking] = await sequelize.query(`
-        SELECT *
-        FROM market_platform_tracking
-        WHERE vin = $1 AND is_own_vehicle = true
-        ORDER BY last_seen DESC
-        LIMIT 1
-      `, {
-        bind: [vehicle.vin]
-      });
-
-      if (tracking && tracking.length > 0) {
-        const record = tracking[0];
-
-        // Check if this is a new detection (first_seen within last 24 hours)
-        const firstSeenDate = new Date(record.first_seen);
-        const hoursSinceFirstSeen = (Date.now() - firstSeenDate.getTime()) / (1000 * 60 * 60);
-
-        if (hoursSinceFirstSeen <= 24) {
-          return {
-            vehicleId,
-            snapshotId: analysisResult.snapshot?.id || null,
-            alertType: 'own_vehicle_detected',
-            severity: 'critical',
-            title: `Your Vehicle Listed on ${record.platform}`,
-            message: `Your ${vehicle.year} ${vehicle.make} ${vehicle.model} (VIN: ${vehicle.vin}) has been detected on ${record.platform} at $${record.price?.toFixed(2) || 'N/A'}. Dealer: ${record.dealer_name || 'Unknown'}.`,
-            alertData: {
-              vin: vehicle.vin,
-              platform: record.platform,
-              price: record.price,
-              dealerName: record.dealer_name,
-              listingUrl: record.listing_url,
-              firstSeen: record.first_seen,
-              timesSeen: record.times_seen
-            }
-          };
-        }
-      }
-
-      return null;
-    } catch (error) {
-      logger.error('Failed to check own vehicle on platform', {
-        vehicleId,
-        error: error.message
-      });
-      return null;
-    }
   }
 
   /**

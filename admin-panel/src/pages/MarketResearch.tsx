@@ -17,6 +17,9 @@ import {
   X,
   History,
   Eye,
+  Edit,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/services/api";
@@ -25,6 +28,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
@@ -35,6 +40,14 @@ export default function MarketResearch() {
   const [showAllAlerts, setShowAllAlerts] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [detailVehicle, setDetailVehicle] = useState<{id: string; name: string; price: number} | null>(null);
+  const [priceChangeModalOpen, setPriceChangeModalOpen] = useState(false);
+  const [priceChangeVehicle, setPriceChangeVehicle] = useState<{
+    id: string;
+    name: string;
+    currentPrice: number;
+    medianMarketPrice: number | null;
+  } | null>(null);
+  const [newPrice, setNewPrice] = useState<number>(0);
 
   // Fetch market overview
   const { data: overview, isLoading: overviewLoading } = useQuery({
@@ -132,6 +145,28 @@ export default function MarketResearch() {
     onError: (error: Error) => {
       toast({
         title: "Failed to Dismiss",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update price mutation
+  const updatePriceMutation = useMutation({
+    mutationFn: ({ id, price }: { id: string; price: number }) =>
+      api.updateInventoryItem(parseInt(id), { price }),
+    onSuccess: () => {
+      toast({
+        title: "Price Updated",
+        description: "Vehicle price has been updated successfully.",
+      });
+      setPriceChangeModalOpen(false);
+      setPriceChangeVehicle(null);
+      queryClient.invalidateQueries({ queryKey: ["marketOverview"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -411,7 +446,29 @@ export default function MarketResearch() {
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>{formatCurrency(vehicle.ourPrice)}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <span>{formatCurrency(vehicle.ourPrice)}</span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setPriceChangeVehicle({
+                                    id: vehicle.id,
+                                    name: `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ' ' + vehicle.trim : ''}`,
+                                    currentPrice: vehicle.ourPrice,
+                                    medianMarketPrice: vehicle.medianMarketPrice,
+                                  });
+                                  setNewPrice(vehicle.ourPrice);
+                                  setPriceChangeModalOpen(true);
+                                }}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </TableCell>
                           <TableCell>{formatCurrency(vehicle.medianMarketPrice)}</TableCell>
                           <TableCell>
                             {vehicle.priceDeltaPercent !== null && vehicle.priceDeltaPercent !== undefined ? (
@@ -643,6 +700,7 @@ export default function MarketResearch() {
                               hour: 'numeric',
                               minute: '2-digit',
                               hour12: true,
+                              timeZone: 'America/Los_Angeles',
                               timeZoneName: 'short'
                             })}
                           </p>
@@ -690,6 +748,150 @@ export default function MarketResearch() {
           ourPrice={detailVehicle.price}
         />
       )}
+
+      {/* Price Change Modal */}
+      <Dialog open={priceChangeModalOpen} onOpenChange={setPriceChangeModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update Price for {priceChangeVehicle?.name}</DialogTitle>
+            <DialogDescription>
+              Adjust the price using quick actions or enter a custom amount
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Current Price Display */}
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+              <span className="text-sm text-muted-foreground">Current Price</span>
+              <span className="text-lg font-bold">{formatCurrency(priceChangeVehicle?.currentPrice)}</span>
+            </div>
+
+            {/* Manual Price Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">New Price</label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="number"
+                  value={newPrice}
+                  onChange={(e) => setNewPrice(parseFloat(e.target.value) || 0)}
+                  onWheel={(e) => e.currentTarget.blur()} // Disable scroll to change value
+                  className="pl-9 text-lg font-semibold"
+                  placeholder="Enter price"
+                />
+              </div>
+            </div>
+
+            {/* Quick Action Buttons */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Quick Actions</label>
+              <div className="grid grid-cols-5 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setNewPrice(Math.max(0, newPrice - 1))}
+                  className="flex flex-col h-auto py-2"
+                >
+                  <Minus className="h-3 w-3 mb-1" />
+                  <span className="text-xs">$1</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setNewPrice(Math.max(0, newPrice - 500))}
+                  className="flex flex-col h-auto py-2"
+                >
+                  <Minus className="h-3 w-3 mb-1" />
+                  <span className="text-xs">$500</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setNewPrice(newPrice + 500)}
+                  className="flex flex-col h-auto py-2"
+                >
+                  <Plus className="h-3 w-3 mb-1" />
+                  <span className="text-xs">$500</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setNewPrice(Math.max(0, newPrice - 1000))}
+                  className="flex flex-col h-auto py-2"
+                >
+                  <Minus className="h-3 w-3 mb-1" />
+                  <span className="text-xs">$1k</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setNewPrice(newPrice + 1000)}
+                  className="flex flex-col h-auto py-2"
+                >
+                  <Plus className="h-3 w-3 mb-1" />
+                  <span className="text-xs">$1k</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Price Delta Preview */}
+            {priceChangeVehicle?.medianMarketPrice !== null && priceChangeVehicle?.medianMarketPrice !== undefined && (
+              <div className="p-3 bg-muted rounded-lg space-y-1">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Market Median</span>
+                  <span className="font-medium">{formatCurrency(priceChangeVehicle.medianMarketPrice)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">New Delta</span>
+                  <span className={`font-semibold ${
+                    newPrice < priceChangeVehicle.medianMarketPrice
+                      ? "text-green-600"
+                      : newPrice > priceChangeVehicle.medianMarketPrice
+                      ? "text-red-600"
+                      : ""
+                  }`}>
+                    {formatCurrency(newPrice - priceChangeVehicle.medianMarketPrice)}
+                    ({formatPercent(((newPrice - priceChangeVehicle.medianMarketPrice) / priceChangeVehicle.medianMarketPrice) * 100)})
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setPriceChangeModalOpen(false);
+                setPriceChangeVehicle(null);
+              }}
+              disabled={updatePriceMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (priceChangeVehicle) {
+                  updatePriceMutation.mutate({
+                    id: priceChangeVehicle.id,
+                    price: newPrice,
+                  });
+                }
+              }}
+              disabled={updatePriceMutation.isPending || newPrice <= 0}
+            >
+              {updatePriceMutation.isPending ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>Save Price</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }

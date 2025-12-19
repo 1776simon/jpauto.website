@@ -490,9 +490,6 @@ class MarketAnalysisService {
       // Get price history
       const priceHistory = await marketDb.getPriceHistory(vehicleId, 30);
 
-      // Get platform tracking
-      const platformTracking = await marketDb.getVehiclePlatformTracking(vehicle.vin);
-
       // Get recent alerts
       const alerts = await marketDb.getVehicleAlerts(vehicleId, 10);
 
@@ -500,7 +497,6 @@ class MarketAnalysisService {
         vehicle: vehicle.toJSON(),
         latestSnapshot,
         priceHistory,
-        platformTracking,
         alerts
       };
     } catch (error) {
