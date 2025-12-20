@@ -33,50 +33,39 @@ JP AUTO is a used car dealership with a full-stack inventory management system c
 - **Authentication**: OAuth 2.0 (Google/Microsoft) via Passport.js
 - **Deployment**: Railway (https://jp-auto-inventory-production.up.railway.app)
 
-**Key Components**:
-```
-inventory-system/server/src/
-├── index.js                    # Main Express server
-├── config/
-│   ├── database.js            # PostgreSQL connection
-│   ├── passport.js            # OAuth strategies
-│   └── logger.js              # Winston logger
-├── models/
-│   ├── User.js                # Admin users (OAuth)
-│   ├── PendingSubmission.js   # Customer vehicle submissions
-│   ├── Inventory.js           # Active inventory
-│   └── index.js               # Model relationships
-├── routes/
-│   ├── auth.js                # OAuth endpoints
-│   ├── submissions.js         # Submission CRUD
-│   ├── inventory.js           # Inventory CRUD
-│   ├── exports.js             # Export endpoints
-│   └── users.js               # User management
-├── services/
-│   ├── r2Storage.js           # Cloudflare R2 integration
-│   └── imageProcessor.js      # Sharp.js image processing
-├── exports/
-│   ├── jekyll/               # Website export generator
-│   ├── dealer-center/        # DMS export/import
-│   ├── autotrader/           # AutoTrader XML export
-│   ├── cargurus/             # CarGurus XML export
-│   └── facebook/             # Facebook Marketplace CSV
-└── middleware/
-    ├── auth.js               # Auth middleware
-    ├── validation.js         # Express-validator
-    └── errorHandler.js       # Error handling
-```
+**Core Systems**:
+- **Inventory Management** - Submissions, active inventory, image processing
+- **Multi-Platform Exports** - Jekyll, AutoTrader, CarGurus, Facebook, DealerCenter
+- **Market Research** - Automated pricing insights and competitive analysis
+- **Competitor Tracking** - Web scraping, price monitoring, inventory tracking
+- **VIN Services** - VIN decoding, vehicle valuation, data caching
+- **Scheduled Jobs** - Automated exports, market analysis, competitor scraping
+- **Admin Features** - OAuth authentication, user management, audit logging
 
-**API Endpoints**:
-- `POST /api/submissions` - Customer vehicle submissions
-- `POST /api/submissions/:id/images` - Upload vehicle photos
-- `GET /api/inventory` - List inventory (admin)
-- `POST /api/inventory` - Add vehicle to inventory
-- `GET /api/exports/jekyll` - Export vehicles to Jekyll format
-- `GET /api/exports/autotrader` - Export to AutoTrader XML
-- `GET /api/exports/cargurus` - Export to CarGurus XML
-- `GET /api/exports/facebook` - Export to Facebook CSV
-- `GET /api/exports/dealer-center` - Export to DMS
+**Key Services**:
+- `services/r2Storage.js` - Cloudflare R2 image storage
+- `services/imageProcessor.js` - Sharp.js image processing
+- `services/autodevMarketResearch.js` - Market data via auto.dev API
+- `services/competitorScraper.js` - Competitor website scraping (Playwright/Cheerio)
+- `services/vinDecoder.js` - VIN decoding via NHTSA
+- `services/ftpService.js` - FTP uploads for DMS exports
+
+📖 **Detailed system documentation**: See `.claude/rules/` for subsystem details
+
+**Core API Endpoints**:
+- `/api/submissions` - Vehicle submission CRUD
+- `/api/inventory` - Inventory management
+- `/api/exports/*` - Multi-platform exports (Jekyll, AutoTrader, CarGurus, Facebook, DMS)
+- `/api/users` - User management
+- `/api/auth` - OAuth authentication
+
+**Extended APIs**:
+- `/api/market-research/*` - Market analysis and pricing insights
+- `/api/competitors` - Competitor tracking and scraping
+- `/api/vin*` - VIN decoding and valuation services
+- `/api/migrations` - Database migration management
+
+📖 **Complete API reference**: See @.claude/rules/backend-api.md
 
 ### 3. Admin Dashboard (React)
 - **Location**: `admin-panel/`
@@ -90,14 +79,18 @@ inventory-system/server/src/
   - View and manage pending submissions
   - Approve/reject submissions
   - Manage active inventory (add, edit, delete, status changes)
-  - Export to multiple platforms (Jekyll, AutoTrader, CarGurus, Facebook)
+  - Export to multiple platforms (Jekyll, AutoTrader, CarGurus, Facebook, DMS)
+  - Market research and pricing insights
+  - Competitor tracking and analysis
   - Image upload and management
   - User management
-- **Directories**:
-  - `src/components/` - React components (shadcn/ui)
-  - `src/pages/` - Page views (Dashboard, Inventory, Submissions, Export)
-  - `src/services/` - API service layer
-  - `src/contexts/` - React contexts (AuthContext)
+- **Main Pages**:
+  - `Dashboard.tsx` - Overview and statistics
+  - `Inventory.tsx` - Inventory management
+  - `Submissions.tsx` - Customer submission review
+  - `Export.tsx` - Platform export controls
+  - `MarketResearch.tsx` - Pricing insights and market analysis
+  - `CompetitorTracking.tsx` - Competitor monitoring dashboard
 
 ### 4. Public Consignment Form
 - **Location**: `consignment-form/index.html`
@@ -192,13 +185,42 @@ git push
 
 ## Database Schema
 
-**Tables**:
+**Core Tables**:
 - `users` - OAuth-authenticated admin users
 - `pending_submissions` - Customer vehicle submissions awaiting approval
 - `inventory` - Active vehicles for sale
-- `export_logs` - Tracking of exports to various platforms
-- `activity_logs` - Complete audit trail
 - `session` - Express session store
+
+**Market Research Tables**:
+- `market_research_results` - Market analysis data
+- `market_price_history` - Historical pricing data
+- `vin_evaluation_cache` - Cached VIN evaluations
+
+**Competitor Tracking Tables**:
+- `competitors` - Tracked competitor dealerships
+- `competitor_inventory` - Competitor vehicle listings
+- `competitor_price_history` - Price change tracking
+- `competitor_metrics` - Aggregated competitor metrics
+
+**System Tables**:
+- `export_logs` - Export tracking
+- `activity_logs` - Audit trail
+- `storage_alerts` - Storage monitoring alerts
+- `job_history` - Scheduled job execution logs
+
+📖 **Complete schema details**: See @.claude/rules/database-schema.md
+
+## Scheduled Jobs
+
+**Automated Tasks** (all times in Pacific):
+- **Jekyll Export** - 1:55 AM daily - Export inventory to website
+- **DealerCenter Export** - 2:00 AM daily - Export to DMS via FTP
+- **Competitor Scraper** - 2:00 AM daily - Scrape competitor inventory
+- **Market Research** - 12:00 AM every 3 days - Analyze market pricing
+- **Market Cleanup** - 3:00 AM Sundays - Delete old research data
+- **Storage Monitoring** - 12:00 AM daily - Monitor R2 usage
+
+📖 **Job details and configuration**: See @.claude/rules/scheduled-jobs.md
 
 ## Image Processing Pipeline
 
