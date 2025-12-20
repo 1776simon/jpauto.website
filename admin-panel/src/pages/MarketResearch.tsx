@@ -163,6 +163,8 @@ export default function MarketResearch() {
       setPriceChangeModalOpen(false);
       setPriceChangeVehicle(null);
       queryClient.invalidateQueries({ queryKey: ["marketOverview"] });
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["inventoryStats"] });
     },
     onError: (error: Error) => {
       toast({
