@@ -10,16 +10,16 @@ baseurl: ""
 business:
   name: "JP Auto"
   phone: "(916) 618-7197"
-  email: "info@jpautomotivegroup.com"
-  address: "Sacramento, CA"
+  email: "jpautomotivegroupllc@gmail.com"
+  address: "2529 Connie Dr #15, Sacramento, CA 95815"
   hours:
     monday: "9:00 AM - 7:00 PM"
     tuesday: "9:00 AM - 7:00 PM"
     wednesday: "9:00 AM - 7:00 PM"
     thursday: "9:00 AM - 7:00 PM"
     friday: "9:00 AM - 7:00 PM"
-    saturday: "9:00 AM - 6:00 PM"
-    sunday: "10:00 AM - 5:00 PM"
+    saturday: "By appointment only"
+    sunday: "By appointment only"
 
 # Collections
 collections:
@@ -80,7 +80,3 @@ sass:
 # SEO
 lang: en_US
 logo: /assets/images/logo.png
-social:
-  links:
-    - https://facebook.com/jpautomotive
-    - https://twitter.com/jpautomotive
