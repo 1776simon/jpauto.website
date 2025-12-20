@@ -77,6 +77,7 @@ permalink: /inventory/
             <label class="block text-sm font-bold text-gray-700 mb-2">Price Range</label>
             <select id="filter-price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
               <option value="">Any Price</option>
+              <option value="0-20000">Under $20,000</option>
               <option value="0-15000">Under $15,000</option>
               <option value="15000-25000">$15,000 - $25,000</option>
               <option value="25000-35000">$25,000 - $35,000</option>
@@ -252,6 +253,7 @@ permalink: /inventory/
 <script>
 (function() {
   'use strict';
+}
 
   // Get all vehicle cards
   const vehicleCards = document.querySelectorAll('.vehicle-card');
@@ -590,3 +592,4 @@ permalink: /inventory/
   applyFilters();
 })();
 </script>
+}

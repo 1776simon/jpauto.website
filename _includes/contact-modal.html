@@ -52,7 +52,7 @@
         <div class="flex-1">
           <h4 class="font-semibold text-gray-900 mb-1">Visit Us</h4>
           <p class="text-gray-700">{{ site.business.address }}</p>
-          <a href="https://www.google.com/maps/search/?api=1&query={{ site.business.address | uri_escape }}" target="_blank" class="text-primary hover:text-primary-dark text-sm mt-1 inline-block">Get Directions →</a>
+          <a href="{{ site.business.maps_link }}" target="_blank" class="text-primary hover:text-primary-dark text-sm mt-1 inline-block">Get Directions →</a>
         </div>
       </div>
 
