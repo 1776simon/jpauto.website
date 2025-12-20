@@ -154,7 +154,7 @@ export default function MarketResearch() {
   // Update price mutation
   const updatePriceMutation = useMutation({
     mutationFn: ({ id, price }: { id: string; price: number }) =>
-      api.updateInventoryItem(parseInt(id), { price }),
+      api.updateInventoryItem(id, { price }),
     onSuccess: () => {
       toast({
         title: "Price Updated",

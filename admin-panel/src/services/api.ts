@@ -363,7 +363,7 @@ class ApiService {
     return response.vehicle;
   }
 
-  async updateInventoryItem(id: number, data: Partial<InventoryItem>): Promise<InventoryItem> {
+  async updateInventoryItem(id: number | string, data: Partial<InventoryItem>): Promise<InventoryItem> {
     const response = await this.request<{ message: string; vehicle: InventoryItem }>(`/api/inventory/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
