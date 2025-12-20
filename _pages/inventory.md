@@ -253,7 +253,6 @@ permalink: /inventory/
 <script>
 (function() {
   'use strict';
-}
 
   // Get all vehicle cards
   const vehicleCards = document.querySelectorAll('.vehicle-card');
@@ -592,4 +591,3 @@ permalink: /inventory/
   applyFilters();
 })();
 </script>
-}
