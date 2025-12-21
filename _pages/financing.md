@@ -933,7 +933,8 @@ document.addEventListener('DOMContentLoaded', function() {
       transmission: item.dataset.transmission || '',
       fuelType: item.dataset.fuelType || '',
       image: item.dataset.image || '',
-      url: item.dataset.url || ''
+      url: item.dataset.url || '',
+      vin: item.dataset.vin || ''
     });
   });
 
@@ -1204,7 +1205,8 @@ document.addEventListener('DOMContentLoaded', function() {
        data-transmission="{{ vehicle.transmission }}"
        data-fuel-type="{{ vehicle.fuel_type }}"
        data-image="{{ vehicle.primary_image }}"
-       data-url="{{ vehicle.url }}">
+       data-url="{{ vehicle.url }}"
+       data-vin="{{ vehicle.vin }}">
   </div>
   {% endfor %}
 </div>
