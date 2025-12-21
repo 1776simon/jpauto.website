@@ -1084,7 +1084,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Review button handler
   reviewBtn.addEventListener('click', () => {
-    if (selectedVehicleData) {
+    if (selectedVehicleData && validateStep(5)) {
       currentStep = 6;
       populateReviewPage();
       showStep(6);
