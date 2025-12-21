@@ -28,7 +28,10 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
   : [
       'http://localhost:3000',
+      'http://localhost:4000',
       'http://localhost:5173',
+      'https://jpautomotivegroup.com',
+      'https://www.jpautomotivegroup.com',
       'https://consign.jpautomotivegroup.com',
       'https://jp-auto-consignment.pages.dev',
       'https://admin.jpautomotivegroup.com',
@@ -133,6 +136,7 @@ app.get('/', (req, res) => {
       inventory: '/api/inventory',
       exports: '/api/exports',
       users: '/api/users',
+      financing: '/api/financing',
       marketResearch: '/api/market-research',
       competitors: '/api/competitors'
     }
@@ -166,6 +170,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/migrations', require('./routes/migrations'));
 app.use('/api/vin', require('./routes/vin'));
 app.use('/api/vin-evaluation', require('./routes/vinEvaluation'));
+app.use('/api/financing', require('./routes/financing'));
 
 // Market Research Routes
 app.use('/api/market-research', require('./routes/marketResearch'));
