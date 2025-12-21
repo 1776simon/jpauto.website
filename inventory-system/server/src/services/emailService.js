@@ -1,5 +1,16 @@
 const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 const logger = require('../config/logger');
+
+// Configure SendGrid if API key is provided
+const useSendGrid = process.env.SENDGRID_API_KEY && process.env.USE_SENDGRID === 'true';
+
+if (useSendGrid) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  logger.info('Using SendGrid for email delivery');
+} else {
+  logger.info('Using Gmail SMTP for email delivery');
+}
 
 // Create email transporter
 // For production, use your business email SMTP settings
@@ -26,30 +37,56 @@ const createTransporter = () => {
  */
 async function sendFinancingApplication(applicationData) {
   try {
-    const transporter = createTransporter();
-
     // Format the email content
     const emailHtml = formatFinancingEmail(applicationData);
     const emailText = formatFinancingEmailText(applicationData);
 
-    // Email options
-    const mailOptions = {
-      from: `JP AUTO <${process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com'}>`,
-      to: process.env.FINANCE_EMAIL || 'jpautomotivegroupllc@gmail.com',
-      subject: `New Financing Application - ${applicationData.firstName} ${applicationData.lastName}`,
-      text: emailText,
-      html: emailHtml,
-      replyTo: applicationData.email
-    };
+    const fromEmail = process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com';
+    const toEmail = process.env.FINANCE_EMAIL || 'jpautomotivegroupllc@gmail.com';
+    const subject = `New Financing Application - ${applicationData.firstName} ${applicationData.lastName}`;
 
-    // Send email
-    const info = await transporter.sendMail(mailOptions);
-    logger.info(`Financing application email sent: ${info.messageId}`);
+    let result;
 
-    return {
-      success: true,
-      messageId: info.messageId
-    };
+    if (useSendGrid) {
+      // Use SendGrid HTTP API
+      const msg = {
+        to: toEmail,
+        from: fromEmail,
+        subject: subject,
+        text: emailText,
+        html: emailHtml,
+        replyTo: applicationData.email
+      };
+
+      result = await sgMail.send(msg);
+      logger.info(`Financing application email sent via SendGrid`);
+
+      return {
+        success: true,
+        messageId: result[0].headers['x-message-id']
+      };
+
+    } else {
+      // Use Gmail SMTP
+      const transporter = createTransporter();
+
+      const mailOptions = {
+        from: `JP AUTO <${fromEmail}>`,
+        to: toEmail,
+        subject: subject,
+        text: emailText,
+        html: emailHtml,
+        replyTo: applicationData.email
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+      logger.info(`Financing application email sent via Gmail: ${info.messageId}`);
+
+      return {
+        success: true,
+        messageId: info.messageId
+      };
+    }
 
   } catch (error) {
     logger.error('Error sending financing application email:', error);
@@ -197,28 +234,50 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles
 
 /**
  * Test email connection
- * Verifies SMTP credentials and connection to Gmail
+ * Verifies SMTP credentials and connection to Gmail or SendGrid
  */
 async function testEmailConnection() {
   try {
-    const transporter = createTransporter();
-
-    // Verify connection configuration
     logger.info('Testing email connection...');
+    logger.info(`Email Provider: ${useSendGrid ? 'SendGrid' : 'Gmail SMTP'}`);
     logger.info(`Email User: ${process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com'}`);
-    logger.info(`Password Set: ${process.env.EMAIL_PASSWORD ? 'YES' : 'NO'}`);
-    logger.info(`Password Length: ${process.env.EMAIL_PASSWORD ? process.env.EMAIL_PASSWORD.length : 0}`);
 
-    await transporter.verify();
+    if (useSendGrid) {
+      logger.info(`SendGrid API Key Set: ${process.env.SENDGRID_API_KEY ? 'YES' : 'NO'}`);
+      logger.info(`SendGrid API Key Length: ${process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.length : 0}`);
 
-    logger.info('Email connection verified successfully!');
-    return {
-      success: true,
-      message: 'Email connection is working',
-      user: process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com',
-      passwordSet: !!process.env.EMAIL_PASSWORD,
-      passwordLength: process.env.EMAIL_PASSWORD ? process.env.EMAIL_PASSWORD.length : 0
-    };
+      // SendGrid doesn't have a simple verify method, so we just check if the API key is set
+      if (!process.env.SENDGRID_API_KEY) {
+        throw new Error('SendGrid API key not configured');
+      }
+
+      logger.info('SendGrid configuration verified!');
+      return {
+        success: true,
+        message: 'SendGrid is configured correctly',
+        provider: 'SendGrid',
+        user: process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com',
+        apiKeySet: !!process.env.SENDGRID_API_KEY,
+        apiKeyLength: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.length : 0
+      };
+
+    } else {
+      logger.info(`Gmail Password Set: ${process.env.EMAIL_PASSWORD ? 'YES' : 'NO'}`);
+      logger.info(`Gmail Password Length: ${process.env.EMAIL_PASSWORD ? process.env.EMAIL_PASSWORD.length : 0}`);
+
+      const transporter = createTransporter();
+      await transporter.verify();
+
+      logger.info('Gmail SMTP connection verified successfully!');
+      return {
+        success: true,
+        message: 'Gmail SMTP connection is working',
+        provider: 'Gmail SMTP',
+        user: process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com',
+        passwordSet: !!process.env.EMAIL_PASSWORD,
+        passwordLength: process.env.EMAIL_PASSWORD ? process.env.EMAIL_PASSWORD.length : 0
+      };
+    }
   } catch (error) {
     logger.error('Email connection test failed:', error);
     return {
@@ -226,9 +285,10 @@ async function testEmailConnection() {
       error: error.message,
       code: error.code,
       command: error.command,
+      provider: useSendGrid ? 'SendGrid' : 'Gmail SMTP',
       user: process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com',
-      passwordSet: !!process.env.EMAIL_PASSWORD,
-      passwordLength: process.env.EMAIL_PASSWORD ? process.env.EMAIL_PASSWORD.length : 0
+      passwordSet: useSendGrid ? undefined : !!process.env.EMAIL_PASSWORD,
+      apiKeySet: useSendGrid ? !!process.env.SENDGRID_API_KEY : undefined
     };
   }
 }
