@@ -91,7 +91,7 @@ Ready to experience our exceptional service? Contact us today!
 <div class="bg-gray-50 p-8 rounded-lg my-8 text-center">
   <h3 class="text-2xl font-bold mb-4">Get Started Today</h3>
   <p class="mb-6 text-lg">Our friendly team is here to help with all your automotive needs.</p>
-  <div class="flex flex-wrap justify-center gap-4">
+  <div class="flex flex-wrap justify-center gap-4 not-prose">
     <a href="tel:+19166187197" class="inline-block px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">Call: (916) 618-7197</a>
     <a href="/contact" class="inline-block px-8 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-semibold">Contact Us</a>
     <a href="/inventory" class="inline-block px-8 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition font-semibold">Browse Inventory</a>
