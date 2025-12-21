@@ -32,6 +32,8 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
       'http://localhost:5173',
       'https://jpautomotivegroup.com',
       'https://www.jpautomotivegroup.com',
+      'http://jpautomotivegroup.com',
+      'http://www.jpautomotivegroup.com',
       'https://consign.jpautomotivegroup.com',
       'https://jp-auto-consignment.pages.dev',
       'https://admin.jpautomotivegroup.com',
