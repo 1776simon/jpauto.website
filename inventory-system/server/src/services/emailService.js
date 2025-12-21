@@ -193,6 +193,45 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles
   `.trim();
 }
 
+/**
+ * Test email connection
+ * Verifies SMTP credentials and connection to Gmail
+ */
+async function testEmailConnection() {
+  try {
+    const transporter = createTransporter();
+
+    // Verify connection configuration
+    logger.info('Testing email connection...');
+    logger.info(`Email User: ${process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com'}`);
+    logger.info(`Password Set: ${process.env.EMAIL_PASSWORD ? 'YES' : 'NO'}`);
+    logger.info(`Password Length: ${process.env.EMAIL_PASSWORD ? process.env.EMAIL_PASSWORD.length : 0}`);
+
+    await transporter.verify();
+
+    logger.info('Email connection verified successfully!');
+    return {
+      success: true,
+      message: 'Email connection is working',
+      user: process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com',
+      passwordSet: !!process.env.EMAIL_PASSWORD,
+      passwordLength: process.env.EMAIL_PASSWORD ? process.env.EMAIL_PASSWORD.length : 0
+    };
+  } catch (error) {
+    logger.error('Email connection test failed:', error);
+    return {
+      success: false,
+      error: error.message,
+      code: error.code,
+      command: error.command,
+      user: process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com',
+      passwordSet: !!process.env.EMAIL_PASSWORD,
+      passwordLength: process.env.EMAIL_PASSWORD ? process.env.EMAIL_PASSWORD.length : 0
+    };
+  }
+}
+
 module.exports = {
-  sendFinancingApplication
+  sendFinancingApplication,
+  testEmailConnection
 };

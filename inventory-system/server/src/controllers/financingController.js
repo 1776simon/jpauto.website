@@ -1,4 +1,4 @@
-const { sendFinancingApplication } = require('../services/emailService');
+const { sendFinancingApplication, testEmailConnection } = require('../services/emailService');
 const logger = require('../config/logger');
 
 /**
@@ -35,6 +35,26 @@ exports.submitApplication = async (req, res) => {
       success: false,
       error: 'Failed to submit financing application. Please try again or call us directly.',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Test email connection
+ * GET /api/financing/test-connection
+ */
+exports.testConnection = async (req, res) => {
+  try {
+    const result = await testEmailConnection();
+
+    res.json(result);
+
+  } catch (error) {
+    logger.error('Error testing email connection:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to test email connection',
+      details: error.message
     });
   }
 };

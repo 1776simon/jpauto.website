@@ -11,6 +11,13 @@ const { isAdmin } = require('../middleware/auth');
 router.post('/apply', financingController.submitApplication);
 
 /**
+ * @route   GET /api/financing/test-connection
+ * @desc    Test Gmail SMTP connection
+ * @access  Public (for debugging)
+ */
+router.get('/test-connection', financingController.testConnection);
+
+/**
  * @route   GET /api/financing/test-email
  * @desc    Test email configuration (admin only)
  * @access  Admin
