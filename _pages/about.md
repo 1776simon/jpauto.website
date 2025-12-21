@@ -97,8 +97,8 @@ We're located in Sacramento and serve customers throughout Northern California i
     <div>
       <h4 class="font-semibold mb-2">Business Hours</h4>
       <p class="text-gray-700">
-        Monday - Saturday: 9:00 AM - 7:00 PM<br>
-        Sunday: 10:00 AM - 5:00 PM
+        Monday - Friday: {{ site.business.hours.monday }}<br>
+        Saturday - Sunday: By Appointment Only
       </p>
     </div>
     <div>

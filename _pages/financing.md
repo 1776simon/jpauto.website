@@ -836,25 +836,57 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Form submission
-  form.addEventListener('submit', function(e) {
+  form.addEventListener('submit', async function(e) {
     e.preventDefault();
 
     if (validateStep(currentStep)) {
-      // Collect form data
-      const formData = new FormData(form);
+      // Show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Submitting... <span class="inline-block animate-spin">⏳</span>';
 
-      // Here you would normally send to your backend
-      console.log('Form submitted:', Object.fromEntries(formData));
+      try {
+        // Collect form data
+        const formData = new FormData(form);
+        const applicationData = Object.fromEntries(formData);
 
-      // Hide form and show success message
-      const formContainer = document.querySelector('.max-w-4xl > .bg-white');
-      const successMessage = document.getElementById('successMessage');
+        // Add selected vehicle data if available
+        if (selectedVehicleData) {
+          applicationData.selectedVehicle = selectedVehicleData;
+        }
 
-      formContainer.style.display = 'none';
-      successMessage.classList.remove('hidden');
+        // Send to backend API
+        const response = await fetch('https://jp-auto-inventory-production.up.railway.app/api/financing/apply', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(applicationData)
+        });
 
-      // Scroll to top
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          // Hide form and show success message
+          const formContainer = document.querySelector('.max-w-4xl > .bg-white');
+          const successMessage = document.getElementById('successMessage');
+
+          formContainer.style.display = 'none';
+          successMessage.classList.remove('hidden');
+
+          // Scroll to top
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          throw new Error(result.error || 'Submission failed');
+        }
+
+      } catch (error) {
+        console.error('Error submitting application:', error);
+        alert('There was an error submitting your application. Please try again or call us at (916) 618-7197.');
+
+        // Reset submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Submit Application &gt;';
+      }
     }
   });
 

@@ -188,6 +188,33 @@
     backToTopButton.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+
+    // Desktop click-to-call handler
+    // On desktop (screen width >= 1024px), disable tel: links (just show as text)
+    // On mobile, keep tel: links active so they open phone app
+    document.addEventListener('DOMContentLoaded', () => {
+      function handleTelLinks() {
+        const isDesktop = window.innerWidth >= 1024;
+
+        document.querySelectorAll('a[href^="tel:"]').forEach(link => {
+          if (isDesktop) {
+            // Desktop: disable the link, make it plain text
+            link.style.pointerEvents = 'none';
+            link.style.textDecoration = 'none';
+            link.style.color = 'inherit';
+          } else {
+            // Mobile: enable the link
+            link.style.pointerEvents = 'auto';
+            link.style.textDecoration = '';
+            link.style.color = '';
+          }
+        });
+      }
+
+      // Run on load and on resize
+      handleTelLinks();
+      window.addEventListener('resize', handleTelLinks);
+    });
   </script>
 </body>
 </html>
