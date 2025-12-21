@@ -229,7 +229,7 @@ permalink: /financing/
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label class="block text-sm font-semibold mb-2">Zip Code *</label>
-                <input type="text" name="currentZip" required pattern="[0-9]{5}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <input type="text" name="currentZip" required pattern="[0-9]{5}" placeholder="12345" title="Please enter a valid 5-digit zip code" maxlength="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
               </div>
               <div>
                 <label class="block text-sm font-semibold mb-2">Status *</label>
@@ -278,7 +278,7 @@ permalink: /financing/
               </div>
               <div>
                 <label class="block text-sm font-semibold mb-2">Zip Code</label>
-                <input type="text" name="previousZip" pattern="[0-9]{5}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <input type="text" name="previousZip" pattern="[0-9]{5}" placeholder="12345" title="Please enter a valid 5-digit zip code" maxlength="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
               </div>
             </div>
 
@@ -452,7 +452,7 @@ permalink: /financing/
                 </div>
                 <div>
                   <label class="block text-sm font-semibold mb-2">Zip Code *</label>
-                  <input type="text" name="coCurrentZip" pattern="[0-9]{5}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                  <input type="text" name="coCurrentZip" pattern="[0-9]{5}" placeholder="12345" title="Please enter a valid 5-digit zip code" maxlength="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
                 </div>
               </div>
             </div>
