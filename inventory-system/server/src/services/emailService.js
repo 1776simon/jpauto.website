@@ -9,7 +9,7 @@ const createTransporter = () => {
   // 1. Enable 2-factor authentication
   // 2. Create an "App Password" at https://myaccount.google.com/apppasswords
 
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     service: 'gmail', // or 'smtp.office365.com' for Outlook, etc.
     auth: {
       user: process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com',
