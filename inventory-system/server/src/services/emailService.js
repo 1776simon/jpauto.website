@@ -10,7 +10,9 @@ const createTransporter = () => {
   // 2. Create an "App Password" at https://myaccount.google.com/apppasswords
 
   return nodemailer.createTransport({
-    service: 'gmail', // or 'smtp.office365.com' for Outlook, etc.
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // use SSL
     auth: {
       user: process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com',
       pass: process.env.EMAIL_PASSWORD // Store this in .env file!
