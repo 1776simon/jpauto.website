@@ -43,7 +43,13 @@ async function sendFinancingApplication(applicationData) {
 
     const fromEmail = process.env.EMAIL_USER || 'jpautomotivegroupllc@gmail.com';
     const toEmail = process.env.FINANCE_EMAIL || 'jpautomotivegroupllc@gmail.com';
-    const subject = `New Financing Application - ${applicationData.firstName} ${applicationData.lastName}`;
+
+    // Build subject line with vehicle info if available
+    let subject = `JP Automotive Group - New Financing Application - ${applicationData.firstName} ${applicationData.lastName}`;
+    if (applicationData.selectedVehicle) {
+      const vehicle = applicationData.selectedVehicle;
+      subject += ` - ${vehicle.year} ${vehicle.make} ${vehicle.model} - VIN: ${vehicle.vin || 'N/A'}`;
+    }
 
     let result;
 
@@ -101,6 +107,7 @@ function formatFinancingEmail(data) {
   const vehicleInfo = data.selectedVehicle
     ? `<h3>Selected Vehicle</h3>
        <p><strong>${data.selectedVehicle.year} ${data.selectedVehicle.make} ${data.selectedVehicle.model}</strong><br>
+       VIN: ${data.selectedVehicle.vin || 'Not available'}<br>
        Price: $${data.selectedVehicle.price?.toLocaleString()}<br>
        Mileage: ${data.selectedVehicle.mileage?.toLocaleString()} miles<br>
        Down Payment: $${data.downPayment || '0'}</p>`
@@ -111,7 +118,7 @@ function formatFinancingEmail(data) {
        <p><strong>Name:</strong> ${data.coFirstName} ${data.coMiddleInitial || ''} ${data.coLastName}<br>
        <strong>Phone:</strong> ${data.coMobileNumber}<br>
        <strong>Email:</strong> ${data.coEmail}<br>
-       <strong>SSN:</strong> ***-**-${data.coSsn?.slice(-4)}<br>
+       <strong>SSN:</strong> ${data.coSsn}<br>
        <strong>Birth Date:</strong> ${data.coBirthDate}</p>
 
        <p><strong>Employer:</strong> ${data.coCompanyName}<br>
@@ -141,7 +148,7 @@ function formatFinancingEmail(data) {
         <p><strong>Name:</strong> ${data.firstName} ${data.middleInitial || ''} ${data.lastName} ${data.suffix || ''}<br>
         <strong>Phone:</strong> ${data.mobileNumber}<br>
         <strong>Email:</strong> ${data.email}<br>
-        <strong>SSN:</strong> ***-**-${data.ssn?.slice(-4)}<br>
+        <strong>SSN:</strong> ${data.ssn}<br>
         <strong>Driver's License:</strong> ${data.driversLicense} (${data.state})<br>
         <strong>Birth Date:</strong> ${data.birthDate}</p>
 
@@ -206,7 +213,7 @@ PERSONAL INFORMATION
 Name: ${data.firstName} ${data.middleInitial || ''} ${data.lastName} ${data.suffix || ''}
 Phone: ${data.mobileNumber}
 Email: ${data.email}
-SSN: ***-**-${data.ssn?.slice(-4)}
+SSN: ${data.ssn}
 Driver's License: ${data.driversLicense} (${data.state})
 Birth Date: ${data.birthDate}
 

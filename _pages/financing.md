@@ -531,8 +531,8 @@ permalink: /financing/
                 </div>
 
                 <div class="mt-6">
-                  <label class="block text-sm font-semibold mb-2">Down Payment ($)</label>
-                  <input type="number" name="downPayment" id="downPayment" placeholder="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                  <label class="block text-sm font-semibold mb-2">Down Payment ($) <span class="text-red-500">*</span></label>
+                  <input type="number" name="downPayment" id="downPayment" required placeholder="Enter down payment amount" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                 </div>
 
                 <div class="mt-6">
@@ -743,26 +743,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const requiredFields = stepElement.querySelectorAll('[required]');
     let isValid = true;
+    let errorMessage = '';
 
     requiredFields.forEach(field => {
       // Skip disabled fields
       if (field.disabled) return;
 
+      // Check if field is empty
       if (!field.value.trim()) {
         isValid = false;
         field.classList.add('border-red-500');
+        errorMessage = 'Please fill in all required fields.';
 
         // Remove error styling on input
         field.addEventListener('input', function() {
           this.classList.remove('border-red-500');
         }, { once: true });
-      } else {
+      }
+      // Check pattern validation (for zip codes, etc.)
+      else if (field.pattern && !new RegExp(field.pattern).test(field.value)) {
+        isValid = false;
+        field.classList.add('border-red-500');
+        const fieldTitle = field.getAttribute('title') || 'Please enter a valid value.';
+        errorMessage = fieldTitle;
+
+        // Remove error styling on input
+        field.addEventListener('input', function() {
+          this.classList.remove('border-red-500');
+        }, { once: true });
+      }
+      else {
         field.classList.remove('border-red-500');
       }
     });
 
-    if (!isValid) {
-      alert('Please fill in all required fields.');
+    if (!isValid && errorMessage) {
+      alert(errorMessage);
     }
 
     return isValid;
