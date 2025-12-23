@@ -1,27 +1,27 @@
 ---
 layout: default
 title: Financing
-subtitle: Get Pre-Approved for Your Next Vehicle
+subtitle: Apply for Financing for Your Next Vehicle
 description: Apply for auto financing at JP AUTO. Get pre-approved in minutes with our simple online application.
 permalink: /financing/
 ---
 
-<div class="bg-white">
+<div>
   <!-- Page Header -->
   <div class="bg-gradient-to-r from-primary to-primary-dark py-12">
     <div class="container mx-auto px-4 text-center text-white">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">Get Pre-Approved Today</h1>
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Apply for Financing Today</h1>
       <p class="text-lg md:text-xl">Fast, Easy, and Secure Online Application</p>
     </div>
   </div>
 
   <!-- Breadcrumb -->
-  <div class="bg-gray-100 py-3">
+  <div class="bg-gray-800 py-3 border-b border-gray-700">
     <div class="container mx-auto px-4">
       <nav class="text-sm">
-        <a href="/" class="text-gray-600 hover:text-primary">Home</a>
-        <span class="mx-2 text-gray-400">/</span>
-        <span class="text-gray-900">Financing</span>
+        <a href="/" class="text-gray-400 hover:text-primary">Home</a>
+        <span class="mx-2 text-gray-600">/</span>
+        <span class="text-white">Financing</span>
       </nav>
     </div>
   </div>
@@ -35,58 +35,58 @@ permalink: /financing/
         <div class="flex items-center justify-between mb-4">
           <div class="flex-1 text-center step-indicator" data-step="1">
             <div class="w-10 h-10 mx-auto rounded-full bg-primary text-white flex items-center justify-center font-bold mb-2">1</div>
-            <p class="text-xs md:text-sm font-semibold">Personal Info</p>
+            <p class="text-xs md:text-sm font-semibold text-white">Personal Info</p>
           </div>
           <div class="flex-1 border-t-2 border-gray-300 mx-2 -mt-8"></div>
           <div class="flex-1 text-center step-indicator" data-step="2">
             <div class="w-10 h-10 mx-auto rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold mb-2">2</div>
-            <p class="text-xs md:text-sm">Residence</p>
+            <p class="text-xs md:text-sm text-gray-300">Residence</p>
           </div>
           <div class="flex-1 border-t-2 border-gray-300 mx-2 -mt-8"></div>
           <div class="flex-1 text-center step-indicator" data-step="3">
             <div class="w-10 h-10 mx-auto rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold mb-2">3</div>
-            <p class="text-xs md:text-sm">Employment</p>
+            <p class="text-xs md:text-sm text-gray-300">Employment</p>
           </div>
           <div class="flex-1 border-t-2 border-gray-300 mx-2 -mt-8 co-applicant-step hidden"></div>
           <div class="flex-1 text-center step-indicator co-applicant-step hidden" data-step="4">
             <div class="w-10 h-10 mx-auto rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold mb-2">4</div>
-            <p class="text-xs md:text-sm">Co-Applicant</p>
+            <p class="text-xs md:text-sm text-gray-300">Co-Applicant</p>
           </div>
           <div class="flex-1 border-t-2 border-gray-300 mx-2 -mt-8"></div>
           <div class="flex-1 text-center step-indicator" data-step="5">
             <div class="w-10 h-10 mx-auto rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold mb-2"><span class="final-step-num">4</span></div>
-            <p class="text-xs md:text-sm">Vehicle</p>
+            <p class="text-xs md:text-sm text-gray-300">Vehicle</p>
           </div>
         </div>
       </div>
 
       <!-- Form Container -->
-      <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+      <div class="bg-gray-800 rounded-lg shadow-lg p-6 md:p-8 border border-gray-700">
         <form id="financing-form">
 
           <!-- Step 1: Personal Information -->
           <div class="form-step active" data-step="1">
-            <h2 class="text-2xl font-bold mb-6">Step 1: Personal Information</h2>
+            <h2 class="text-2xl font-bold mb-6 text-white">Step 1: Personal Information</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">First Name *</label>
-                <input type="text" name="firstName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">First Name *</label>
+                <input type="text" name="firstName" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Middle Initial</label>
-                <input type="text" name="middleInitial" maxlength="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Middle Initial</label>
+                <input type="text" name="middleInitial" maxlength="1" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Last Name *</label>
-                <input type="text" name="lastName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Last Name *</label>
+                <input type="text" name="lastName" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Suffix</label>
-                <select name="suffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Suffix</label>
+                <select name="suffix" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                   <option value="">Select...</option>
                   <option value="Jr">Jr.</option>
                   <option value="Sr">Sr.</option>
@@ -99,30 +99,30 @@ permalink: /financing/
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Mobile Number *</label>
-                <input type="tel" name="mobileNumber" required placeholder="(555) 555-5555" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Mobile Number *</label>
+                <input type="tel" name="mobileNumber" required placeholder="(555) 555-5555" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Email *</label>
-                <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Email *</label>
+                <input type="email" name="email" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Social Security Number *</label>
-                <input type="text" name="ssn" required placeholder="XXX-XX-XXXX" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Social Security Number *</label>
+                <input type="text" name="ssn" required placeholder="XXX-XX-XXXX" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Driver's License Number *</label>
-                <input type="text" name="driversLicense" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Driver's License Number *</label>
+                <input type="text" name="driversLicense" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label class="block text-sm font-semibold mb-2">State *</label>
-                <select name="state" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">State *</label>
+                <select name="state" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                   <option value="">Select State...</option>
                   <option value="CA">California</option>
                   <option value="AL">Alabama</option>
@@ -177,48 +177,48 @@ permalink: /financing/
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Birth Date *</label>
-                <input type="date" name="birthDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Birth Date *</label>
+                <input type="date" name="birthDate" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
 
             <div class="mb-6">
               <label class="flex items-start">
                 <input type="checkbox" id="hasCoApplicant" name="hasCoApplicant" class="mt-1 mr-2">
-                <span class="text-sm">I am filing with a Co-Applicant</span>
+                <span class="text-sm text-white">I am filing with a Co-Applicant</span>
               </label>
             </div>
 
-            <div class="bg-gray-50 p-4 rounded-lg mb-6">
+            <div class="bg-gray-700 p-4 rounded-lg mb-6">
               <label class="flex items-start">
                 <input type="checkbox" name="termsAgreed" required class="mt-1 mr-2">
-                <span class="text-xs text-gray-700">I have read and agree to the Terms & Conditions. I certify that all statements in this application are true and made for the purpose of obtaining credit. I authorize JP AUTO to investigate my credit and employment history and to answer questions about their credit experience with me. *</span>
+                <span class="text-xs text-gray-300">I have read and agree to the Terms & Conditions. I certify that all statements in this application are true and made for the purpose of obtaining credit. I authorize JP AUTO to investigate my credit and employment history and to answer questions about their credit experience with me. *</span>
               </label>
             </div>
           </div>
 
           <!-- Step 2: Current Residence -->
           <div class="form-step" data-step="2">
-            <h2 class="text-2xl font-bold mb-6">Step 2: Current Residence</h2>
+            <h2 class="text-2xl font-bold mb-6 text-white">Step 2: Current Residence</h2>
 
-            <h3 class="text-lg font-semibold mb-4">Current Address</h3>
+            <h3 class="text-lg font-semibold mb-4 text-white">Current Address</h3>
             <div class="mb-4">
-              <label class="block text-sm font-semibold mb-2">Address *</label>
-              <input type="text" name="currentAddress" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <label class="block text-sm font-semibold mb-2 text-white">Address *</label>
+              <input type="text" name="currentAddress" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Apt/Unit</label>
-                <input type="text" name="currentApt" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Apt/Unit</label>
+                <input type="text" name="currentApt" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">City *</label>
-                <input type="text" name="currentCity" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">City *</label>
+                <input type="text" name="currentCity" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">State *</label>
-                <select name="currentState" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">State *</label>
+                <select name="currentState" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                   <option value="">Select State...</option>
                   <option value="CA">California</option>
                   <!-- All states same as above -->
@@ -228,12 +228,12 @@ permalink: /financing/
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Zip Code *</label>
-                <input type="text" name="currentZip" required pattern="[0-9]{5}" placeholder="12345" title="Please enter a valid 5-digit zip code" maxlength="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Zip Code *</label>
+                <input type="text" name="currentZip" required pattern="[0-9]{5}" placeholder="12345" title="Please enter a valid 5-digit zip code" maxlength="5" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Status *</label>
-                <select name="residenceStatus" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Status *</label>
+                <select name="residenceStatus" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                   <option value="">Select...</option>
                   <option value="Rent">Rent</option>
                   <option value="Own">Own</option>
@@ -245,138 +245,138 @@ permalink: /financing/
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
-                <label class="block text-sm font-semibold mb-2">Monthly Payment *</label>
-                <input type="number" name="monthlyPayment" required placeholder="$" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Monthly Payment *</label>
+                <input type="number" name="monthlyPayment" required placeholder="$" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Years at Residence *</label>
-                <input type="number" name="yearsAtResidence" required min="0" max="50" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Years at Residence *</label>
+                <input type="number" name="yearsAtResidence" required min="0" max="50" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Months *</label>
-                <input type="number" name="monthsAtResidence" required min="0" max="11" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Months *</label>
+                <input type="number" name="monthsAtResidence" required min="0" max="11" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
 
-            <h3 class="text-lg font-semibold mb-4 mt-8">Previous Address (if less than 2 years at current)</h3>
+            <h3 class="text-lg font-semibold mb-4 text-white mt-8">Previous Address (if less than 2 years at current)</h3>
             <div class="mb-4">
-              <label class="block text-sm font-semibold mb-2">Address</label>
-              <input type="text" name="previousAddress" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <label class="block text-sm font-semibold mb-2 text-white">Address</label>
+              <input type="text" name="previousAddress" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">City</label>
-                <input type="text" name="previousCity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">City</label>
+                <input type="text" name="previousCity" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">State</label>
-                <select name="previousState" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">State</label>
+                <select name="previousState" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                   <option value="">Select State...</option>
                   <option value="CA">California</option>
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Zip Code</label>
-                <input type="text" name="previousZip" pattern="[0-9]{5}" placeholder="12345" title="Please enter a valid 5-digit zip code" maxlength="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Zip Code</label>
+                <input type="text" name="previousZip" pattern="[0-9]{5}" placeholder="12345" title="Please enter a valid 5-digit zip code" maxlength="5" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label class="block text-sm font-semibold mb-2">Years at Previous Residence</label>
-                <input type="number" name="yearsAtPreviousResidence" min="0" max="50" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Years at Previous Residence</label>
+                <input type="number" name="yearsAtPreviousResidence" min="0" max="50" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Months</label>
-                <input type="number" name="monthsAtPreviousResidence" min="0" max="11" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Months</label>
+                <input type="number" name="monthsAtPreviousResidence" min="0" max="11" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
           </div>
 
           <!-- Step 3: Current Employment -->
           <div class="form-step" data-step="3">
-            <h2 class="text-2xl font-bold mb-6">Step 3: Current Employment</h2>
+            <h2 class="text-2xl font-bold mb-6 text-white">Step 3: Current Employment</h2>
 
-            <h3 class="text-lg font-semibold mb-4">Current Employer</h3>
+            <h3 class="text-lg font-semibold mb-4 text-white">Current Employer</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Company Name *</label>
-                <input type="text" name="companyName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Company Name *</label>
+                <input type="text" name="companyName" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Employer Phone *</label>
-                <input type="tel" name="employerPhone" required placeholder="(555) 555-5555" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Employer Phone *</label>
+                <input type="tel" name="employerPhone" required placeholder="(555) 555-5555" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
 
             <div class="mb-4">
-              <label class="block text-sm font-semibold mb-2">Job Title *</label>
-              <input type="text" name="jobTitle" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <label class="block text-sm font-semibold mb-2 text-white">Job Title *</label>
+              <input type="text" name="jobTitle" required class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
-                <label class="block text-sm font-semibold mb-2">Years at Company *</label>
-                <input type="number" name="yearsAtCompany" required min="0" max="50" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Years at Company *</label>
+                <input type="number" name="yearsAtCompany" required min="0" max="50" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Months *</label>
-                <input type="number" name="monthsAtCompany" required min="0" max="11" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Months *</label>
+                <input type="number" name="monthsAtCompany" required min="0" max="11" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Gross Monthly Income *</label>
-                <input type="number" name="grossMonthlyIncome" required placeholder="$" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Gross Monthly Income *</label>
+                <input type="number" name="grossMonthlyIncome" required placeholder="$" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
 
-            <h3 class="text-lg font-semibold mb-4 mt-8">Previous Employment (if less than 2 years at current)</h3>
+            <h3 class="text-lg font-semibold mb-4 text-white mt-8">Previous Employment (if less than 2 years at current)</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Company Name</label>
-                <input type="text" name="previousCompanyName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Company Name</label>
+                <input type="text" name="previousCompanyName" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Employer Phone</label>
-                <input type="tel" name="previousEmployerPhone" placeholder="(555) 555-5555" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Employer Phone</label>
+                <input type="tel" name="previousEmployerPhone" placeholder="(555) 555-5555" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label class="block text-sm font-semibold mb-2">Job Title</label>
-                <input type="text" name="previousJobTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Job Title</label>
+                <input type="text" name="previousJobTitle" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Years at Company</label>
-                <input type="number" name="yearsAtPreviousCompany" min="0" max="50" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Years at Company</label>
+                <input type="number" name="yearsAtPreviousCompany" min="0" max="50" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
           </div>
 
           <!-- Step 4: Co-Applicant (Conditional) -->
           <div class="form-step co-applicant-section" data-step="4">
-            <h2 class="text-2xl font-bold mb-6">Step 4: Co-Applicant Information</h2>
+            <h2 class="text-2xl font-bold mb-6 text-white">Step 4: Co-Applicant Information</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">First Name *</label>
-                <input type="text" name="coFirstName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">First Name *</label>
+                <input type="text" name="coFirstName" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Middle Initial</label>
-                <input type="text" name="coMiddleInitial" maxlength="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Middle Initial</label>
+                <input type="text" name="coMiddleInitial" maxlength="1" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Last Name *</label>
-                <input type="text" name="coLastName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Last Name *</label>
+                <input type="text" name="coLastName" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Suffix</label>
-                <select name="coSuffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2 text-white">Suffix</label>
+                <select name="coSuffix" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                   <option value="">Select...</option>
                   <option value="Jr">Jr.</option>
                   <option value="Sr">Sr.</option>
@@ -389,131 +389,131 @@ permalink: /financing/
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Mobile Number *</label>
-                <input type="tel" name="coMobileNumber" placeholder="(555) 555-5555" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Mobile Number *</label>
+                <input type="tel" name="coMobileNumber" placeholder="(555) 555-5555" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Email *</label>
-                <input type="email" name="coEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Email *</label>
+                <input type="email" name="coEmail" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Social Security Number *</label>
-                <input type="text" name="coSsn" placeholder="XXX-XX-XXXX" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Social Security Number *</label>
+                <input type="text" name="coSsn" placeholder="XXX-XX-XXXX" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Driver's License Number *</label>
-                <input type="text" name="coDriversLicense" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Driver's License Number *</label>
+                <input type="text" name="coDriversLicense" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label class="block text-sm font-semibold mb-2">State *</label>
-                <select name="coState" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">State *</label>
+                <select name="coState" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
                   <option value="">Select State...</option>
                   <option value="CA">California</option>
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Birth Date *</label>
-                <input type="date" name="coBirthDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Birth Date *</label>
+                <input type="date" name="coBirthDate" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
             </div>
 
             <div class="mb-6">
               <label class="flex items-start">
                 <input type="checkbox" id="sameResidence" name="sameResidence" class="mt-1 mr-2">
-                <span class="text-sm">My co-applicant's residence information is the same as mine</span>
+                <span class="text-sm text-white">My co-applicant's residence information is the same as mine</span>
               </label>
             </div>
 
             <!-- Co-Applicant Residence (conditional) -->
             <div id="coApplicantResidence" class="mb-6">
-              <h3 class="text-lg font-semibold mb-4">Co-Applicant Current Residence</h3>
+              <h3 class="text-lg font-semibold mb-4 text-white">Co-Applicant Current Residence</h3>
               <div class="mb-4">
-                <label class="block text-sm font-semibold mb-2">Address *</label>
-                <input type="text" name="coCurrentAddress" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Address *</label>
+                <input type="text" name="coCurrentAddress" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
-                  <label class="block text-sm font-semibold mb-2">City *</label>
-                  <input type="text" name="coCurrentCity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                  <label class="block text-sm font-semibold mb-2 text-white">City *</label>
+                  <input type="text" name="coCurrentCity" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold mb-2">State *</label>
-                  <select name="coCurrentState" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                  <label class="block text-sm font-semibold mb-2 text-white">State *</label>
+                  <select name="coCurrentState" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
                     <option value="">Select State...</option>
                     <option value="CA">California</option>
                   </select>
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold mb-2">Zip Code *</label>
-                  <input type="text" name="coCurrentZip" pattern="[0-9]{5}" placeholder="12345" title="Please enter a valid 5-digit zip code" maxlength="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                  <label class="block text-sm font-semibold mb-2 text-white">Zip Code *</label>
+                  <input type="text" name="coCurrentZip" pattern="[0-9]{5}" placeholder="12345" title="Please enter a valid 5-digit zip code" maxlength="5" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
                 </div>
               </div>
             </div>
 
             <!-- Co-Applicant Employment -->
-            <h3 class="text-lg font-semibold mb-4 mt-8">Co-Applicant Current Employment</h3>
+            <h3 class="text-lg font-semibold mb-4 text-white mt-8">Co-Applicant Current Employment</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">Company Name *</label>
-                <input type="text" name="coCompanyName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Company Name *</label>
+                <input type="text" name="coCompanyName" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Employer Phone *</label>
-                <input type="tel" name="coEmployerPhone" placeholder="(555) 555-5555" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Employer Phone *</label>
+                <input type="tel" name="coEmployerPhone" placeholder="(555) 555-5555" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
             </div>
 
             <div class="mb-4">
-              <label class="block text-sm font-semibold mb-2">Job Title *</label>
-              <input type="text" name="coJobTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+              <label class="block text-sm font-semibold mb-2 text-white">Job Title *</label>
+              <input type="text" name="coJobTitle" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
-                <label class="block text-sm font-semibold mb-2">Years at Company *</label>
-                <input type="number" name="coYearsAtCompany" min="0" max="50" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Years at Company *</label>
+                <input type="number" name="coYearsAtCompany" min="0" max="50" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Months *</label>
-                <input type="number" name="coMonthsAtCompany" min="0" max="11" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Months *</label>
+                <input type="number" name="coMonthsAtCompany" min="0" max="11" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Gross Monthly Income *</label>
-                <input type="number" name="coGrossMonthlyIncome" placeholder="$" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2 text-white">Gross Monthly Income *</label>
+                <input type="number" name="coGrossMonthlyIncome" placeholder="$" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary co-applicant-field">
               </div>
             </div>
           </div>
 
           <!-- Step 5: Vehicle Selection -->
           <div class="form-step" data-step="5">
-            <h2 class="text-2xl font-bold mb-6"><span class="final-step-text">Step 4</span>: Choose Vehicle</h2>
+            <h2 class="text-2xl font-bold mb-6 text-white"><span class="final-step-text">Step 4</span>: Choose Vehicle</h2>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <!-- Left: Filters -->
               <div class="lg:col-span-2">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div>
-                    <label class="block text-sm font-semibold mb-2">Year</label>
-                    <select name="vehicleYear" id="vehicleYear" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <label class="block text-sm font-semibold mb-2 text-white">Year</label>
+                    <select name="vehicleYear" id="vehicleYear" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                       <option value="">Year</option>
                     </select>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold mb-2">Make</label>
-                    <select name="vehicleMake" id="vehicleMake" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <label class="block text-sm font-semibold mb-2 text-white">Make</label>
+                    <select name="vehicleMake" id="vehicleMake" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                       <option value="">Make</option>
                     </select>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold mb-2">Model</label>
-                    <select name="vehicleModel" id="vehicleModel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <label class="block text-sm font-semibold mb-2 text-white">Model</label>
+                    <select name="vehicleModel" id="vehicleModel" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                       <option value="">Model</option>
                     </select>
                   </div>
@@ -531,21 +531,21 @@ permalink: /financing/
                 </div>
 
                 <div class="mt-6">
-                  <label class="block text-sm font-semibold mb-2">Down Payment ($) <span class="text-red-500">*</span></label>
-                  <input type="number" name="downPayment" id="downPayment" required placeholder="Enter down payment amount" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                  <label class="block text-sm font-semibold mb-2 text-white">Down Payment ($) <span class="text-red-500">*</span></label>
+                  <input type="number" name="downPayment" id="downPayment" required placeholder="Enter down payment amount" min="0" step="0.01" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                 </div>
 
                 <div class="mt-6">
-                  <label class="block text-sm font-semibold mb-2">Additional Comments</label>
-                  <textarea name="comments" id="comments" rows="4" placeholder="Any additional information you'd like to share..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                  <label class="block text-sm font-semibold mb-2 text-white">Additional Comments</label>
+                  <textarea name="comments" id="comments" rows="4" placeholder="Any additional information you'd like to share..." class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
                 </div>
               </div>
 
               <!-- Right: Selected Vehicle Preview -->
               <div class="lg:col-span-1">
-                <div class="bg-gray-50 rounded-lg p-4 sticky top-4">
-                  <h3 class="text-lg font-semibold mb-4">Selected Vehicle</h3>
-                  <div id="selectedVehiclePreview" class="text-center text-gray-500">
+                <div class="bg-gray-700 rounded-lg p-4 sticky top-4">
+                  <h3 class="text-lg font-semibold mb-4 text-white">Selected Vehicle</h3>
+                  <div id="selectedVehiclePreview" class="text-center text-gray-300">
                     <p class="mb-2">No vehicle selected</p>
                     <p class="text-sm">Select a vehicle from the list</p>
                   </div>
@@ -556,30 +556,30 @@ permalink: /financing/
 
           <!-- Step 6: Review Information -->
           <div class="form-step" data-step="6">
-            <h2 class="text-2xl font-bold mb-6">Review Your Information</h2>
+            <h2 class="text-2xl font-bold mb-6 text-white">Review Your Information</h2>
 
             <!-- Personal Information Summary -->
-            <div class="bg-white border rounded-lg p-6 mb-4">
+            <div class="bg-gray-700 border border-gray-600 rounded-lg p-6 mb-4">
               <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold">Personal Information</h3>
+                <h3 class="text-xl font-semibold text-white">Personal Information</h3>
                 <button type="button" class="edit-btn text-primary hover:text-primary-dark font-semibold" data-step="1">Edit</button>
               </div>
               <div id="reviewPersonal" class="grid grid-cols-2 gap-4 text-sm"></div>
             </div>
 
             <!-- Residence Summary -->
-            <div class="bg-white border rounded-lg p-6 mb-4">
+            <div class="bg-gray-700 border border-gray-600 rounded-lg p-6 mb-4">
               <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold">Residence Information</h3>
+                <h3 class="text-xl font-semibold text-white">Residence Information</h3>
                 <button type="button" class="edit-btn text-primary hover:text-primary-dark font-semibold" data-step="2">Edit</button>
               </div>
               <div id="reviewResidence" class="grid grid-cols-2 gap-4 text-sm"></div>
             </div>
 
             <!-- Employment Summary -->
-            <div class="bg-white border rounded-lg p-6 mb-4">
+            <div class="bg-gray-700 border border-gray-600 rounded-lg p-6 mb-4">
               <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold">Employment Information</h3>
+                <h3 class="text-xl font-semibold text-white">Employment Information</h3>
                 <button type="button" class="edit-btn text-primary hover:text-primary-dark font-semibold" data-step="3">Edit</button>
               </div>
               <div id="reviewEmployment" class="grid grid-cols-2 gap-4 text-sm"></div>
@@ -588,23 +588,23 @@ permalink: /financing/
             <!-- Co-Applicant Summary (if applicable) -->
             <div id="reviewCoApplicantSection" class="bg-white border rounded-lg p-6 mb-4 hidden">
               <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold">Co-Applicant Information</h3>
+                <h3 class="text-xl font-semibold text-white">Co-Applicant Information</h3>
                 <button type="button" class="edit-btn text-primary hover:text-primary-dark font-semibold" data-step="4">Edit</button>
               </div>
               <div id="reviewCoApplicant" class="grid grid-cols-2 gap-4 text-sm"></div>
             </div>
 
             <!-- Vehicle Summary -->
-            <div class="bg-white border rounded-lg p-6 mb-6">
+            <div class="bg-gray-700 border border-gray-600 rounded-lg p-6 mb-6">
               <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold">Vehicle Selection</h3>
+                <h3 class="text-xl font-semibold text-white">Vehicle Selection</h3>
                 <button type="button" class="edit-btn text-primary hover:text-primary-dark font-semibold" data-step="5">Edit</button>
               </div>
               <div id="reviewVehicle" class="grid grid-cols-2 gap-4 text-sm"></div>
             </div>
 
-            <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
-              <p class="text-sm text-blue-900">
+            <div class="bg-gray-700 border border-gray-600 p-4 rounded-lg mb-6">
+              <p class="text-sm text-gray-200">
                 By clicking Submit, I authorize JP AUTO and its affiliates to contact me via phone, text, and email regarding this application. I also authorize JP AUTO to forward my application to lenders and financial institutions to obtain financing.
               </p>
             </div>
@@ -630,11 +630,11 @@ permalink: /financing/
       </div>
 
       <!-- Success Message -->
-      <div id="successMessage" class="hidden bg-green-50 border border-green-200 rounded-lg p-8 text-center mt-8">
+      <div id="successMessage" class="hidden bg-gray-700 border border-gray-600 rounded-lg p-8 text-center mt-8">
         <div class="text-6xl mb-4">✓</div>
-        <h2 class="text-3xl font-bold text-green-800 mb-2">Application Submitted!</h2>
-        <p class="text-lg text-green-700 mb-4">Thank you for applying for financing with JP AUTO.</p>
-        <p class="text-gray-700 mb-6">Our financing team will review your application and contact you within 1-2 business days.</p>
+        <h2 class="text-3xl font-bold text-white mb-2">Application Submitted!</h2>
+        <p class="text-lg text-gray-200 mb-4">Thank you for applying for financing with JP AUTO.</p>
+        <p class="text-gray-300 mb-6">Our financing team will review your application and contact you within 1-2 business days.</p>
         <a href="/inventory" class="inline-block px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
           Browse Our Inventory
         </a>
@@ -1026,9 +1026,9 @@ document.addEventListener('DOMContentLoaded', function() {
             ${v.image ? `<img src="${v.image}" alt="${v.year} ${v.make} ${v.model}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-gray-400">🚗</div>'}
           </div>
           <div class="flex-1">
-            <h4 class="font-semibold">${v.year} ${v.make} ${v.model}${v.trim ? ' ' + v.trim : ''}</h4>
+            <h4 class="font-semibold text-white">${v.year} ${v.make} ${v.model}${v.trim ? ' ' + v.trim : ''}</h4>
             <p class="text-primary font-bold">$${v.price.toLocaleString()}</p>
-            <p class="text-sm text-gray-600">${(v.mileage / 1000).toFixed(0)}K miles • ${v.transmission}</p>
+            <p class="text-sm text-gray-300">${(v.mileage / 1000).toFixed(0)}K miles • ${v.transmission}</p>
           </div>
         </div>
       </div>
@@ -1048,7 +1048,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="text-left">
         ${vehicle.image ? `<img src="${vehicle.image}" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}" class="w-full h-32 object-cover rounded mb-3">` : '<div class="w-full h-32 bg-gray-200 rounded mb-3 flex items-center justify-center text-gray-400 text-3xl">🚗</div>'}
         <h4 class="font-semibold mb-2">${vehicle.year} ${vehicle.make} ${vehicle.model}</h4>
-        ${vehicle.trim ? `<p class="text-sm text-gray-600 mb-2">${vehicle.trim}</p>` : ''}
+        ${vehicle.trim ? `<p class="text-sm text-gray-300 mb-2">${vehicle.trim}</p>` : ''}
         <p class="text-primary font-bold text-xl mb-3">$${vehicle.price.toLocaleString()}</p>
         <div class="text-sm text-gray-700 space-y-1">
           <p>📍 ${(vehicle.mileage / 1000).toFixed(0)}K miles</p>

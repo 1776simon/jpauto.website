@@ -2,16 +2,14 @@
 layout: default
 ---
 
-<div class="bg-white">
+<div>
   <!-- Breadcrumb -->
-  <div class="bg-gray-100 py-4">
+  <div class="bg-gray-800 py-4 border-b border-gray-700">
     <div class="container mx-auto px-4">
       <nav class="text-sm">
-        <a href="/" class="text-gray-600 hover:text-primary">Home</a>
-        <span class="mx-2 text-gray-400">/</span>
-        <a href="/inventory" class="text-gray-600 hover:text-primary">Inventory</a>
-        <span class="mx-2 text-gray-400">/</span>
-        <span class="text-gray-900">{{ page.year }} {{ page.make }} {{ page.model }}</span>
+        <a href="/" class="text-gray-400 hover:text-primary">Home</a>
+        <span class="mx-2 text-gray-300">/</span>
+        <span class="text-white">{{ page.year }} {{ page.make }} {{ page.model }}</span>
       </nav>
     </div>
   </div>
@@ -23,9 +21,9 @@ layout: default
       <div class="lg:col-span-2">
         <!-- Vehicle Title -->
         <div class="mb-6">
-          <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ page.year }} {{ page.make }} {{ page.model }}</h1>
+          <h1 class="text-4xl font-bold text-white mb-2">{{ page.year }} {{ page.make }} {{ page.model }}</h1>
           {% if page.trim %}
-            <p class="text-xl text-gray-600">{{ page.trim }}</p>
+            <p class="text-xl text-gray-300">{{ page.trim }}</p>
           {% endif %}
         </div>
 
@@ -83,7 +81,7 @@ layout: default
             </svg>
           </button>
 
-          <button onclick="previousImage()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
+          <button onclick="previousImage()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-gray-800 border border-gray-700/10 hover:bg-gray-800 border border-gray-700/20 text-white p-4 rounded-full transition">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -97,7 +95,7 @@ layout: default
           </div>
           {% endif %}
 
-          <button onclick="nextImage()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
+          <button onclick="nextImage()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-gray-800 border border-gray-700/10 hover:bg-gray-800 border border-gray-700/20 text-white p-4 rounded-full transition">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
@@ -171,39 +169,39 @@ layout: default
 
         <!-- Vehicle Description -->
         <div class="mb-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">Description</h2>
-          <div class="prose max-w-none text-gray-700">
+          <h2 class="text-2xl font-bold text-white mb-4">Description</h2>
+          <div class="prose prose-p:text-white prose-headings:text-white prose-li:text-white prose-strong:text-white max-w-none text-white">
             {{ content }}
           </div>
         </div>
 
         <!-- Key Specifications -->
         <div class="mb-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">Key Specifications</h2>
+          <h2 class="text-2xl font-bold text-white mb-4">Key Specifications</h2>
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-sm text-gray-600">Mileage</p>
-              <p class="text-lg font-semibold text-gray-900">{{ page.mileage | divided_by: 1000 }}K miles</p>
+            <div class="bg-gray-700 p-4 rounded-lg">
+              <p class="text-sm text-gray-300">Mileage</p>
+              <p class="text-lg font-semibold text-white">{{ page.mileage | divided_by: 1000 }}K miles</p>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-sm text-gray-600">Transmission</p>
-              <p class="text-lg font-semibold text-gray-900">{{ page.transmission }}</p>
+            <div class="bg-gray-700 p-4 rounded-lg">
+              <p class="text-sm text-gray-300">Transmission</p>
+              <p class="text-lg font-semibold text-white">{{ page.transmission }}</p>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-sm text-gray-600">Drivetrain</p>
-              <p class="text-lg font-semibold text-gray-900">{{ page.drivetrain }}</p>
+            <div class="bg-gray-700 p-4 rounded-lg">
+              <p class="text-sm text-gray-300">Drivetrain</p>
+              <p class="text-lg font-semibold text-white">{{ page.drivetrain }}</p>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-sm text-gray-600">Engine</p>
-              <p class="text-lg font-semibold text-gray-900">{{ page.engine }}</p>
+            <div class="bg-gray-700 p-4 rounded-lg">
+              <p class="text-sm text-gray-300">Engine</p>
+              <p class="text-lg font-semibold text-white">{{ page.engine }}</p>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-sm text-gray-600">Fuel Type</p>
-              <p class="text-lg font-semibold text-gray-900">{{ page.fuel_type }}</p>
+            <div class="bg-gray-700 p-4 rounded-lg">
+              <p class="text-sm text-gray-300">Fuel Type</p>
+              <p class="text-lg font-semibold text-white">{{ page.fuel_type }}</p>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-sm text-gray-600">MPG</p>
-              <p class="text-lg font-semibold text-gray-900">City: {{ page.mpg_city }} / Highway: {{ page.mpg_highway }}</p>
+            <div class="bg-gray-700 p-4 rounded-lg">
+              <p class="text-sm text-gray-300">MPG</p>
+              <p class="text-lg font-semibold text-white">City: {{ page.mpg_city }} / Highway: {{ page.mpg_highway }}</p>
             </div>
           </div>
         </div>
@@ -211,14 +209,13 @@ layout: default
         <!-- Features -->
         {% if page.features %}
         <div class="mb-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">Features & Options</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             {% for feature in page.features %}
             <div class="flex items-center gap-2">
               <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
-              <span class="text-gray-700">{{ feature }}</span>
+              <span class="text-gray-300">{{ feature }}</span>
             </div>
             {% endfor %}
           </div>
@@ -227,26 +224,26 @@ layout: default
 
         <!-- Vehicle History -->
         <div class="mb-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">Vehicle History</h2>
-          <div class="bg-gray-50 p-6 rounded-lg space-y-3">
+          <h2 class="text-2xl font-bold text-white mb-4">Vehicle History</h2>
+          <div class="bg-gray-700 p-6 rounded-lg space-y-3">
             <div class="flex justify-between">
-              <span class="text-gray-600">VIN:</span>
-              <span class="font-semibold text-gray-900">{{ page.vin }}</span>
+              <span class="text-gray-300">VIN:</span>
+              <span class="font-semibold text-white">{{ page.vin }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-600">Previous Owners:</span>
-              <span class="font-semibold text-gray-900">{{ page.previous_owners }}</span>
+              <span class="text-gray-300">Previous Owners:</span>
+              <span class="font-semibold text-white">{{ page.previous_owners }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-600">Accident History:</span>
-              <span class="font-semibold text-gray-900">{{ page.accident_history }}</span>
+              <span class="text-gray-300">Accident History:</span>
+              <span class="font-semibold text-white">{{ page.accident_history }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-600">Service Records on File:</span>
-              <span class="font-semibold text-gray-900">{{ page.service_records_on_file }}</span>
+              <span class="text-gray-300">Service Records on File:</span>
+              <span class="font-semibold text-white">{{ page.service_records_on_file }}</span>
             </div>
             {% if page.carfax_available %}
-            <div class="pt-4 border-t border-gray-200">
+            <div class="pt-4 border-t border-gray-600">
               <a href="#" class="inline-flex items-center gap-2 text-primary hover:text-primary-dark font-semibold">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -262,9 +259,9 @@ layout: default
       <!-- Sidebar - Right Column -->
       <div class="lg:col-span-1">
         <!-- Price Card -->
-        <div class="bg-white border-2 border-gray-200 rounded-lg p-6 mb-6 sticky top-24">
+        <div class="bg-gray-800 border border-gray-700 border-2 border-gray-600 rounded-lg p-6 mb-6 sticky top-24">
           <div class="text-center mb-6">
-            <p class="text-sm text-gray-600 mb-2">Our Price</p>
+            <p class="text-sm text-gray-300 mb-2">Our Price</p>
             <p class="text-4xl font-bold text-primary">${{ page.price | divided_by: 1.0 | round | number_with_delimiter }}</p>
             {% if page.warranty %}
             <p class="text-sm text-green-600 mt-2">✓ {{ page.warranty }}</p>
@@ -281,24 +278,15 @@ layout: default
             <a href="tel:+19166187197" class="block md:hidden w-full bg-primary text-white text-center py-3 rounded-lg hover:bg-primary-dark transition font-semibold">
               📞 Call Now
             </a>
-            <a href="/contact?vehicle={{ page.title | url_encode }}" class="block w-full bg-gray-900 text-white text-center py-3 rounded-lg hover:bg-gray-800 transition font-semibold">
-              📧 Email About This Car
-            </a>
-            <a href="/contact?vehicle={{ page.title | url_encode }}&type=testdrive" class="block w-full border-2 border-primary text-primary text-center py-3 rounded-lg hover:bg-primary hover:text-white transition font-semibold">
-              🚗 Schedule Test Drive
-            </a>
-            <a href="/trade-in?interest={{ page.title | url_encode }}" class="block w-full border-2 border-gray-300 text-gray-700 text-center py-3 rounded-lg hover:border-primary hover:text-primary transition font-semibold">
-              🔄 Trade-In Value
-            </a>
           </div>
 
           <!-- Payment Estimator -->
-          <div class="mt-6 pt-6 border-t border-gray-200">
-            <p class="text-sm text-gray-600 mb-2">Estimated Monthly Payment</p>
-            <p class="text-2xl font-bold text-gray-900 mb-2">$<span id="monthly-payment"></span>/mo</p>
+          <div class="mt-6 pt-6 border-t border-gray-600">
+            <p class="text-sm text-gray-300 mb-2">Estimated Monthly Payment</p>
+            <p class="text-2xl font-bold text-white mb-2">$<span id="monthly-payment"></span>/mo</p>
             <p class="text-xs text-gray-500">Based on 60 months @ 11% APR with $2,000 down</p>
             <a href="/financing?vehicle={{ page.title | url_encode }}" class="block mt-4 text-center text-primary hover:text-primary-dark font-semibold text-sm">
-              Get Pre-Approved →
+              Apply for Financing →
             </a>
           </div>
 
@@ -324,11 +312,11 @@ layout: default
 
     <!-- Similar Vehicles -->
     <div class="mt-12">
-      <h2 class="text-3xl font-bold text-gray-900 mb-6">Similar Vehicles</h2>
+      <h2 class="text-3xl font-bold text-white mb-6">Similar Vehicles</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {% assign similar = site.vehicles | where_exp: "vehicle", "vehicle.make == page.make" | where_exp: "vehicle", "vehicle.url != page.url" | limit: 3 %}
         {% for vehicle in similar %}
-        <a href="{{ vehicle.url }}" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+        <a href="{{ vehicle.url }}" class="bg-gray-800 border border-gray-700 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
           {% if vehicle.primary_image and vehicle.primary_image != "" %}
           <img src="{{ vehicle.primary_image }}" alt="{{ vehicle.title }}" class="w-full h-48 object-cover">
           {% else %}
@@ -337,9 +325,9 @@ layout: default
           </div>
           {% endif %}
           <div class="p-4">
-            <h3 class="font-bold text-lg text-gray-900">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h3>
+            <h3 class="font-bold text-lg text-white">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h3>
             <p class="text-2xl font-bold text-primary mt-2">${{ vehicle.price | divided_by: 1.0 | round | number_with_delimiter }}</p>
-            <p class="text-sm text-gray-600 mt-1">{{ vehicle.mileage | divided_by: 1000 }}K miles • {{ vehicle.transmission }}</p>
+            <p class="text-sm text-gray-300 mt-1">{{ vehicle.mileage | divided_by: 1000 }}K miles • {{ vehicle.transmission }}</p>
           </div>
         </a>
         {% endfor %}

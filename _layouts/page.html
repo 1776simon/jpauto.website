@@ -2,7 +2,7 @@
 layout: default
 ---
 
-<div class="bg-white">
+<div>
   <!-- Page Header -->
   {% if page.header_image %}
   <div class="relative bg-gray-900 h-64">
@@ -28,19 +28,19 @@ layout: default
   {% endif %}
 
   <!-- Breadcrumb -->
-  <div class="bg-gray-100 py-3">
+  <div class="bg-gray-800 py-3 border-b border-gray-700">
     <div class="container mx-auto px-4">
       <nav class="text-sm">
-        <a href="/" class="text-gray-600 hover:text-primary">Home</a>
-        <span class="mx-2 text-gray-400">/</span>
-        <span class="text-gray-900">{{ page.title }}</span>
+        <a href="/" class="text-gray-400 hover:text-primary">Home</a>
+        <span class="mx-2 text-gray-600">/</span>
+        <span class="text-white">{{ page.title }}</span>
       </nav>
     </div>
   </div>
 
   <!-- Page Content -->
   <div class="container mx-auto px-4 py-12">
-    <div class="max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto prose prose-lg prose-headings:font-bold prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4 prose-p:mb-6 prose-ul:mb-6 prose-li:mb-2">
+    <div class="max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto prose prose-lg prose-headings:font-bold prose-headings:text-white prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4 prose-p:mb-6 prose-p:text-white prose-ul:mb-6 prose-li:mb-2 prose-li:text-white prose-strong:text-white prose-a:text-white prose-a:hover:text-gray-300">
       {{ content }}
     </div>
   </div>

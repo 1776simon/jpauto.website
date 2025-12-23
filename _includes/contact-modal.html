@@ -1,6 +1,6 @@
 <!-- Contact Us Modal -->
 <div id="contactModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50">
-  <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden">
+  <div class="bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden border border-gray-700">
     <!-- Modal Header -->
     <div class="bg-primary text-white px-6 py-4 flex justify-between items-center">
       <h3 class="text-2xl font-bold">Contact Us</h3>
@@ -21,9 +21,9 @@
           </svg>
         </div>
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-900 mb-1">Phone</h4>
+          <h4 class="font-semibold text-white mb-1">Phone</h4>
           <a href="tel:+19166187197" class="text-primary hover:text-primary-dark text-lg font-medium">{{ site.business.phone }}</a>
-          <p class="text-sm text-gray-600 mt-1">Call us anytime during business hours</p>
+          <p class="text-sm text-gray-300 mt-1">Call us anytime during business hours</p>
         </div>
       </div>
 
@@ -35,9 +35,9 @@
           </svg>
         </div>
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-900 mb-1">Email</h4>
+          <h4 class="font-semibold text-white mb-1">Email</h4>
           <a href="mailto:{{ site.business.email }}" class="text-primary hover:text-primary-dark break-all">{{ site.business.email }}</a>
-          <p class="text-sm text-gray-600 mt-1">We'll respond within 24 hours</p>
+          <p class="text-sm text-gray-300 mt-1">We'll respond within 24 hours</p>
         </div>
       </div>
 
@@ -50,8 +50,8 @@
           </svg>
         </div>
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-900 mb-1">Visit Us</h4>
-          <p class="text-gray-700">{{ site.business.address }}</p>
+          <h4 class="font-semibold text-white mb-1">Visit Us</h4>
+          <p class="text-gray-300">{{ site.business.address }}</p>
           <a href="{{ site.business.maps_link }}" target="_blank" class="text-primary hover:text-primary-dark text-sm mt-1 inline-block">Get Directions →</a>
         </div>
       </div>
@@ -64,8 +64,8 @@
           </svg>
         </div>
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-900 mb-2">Business Hours</h4>
-          <div class="text-sm text-gray-700 space-y-1">
+          <h4 class="font-semibold text-white mb-2">Business Hours</h4>
+          <div class="text-sm text-gray-300 space-y-1">
             <p><span class="font-medium">Mon-Fri:</span> {{ site.business.hours.monday }}</p>
             <p><span class="font-medium">Sat-Sun:</span> {{ site.business.hours.saturday }}</p>
           </div>
@@ -74,8 +74,8 @@
     </div>
 
     <!-- Modal Footer -->
-    <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
-      <button onclick="closeContactModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition font-medium">
+    <div class="bg-gray-700 px-6 py-4 flex justify-end gap-3 border-t border-gray-600">
+      <button onclick="closeContactModal()" class="px-6 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-600 transition font-medium">
         Close
       </button>
       <a href="/contact" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-medium">

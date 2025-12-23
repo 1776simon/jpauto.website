@@ -208,6 +208,54 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+
+    /* Form select dropdown options styling */
+    select option {
+      background-color: rgb(55, 65, 81); /* bg-gray-700 */
+      color: white;
+    }
+
+    /* Input autofill styling for dark theme - includes Edge support */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active,
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus,
+    select:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px rgb(55, 65, 81) inset !important;
+      -webkit-text-fill-color: white !important;
+      box-shadow: 0 0 0 30px rgb(55, 65, 81) inset !important;
+      color: white !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Ensure input fields maintain white text */
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="date"],
+    select {
+      color: white !important;
+    }
+
+    /* Force all text in prose content to be white */
+    .prose p,
+    .prose li,
+    .prose a,
+    .prose span,
+    .prose div,
+    .prose strong,
+    .prose em,
+    .prose blockquote {
+      color: white !important;
+    }
+
+    .prose a:hover {
+      color: #d1d5db !important; /* gray-300 for hover */
+    }
   </style>
 </head>
 <body class="antialiased" style="background-color: var(--color-background); color: var(--color-foreground);">

@@ -294,19 +294,19 @@ This AS-IS policy complies with California law regarding used vehicle sales. By 
 
 Have questions about our warranty policy or a specific vehicle's condition?
 
-<div class="bg-gray-50 p-8 rounded-lg my-8">
-  <h3 class="text-2xl font-bold mb-4">Get in Touch</h3>
+<div class="bg-gray-800 border border-gray-700 p-8 rounded-lg my-8">
+  <h3 class="text-2xl font-bold mb-4 text-white">Get in Touch</h3>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <div>
-      <h4 class="font-semibold mb-2">Phone</h4>
+      <h4 class="font-semibold mb-2 text-white">Phone</h4>
       <p><a href="tel:+19166187197" class="text-primary hover:text-primary-dark">(916) 618-7197</a></p>
     </div>
     <div>
-      <h4 class="font-semibold mb-2">Email</h4>
+      <h4 class="font-semibold mb-2 text-white">Email</h4>
       <p class="break-words"><a href="mailto:jpautomotivegroupllc@gmail.com" class="text-primary hover:text-primary-dark">jpautomotivegroupllc@gmail.com</a></p>
     </div>
     <div>
-      <h4 class="font-semibold mb-2">Visit Us</h4>
+      <h4 class="font-semibold mb-2 text-white">Visit Us</h4>
       <p class="text-sm">2529 Connie Dr #15<br>Sacramento, CA 95815</p>
     </div>
   </div>

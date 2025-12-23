@@ -84,32 +84,32 @@ Our experienced team is passionate about helping customers find the perfect vehi
 
 We're located in Sacramento and serve customers throughout Northern California including Roseville, Elk Grove, Folsom, Citrus Heights, and beyond.
 
-<div class="bg-gray-50 p-8 rounded-lg my-8">
-  <h3 class="text-2xl font-bold mb-4">Come See Us</h3>
+<div class="bg-gray-800 p-8 rounded-lg my-8 border border-gray-700">
+  <h3 class="text-2xl font-bold mb-4 text-white">Come See Us</h3>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div>
-      <h4 class="font-semibold mb-2">Location</h4>
-      <p class="text-gray-700">Sacramento, CA</p>
+      <h4 class="font-semibold mb-2 text-white">Location</h4>
+      <p class="text-gray-300">Sacramento, CA</p>
       <p class="mt-4">
         <a href="/contact" class="text-primary hover:text-primary-dark font-semibold">Get Directions →</a>
       </p>
     </div>
     <div>
-      <h4 class="font-semibold mb-2">Business Hours</h4>
-      <p class="text-gray-700">
+      <h4 class="font-semibold mb-2 text-white">Business Hours</h4>
+      <p class="text-gray-300">
         Monday - Friday: {{ site.business.hours.monday }}<br>
         Saturday - Sunday: By Appointment Only
       </p>
     </div>
     <div>
-      <h4 class="font-semibold mb-2">Phone</h4>
-      <p class="text-gray-700">
+      <h4 class="font-semibold mb-2 text-white">Phone</h4>
+      <p class="text-gray-300">
         <a href="tel:+19166187197" class="text-primary hover:text-primary-dark">(916) 618-7197</a>
       </p>
     </div>
     <div>
-      <h4 class="font-semibold mb-2">Email</h4>
-      <p class="text-gray-700">
+      <h4 class="font-semibold mb-2 text-white">Email</h4>
+      <p class="text-gray-300">
         <a href="mailto:jpautomotivegroup@gmail.com" class="text-primary hover:text-primary-dark">jpautomotivegroup@gmail.com</a>
       </p>
     </div>
@@ -131,11 +131,11 @@ When you choose JP AUTO, you're choosing a dealership that:
 ---
 
 <div class="text-center my-12">
-  <h3 class="text-3xl font-bold mb-4">Ready to Find Your Perfect Vehicle?</h3>
-  <p class="text-xl mb-6">Let us show you the JP AUTO difference.</p>
+  <h3 class="text-3xl font-bold mb-4 text-white">Ready to Find Your Perfect Vehicle?</h3>
+  <p class="text-xl mb-6 text-gray-300">Let us show you the JP AUTO difference.</p>
   <div class="flex flex-wrap justify-center gap-4 not-prose">
     <a href="/inventory" class="inline-block px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">Browse Inventory</a>
-    <a href="/contact" class="inline-block px-8 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-semibold">Contact Us</a>
-    <a href="/financing" class="inline-block px-8 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition font-semibold">Get Pre-Approved</a>
+    <a href="/contact" class="inline-block px-8 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold">Contact Us</a>
+    <a href="/financing" class="inline-block px-8 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition font-semibold">Apply for Financing</a>
   </div>
 </div>
