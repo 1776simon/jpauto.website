@@ -4,7 +4,7 @@ title: JP AUTO - Quality Used Cars Sacramento
 description: Browse our complete inventory of quality pre-owned vehicles at unbeatable prices. Sacramento's trusted source for used cars.
 ---
 
-<div class="bg-white">
+<div>
   <!-- Page Header with Hero Banner Background -->
   <div class="relative w-full overflow-hidden h-[200px] md:h-[300px] lg:h-[350px]">
     <!-- Hero Banner Image -->
@@ -41,10 +41,10 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
 
       <!-- Sidebar Filters -->
       <aside id="filter-sidebar" class="w-full hidden lg:block">
-        <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+        <div class="bg-gray-800 rounded-lg shadow-md p-6 sticky top-24 border border-gray-700">
           <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-900">Filters</h2>
-            <button id="clear-filters" class="text-sm text-primary hover:text-primary-dark font-semibold">Clear All</button>
+            <h2 class="text-2xl font-bold text-white">Filters</h2>
+            <button id="clear-filters" class="text-sm text-primary-light hover:text-primary font-semibold">Clear All</button>
           </div>
 
           <!-- Active Filters Display -->
@@ -54,28 +54,28 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
 
           <!-- Make Filter -->
           <div class="mb-6">
-            <label class="block text-sm font-bold text-gray-700 mb-2">Make</label>
-            <select id="filter-make" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <label class="block text-sm font-bold text-gray-300 mb-2">Make</label>
+            <select id="filter-make" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               <option value="">All Makes</option>
             </select>
           </div>
 
           <!-- Model Filter -->
           <div class="mb-6">
-            <label class="block text-sm font-bold text-gray-700 mb-2">Model</label>
-            <select id="filter-model" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
+            <label class="block text-sm font-bold text-gray-300 mb-2">Model</label>
+            <select id="filter-model" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" disabled>
               <option value="">All Models</option>
             </select>
           </div>
 
           <!-- Year Range -->
           <div class="mb-6">
-            <label class="block text-sm font-bold text-gray-700 mb-2">Year</label>
+            <label class="block text-sm font-bold text-gray-300 mb-2">Year</label>
             <div class="grid grid-cols-2 gap-2">
-              <select id="filter-year-min" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <select id="filter-year-min" class="px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                 <option value="">Min</option>
               </select>
-              <select id="filter-year-max" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <select id="filter-year-max" class="px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                 <option value="">Max</option>
               </select>
             </div>
@@ -83,8 +83,8 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
 
           <!-- Price Range -->
           <div class="mb-6">
-            <label class="block text-sm font-bold text-gray-700 mb-2">Price Range</label>
-            <select id="filter-price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <label class="block text-sm font-bold text-gray-300 mb-2">Price Range</label>
+            <select id="filter-price" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               <option value="">Any Price</option>
               <option value="0-20000">Under $20,000</option>
               <option value="0-15000">Under $15,000</option>
@@ -97,16 +97,16 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
 
           <!-- Body Type -->
           <div class="mb-6">
-            <label class="block text-sm font-bold text-gray-700 mb-2">Body Type</label>
-            <select id="filter-body-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <label class="block text-sm font-bold text-gray-300 mb-2">Body Type</label>
+            <select id="filter-body-type" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               <option value="">All Types</option>
             </select>
           </div>
 
           <!-- Transmission -->
           <div class="mb-6">
-            <label class="block text-sm font-bold text-gray-700 mb-2">Transmission</label>
-            <select id="filter-transmission" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <label class="block text-sm font-bold text-gray-300 mb-2">Transmission</label>
+            <select id="filter-transmission" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               <option value="">All Transmissions</option>
               <option value="Automatic">Automatic</option>
               <option value="Manual">Manual</option>
@@ -115,8 +115,8 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
 
           <!-- Fuel Type -->
           <div class="mb-6">
-            <label class="block text-sm font-bold text-gray-700 mb-2">Fuel Type</label>
-            <select id="filter-fuel-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <label class="block text-sm font-bold text-gray-300 mb-2">Fuel Type</label>
+            <select id="filter-fuel-type" class="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               <option value="">All Fuel Types</option>
             </select>
           </div>
@@ -130,13 +130,13 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
         <!-- Results Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
-            <p class="text-gray-600">
-              Showing <span id="results-count" class="font-bold text-primary">0</span> of <span id="total-count" class="font-bold">0</span> vehicles
+            <p class="text-gray-300">
+              Showing <span id="results-count" class="font-bold text-primary-light">0</span> of <span id="total-count" class="font-bold text-white">0</span> vehicles
             </p>
           </div>
           <div>
-            <label class="text-sm text-gray-600 mr-2">Sort by:</label>
-            <select id="sort-by" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <label class="text-sm text-gray-300 mr-2">Sort by:</label>
+            <select id="sort-by" class="px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
               <option value="date-desc">Newest First</option>
               <option value="date-asc">Oldest First</option>
               <option value="price-asc">Price: Low to High</option>
@@ -153,7 +153,7 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
         <div id="vehicle-grid" class="grid gap-6 mb-8" style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));">
           {% assign all_vehicles = site.vehicles | where: "status", "available" | sort: "date_added" | reverse %}
           {% for vehicle in all_vehicles %}
-          <div class="vehicle-card border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
+          <div class="vehicle-card bg-gray-800 border border-gray-700 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
                data-make="{{ vehicle.make }}"
                data-model="{{ vehicle.model }}"
                data-year="{{ vehicle.year }}"
@@ -200,9 +200,9 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
               <div class="flex items-start justify-between gap-3 mb-3">
                 <!-- Title (Left) -->
                 <div class="flex-1 min-w-0">
-                  <h3 class="text-base font-bold text-gray-900 line-clamp-2 leading-tight">
+                  <h3 class="text-base font-bold text-white line-clamp-2 leading-tight">
                     {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
-                    {% if vehicle.trim %}<span class="text-gray-600 text-sm">{{ vehicle.trim }}</span>{% endif %}
+                    {% if vehicle.trim %}<span class="text-gray-400 text-sm">{{ vehicle.trim }}</span>{% endif %}
                   </h3>
                 </div>
 
@@ -216,7 +216,7 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
               </div>
 
               <!-- Vehicle Details - 2 Column Layout -->
-              <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 mb-3 text-gray-700 text-xs">
+              <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 mb-3 text-gray-300 text-xs">
                 <!-- Left Column -->
                 <div class="space-y-1.5">
                   <!-- Mileage -->
@@ -228,7 +228,7 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
                   <!-- Title Status -->
                   <div class="flex items-center gap-1.5">
                     <span class="text-sm">📄</span>
-                    <span class="font-bold truncate">{% if vehicle.title_status %}{{ vehicle.title_status }}{% else %}N/A{% endif %}</span>
+                    <span class="font-bold truncate text-white">{% if vehicle.title_status %}{{ vehicle.title_status }}{% else %}N/A{% endif %}</span>
                   </div>
                 </div>
 
@@ -261,8 +261,8 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
         <!-- No Results Message -->
         <div id="no-results" class="hidden text-center py-16">
           <div class="text-6xl mb-4">🔍</div>
-          <h3 class="text-2xl font-bold text-gray-900 mb-2">No vehicles found</h3>
-          <p class="text-gray-600 mb-6">Try adjusting your filters to see more results</p>
+          <h3 class="text-2xl font-bold text-white mb-2">No vehicles found</h3>
+          <p class="text-gray-300 mb-6">Try adjusting your filters to see more results</p>
           <button onclick="document.getElementById('clear-filters').click()"
                   class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300 font-semibold">
             Clear All Filters
@@ -523,9 +523,9 @@ description: Browse our complete inventory of quality pre-owned vehicles at unbe
       if (filter.element.value) {
         hasFilters = true;
         const badge = document.createElement('span');
-        badge.className = 'inline-flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm';
+        badge.className = 'inline-flex items-center gap-1 bg-primary/20 text-primary-light px-3 py-1 rounded-full text-sm border border-primary/30';
         const displayValue = filter.formatter ? filter.formatter(filter.element.value) : filter.element.value;
-        badge.innerHTML = `${filter.label}: ${displayValue} <button class="hover:text-primary-dark font-bold" onclick="document.getElementById('${filter.element.id}').value=''; document.getElementById('${filter.element.id}').dispatchEvent(new Event('change'))">×</button>`;
+        badge.innerHTML = `${filter.label}: ${displayValue} <button class="hover:text-white font-bold" onclick="document.getElementById('${filter.element.id}').value=''; document.getElementById('${filter.element.id}').dispatchEvent(new Event('change'))">×</button>`;
         filterBadges.appendChild(badge);
       }
     });
