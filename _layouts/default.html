@@ -152,6 +152,62 @@
     ::-webkit-scrollbar-thumb:hover {
       background: var(--color-primary-dark);
     }
+
+    /* Price Badge with Cut Corner */
+    .price-badge {
+      position: relative;
+      clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
+    }
+
+    .price-badge-wrapper {
+      position: relative;
+    }
+
+    .price-cut-corner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 12px 12px 0 0;
+      border-color: white transparent transparent transparent;
+      z-index: 10;
+    }
+
+    /* Vehicle Photo Bottom Bar Overlay */
+    .vehicle-card a:first-of-type .bg-primary {
+      background-color: #083344;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .vehicle-card a:first-of-type {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Responsive font sizing for photo overlay */
+    @media (max-width: 640px) {
+      .vehicle-card a:first-of-type .bg-primary {
+        font-size: 10px;
+        padding: 6px 8px;
+      }
+    }
+
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .vehicle-card a:first-of-type .bg-primary {
+        font-size: 11px;
+      }
+    }
+
+    /* Ensure line-clamp works */
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
   </style>
 </head>
 <body class="antialiased" style="background-color: var(--color-background); color: var(--color-foreground);">

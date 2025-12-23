@@ -1,0 +1,325 @@
+---
+layout: home
+title: JP AUTO - Quality Used Cars Sacramento
+description: Sacramento's trusted source for quality pre-owned vehicles. Browse our inventory, get financing, and find your perfect car today.
+---
+
+<!-- Hero Banner Section -->
+<section id="home" class="relative w-full overflow-hidden">
+  <div class="relative w-full h-[400px] md:h-[600px] lg:h-[700px]">
+    <!-- Hero Banner Image -->
+    <img src="/assets/images/hero-banner.jpg" alt="JP AUTO - Quality Used Cars Sacramento" class="absolute inset-0 w-full h-full object-cover" loading="eager">
+    <!-- Banner Content -->
+    <div class="absolute inset-0 z-10 bg-black/30 flex items-center justify-center text-center text-white px-4">
+      <div>
+        <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">Find Your Perfect Ride</h2>
+        <p class="text-lg md:text-xl lg:text-2xl drop-shadow-md">Quality Pre-Owned Vehicles at Unbeatable Prices</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Vehicle Search Bar -->
+<section id="search" class="bg-white py-8 shadow-lg -mt-20 relative z-20">
+  <div class="container mx-auto px-4">
+    <div class="bg-gray-50 rounded-lg p-6 shadow-md">
+      <h3 class="text-2xl font-bold text-center mb-6">Search Your Perfect Vehicle</h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-semibold mb-2">Make</label>
+          <select id="home-filter-make" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="">All Makes</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">Model</label>
+          <select id="home-filter-model" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
+            <option value="">All Models</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">Price Range</label>
+          <select id="home-filter-price" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="">Any Price</option>
+            <option value="0-15000">Under $15,000</option>
+            <option value="15000-25000">$15,000 - $25,000</option>
+            <option value="25000-35000">$25,000 - $35,000</option>
+            <option value="35000-50000">$35,000 - $50,000</option>
+            <option value="50000-999999">Over $50,000</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <button id="home-search-btn" class="w-full px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors duration-300 text-center">
+            Search Vehicles
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Hidden vehicle data for filter population -->
+<div id="vehicle-data" style="display: none;">
+  {% assign all_vehicles = site.vehicles | where: "status", "available" %}
+  {% for vehicle in all_vehicles %}
+  <div class="vehicle-data-item"
+       data-make="{{ vehicle.make }}"
+       data-model="{{ vehicle.model }}"
+       data-price="{{ vehicle.price }}">
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Home Page Search Filter Script -->
+<script>
+(function() {
+  'use strict';
+
+  // Get all vehicle data
+  const vehicleDataItems = document.querySelectorAll('.vehicle-data-item');
+
+  // Filter elements
+  const filterMake = document.getElementById('home-filter-make');
+  const filterModel = document.getElementById('home-filter-model');
+  const filterPrice = document.getElementById('home-filter-price');
+  const searchBtn = document.getElementById('home-search-btn');
+
+  // Populate filter dropdowns from actual vehicle data
+  function populateFilters() {
+    const makes = new Set();
+
+    vehicleDataItems.forEach(item => {
+      const make = item.dataset.make;
+      if (make) makes.add(make);
+    });
+
+    // Populate Make dropdown
+    Array.from(makes).sort().forEach(make => {
+      const option = document.createElement('option');
+      option.value = make;
+      option.textContent = make;
+      filterMake.appendChild(option);
+    });
+  }
+
+  // Update model dropdown based on selected make
+  function updateModelFilter() {
+    const selectedMake = filterMake.value;
+    filterModel.innerHTML = '<option value="">All Models</option>';
+
+    if (!selectedMake) {
+      filterModel.disabled = true;
+      return;
+    }
+
+    const models = new Set();
+    vehicleDataItems.forEach(item => {
+      if (item.dataset.make === selectedMake) {
+        const model = item.dataset.model;
+        if (model) models.add(model);
+      }
+    });
+
+    Array.from(models).sort().forEach(model => {
+      const option = document.createElement('option');
+      option.value = model;
+      option.textContent = model;
+      filterModel.appendChild(option);
+    });
+
+    filterModel.disabled = false;
+  }
+
+  // Navigate to inventory page with filters
+  function searchVehicles() {
+    const params = new URLSearchParams();
+
+    if (filterMake.value) params.set('make', filterMake.value);
+    if (filterModel.value) params.set('model', filterModel.value);
+    if (filterPrice.value) params.set('price', filterPrice.value);
+
+    const queryString = params.toString();
+    const url = queryString ? `/inventory?${queryString}` : '/inventory';
+
+    window.location.href = url;
+  }
+
+  // Event listeners
+  filterMake.addEventListener('change', updateModelFilter);
+  searchBtn.addEventListener('click', searchVehicles);
+
+  // Allow Enter key to trigger search
+  [filterMake, filterModel, filterPrice].forEach(element => {
+    element.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchVehicles();
+      }
+    });
+  });
+
+  // Initialize
+  populateFilters();
+})();
+</script>
+
+<!-- Quick Links Section -->
+<section class="py-16 bg-gray-50">
+  <div class="container mx-auto px-4">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+      <a href="/inventory" class="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+          <span class="text-3xl group-hover:scale-110 transition-transform duration-300">🚗</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">Inventory</h3>
+        <p class="text-sm text-gray-600 mt-2">Browse Our Cars</p>
+      </a>
+
+      <a href="/financing" class="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+          <span class="text-3xl group-hover:scale-110 transition-transform duration-300">💰</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">Finance</h3>
+        <p class="text-sm text-gray-600 mt-2">Get Pre-Approved</p>
+      </a>
+
+      <a href="/trade-in" class="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+          <span class="text-3xl group-hover:scale-110 transition-transform duration-300">🔄</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">Trade-In</h3>
+        <p class="text-sm text-gray-600 mt-2">Value Your Car</p>
+      </a>
+
+      <a href="/services" class="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+          <span class="text-3xl group-hover:scale-110 transition-transform duration-300">🔧</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">Service</h3>
+        <p class="text-sm text-gray-600 mt-2">Schedule Service</p>
+      </a>
+
+      <a href="/testimonials" class="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+          <span class="text-3xl group-hover:scale-110 transition-transform duration-300">⭐</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">Testimonials</h3>
+        <p class="text-sm text-gray-600 mt-2">Customer Reviews</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Vehicles -->
+<section id="inventory" class="container mx-auto my-16 px-4">
+  <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Featured Vehicles</h2>
+  <div class="grid gap-6" style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));">
+    {% assign featured_vehicles = site.vehicles | where: "featured", true | sort: "date_added" | reverse %}
+    {% for vehicle in featured_vehicles limit:6 %}
+    <div class="border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300 flex flex-col">
+      <!-- Vehicle Image -->
+      <div class="w-full h-64 bg-gray-300 overflow-hidden relative">
+        {% if vehicle.primary_image %}
+          <img src="{{ vehicle.primary_image }}" alt="{{ vehicle.title }}" class="w-full h-full object-cover" loading="lazy">
+        {% else %}
+          <div class="w-full h-full flex items-center justify-center bg-gray-200">
+            <span class="text-gray-400 text-4xl">🚗</span>
+          </div>
+        {% endif %}
+        <div class="absolute top-2 right-2 bg-primary text-white px-3 py-1 rounded-full text-xs font-bold">
+          FEATURED
+        </div>
+      </div>
+
+      <!-- Vehicle Info -->
+      <div class="p-6 flex flex-col flex-grow">
+        <!-- Vehicle Title - Fixed height -->
+        <div class="h-12 mb-3">
+          <h3 class="text-lg font-bold text-gray-900 line-clamp-2">
+            {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+            {% if vehicle.trim %}<span class="text-gray-600">{{ vehicle.trim }}</span>{% endif %}
+          </h3>
+        </div>
+
+        <!-- Price -->
+        <p class="text-primary text-2xl font-bold mb-4">
+          ${{ vehicle.price | divided_by: 1.0 | round | number_with_delimiter }}
+        </p>
+
+        <!-- Vehicle Details - Consistent structure -->
+        <ul class="space-y-2 mb-4 text-gray-700 text-sm flex-grow">
+          <li class="flex items-center gap-2">
+            <span class="text-base">📍</span>
+            <span>{{ vehicle.mileage | divided_by: 1000 | round }}K miles</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-base">📄</span>
+            <span class="font-bold">{% if vehicle.title_status %}{{ vehicle.title_status }}{% else %}N/A{% endif %} Title</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-base">⚙️</span>
+            <span>{% if vehicle.transmission %}{{ vehicle.transmission }}{% else %}N/A{% endif %}</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-base">⛽</span>
+            <span>{% if vehicle.fuel_type %}{{ vehicle.fuel_type }}{% else %}N/A{% endif %}</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-base">🎨</span>
+            <span>{% if vehicle.exterior_color %}{{ vehicle.exterior_color }}{% else %}N/A{% endif %}</span>
+          </li>
+        </ul>
+
+        <!-- View Details Button -->
+        <a href="{{ vehicle.url }}" class="inline-block w-full text-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300 font-semibold mt-auto">
+          View Details
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="text-center mt-12">
+    <a href="/inventory" class="inline-block px-8 py-4 bg-gray-900 text-white rounded-lg text-lg font-semibold hover:bg-gray-800 transition-colors duration-300">View All Inventory →</a>
+  </div>
+</section>
+
+<!-- Why Choose Us -->
+<section id="about" class="bg-gray-100 py-16 px-4">
+  <div class="container mx-auto">
+    <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Why Choose JP AUTO?</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div class="text-center p-8 bg-white rounded-lg shadow-md">
+        <div class="text-5xl mb-4">✓</div>
+        <h3 class="text-xl font-bold mb-4 text-primary">Quality Inspected</h3>
+        <p class="text-gray-700">Every vehicle undergoes a thorough 150-point inspection to ensure reliability and safety.</p>
+      </div>
+      <div class="text-center p-8 bg-white rounded-lg shadow-md">
+        <div class="text-5xl mb-4">💲</div>
+        <h3 class="text-xl font-bold mb-4 text-primary">Best Prices</h3>
+        <p class="text-gray-700">Competitive pricing with flexible financing options to fit your budget.</p>
+      </div>
+      <div class="text-center p-8 bg-white rounded-lg shadow-md">
+        <div class="text-5xl mb-4">🛡️</div>
+        <h3 class="text-xl font-bold mb-4 text-primary">Warranty Included</h3>
+        <p class="text-gray-700">All our vehicles come with a comprehensive warranty for your peace of mind.</p>
+      </div>
+      <div class="text-center p-8 bg-white rounded-lg shadow-md">
+        <div class="text-5xl mb-4">⭐</div>
+        <h3 class="text-xl font-bold mb-4 text-primary">Trusted Service</h3>
+        <p class="text-gray-700">Over 20 years of serving our community with honest and transparent service.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action -->
+<section class="bg-primary-pearlescent py-16 px-4">
+  <div class="container mx-auto text-center text-white">
+    <h2 class="text-4xl md:text-5xl font-bold mb-4">Ready to Find Your Perfect Car?</h2>
+    <p class="text-xl mb-8">Visit our dealership today or call us to schedule a test drive!</p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <a href="/inventory" class="px-8 py-4 bg-white text-primary rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors duration-300">Browse Inventory</a>
+      <a href="tel:+19166187197" class="px-8 py-4 bg-gray-900 text-white rounded-lg text-lg font-semibold hover:bg-gray-800 transition-colors duration-300">Call Now: {{ site.business.phone }}</a>
+      <a href="/contact" class="px-8 py-4 border-2 border-white text-white rounded-lg text-lg font-semibold hover:bg-white hover:text-primary transition-colors duration-300">Contact Us</a>
+    </div>
+  </div>
+</section>
