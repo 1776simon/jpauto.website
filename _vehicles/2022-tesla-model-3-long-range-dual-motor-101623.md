@@ -5,7 +5,7 @@ year: 2022
 make: TESLA
 model: Model 3
 trim: Long Range Dual Motor
-price: '16500.00'
+price: '16499.00'
 mileage: 114900
 vin: 5YJ3E1EB3NF101623
 status: available

@@ -5,7 +5,7 @@ year: 2021
 make: TESLA
 model: Model 3
 trim: Long Range Dual Motor
-price: '15900.00'
+price: '15399.00'
 mileage: 140900
 vin: 5YJ3E1EB1MF929071
 status: available

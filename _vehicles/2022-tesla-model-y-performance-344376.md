@@ -5,7 +5,7 @@ year: 2022
 make: TESLA
 model: Model Y
 trim: Performance
-price: '23000.00'
+price: '22999.00'
 mileage: 65750
 vin: 7SAYGDEF0NF344376
 status: available

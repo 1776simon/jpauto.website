@@ -5,7 +5,7 @@ year: 2020
 make: TESLA
 model: Model X
 trim: Performance
-price: '34000.00'
+price: '33999.00'
 mileage: 46000
 vin: 5YJXCBE45LF238008
 status: available

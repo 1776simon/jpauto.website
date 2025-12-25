@@ -5,7 +5,7 @@ year: 2015
 make: BMW
 model: 3 series
 trim: 328i SULEV
-price: '7000.00'
+price: '6999.00'
 mileage: 102900
 vin: WBA3C1C50FK120392
 status: available

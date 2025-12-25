@@ -5,7 +5,7 @@ year: 2021
 make: TOYOTA
 model: Sienna
 trim: LE
-price: '25000.00'
+price: '24999.00'
 mileage: 136600
 vin: 5TDKRKEC3MS068521
 status: available
@@ -17,85 +17,90 @@ engine: 2.5L 4-Cylinder In-Line Gasoline
 fuel_type: Gasoline
 drivetrain: FWD
 title_status: Clean
+mpg_city: 36
+mpg_highway: 36
 features: []
 images:
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/87a224aa-2b48-4858-9f63-ac78975248ae.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/f695177c-60f9-4c35-ae10-1adea078bb3a.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/c6ebbb52-3dc6-47de-992a-8452f7f1b883.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/cbb33799-b334-4106-aa9e-dad330c00f4f.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/bc6091b4-698e-4d3b-9e63-a69e0676ff36.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/b6fe1a4e-3146-44d4-83a5-1ed7a36d5a0d.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/3e3af7e0-3180-4afe-8496-b299bc25f8fe.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/10ac89d6-8e83-4e93-b6b2-a321ec7e382e.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/c0e0b833-9623-43a5-b103-2b7f3cf20245.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/f5a1e658-bb79-4413-9cb5-f93f6d91e622.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/ea57ea73-ee5b-475e-bbb7-359c377bc3e1.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/577288e9-2a24-4f17-ae27-145cb25d232d.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/c70c3e21-2bab-4c50-ae5d-6eabe4326fdb.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/b596f8b4-6ea7-41a8-9731-71dbd03b0628.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/75f3dc84-495f-4b91-a4c5-0abde17063b2.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/abe32914-9ab2-4245-9d17-c9bf0170c8c3.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/ab443718-35f8-45b2-a51a-6d55b3f5be49.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/8021a88a-3dd9-43ae-96d0-5cb38cd70d0c.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/49a51191-8cd4-4bcb-bbc2-5bd995f9dc4f.jpeg
   - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/88f8dfc1-f0fa-4933-912d-ce2b34097236.jpeg
   - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/d140be09-d965-447c-88b4-ed82db851d35.jpeg
   - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/e7a3b747-1528-4a68-b33e-ddd6f5f0728b.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/710609db-d564-4527-8896-c0eff057d83c.jpeg
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/ad736333-187b-4bc5-8e45-6bb2d10292b5.jpeg
   - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/9c4453a7-57d9-4ef0-9878-7df5a70918e3.jpeg
   - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/ad736333-187b-4bc5-8e45-6bb2d10292b5.jpeg
-  - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/fb63c724-1645-4f82-84cd-068c8192af30.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/710609db-d564-4527-8896-c0eff057d83c.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/e7a3b747-1528-4a68-b33e-ddd6f5f0728b.jpeg
   - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/eb01db74-2615-4486-a45a-c34c50c0ae8e.jpeg
   - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/6eb7570c-bd43-430e-9499-96a59c94b87d.jpeg
   - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/50cb815d-d327-4243-8843-b41c6ce41573.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/c0e0b833-9623-43a5-b103-2b7f3cf20245.jpeg
-  - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/3eb433da-31e9-49f5-ae8c-7d5d705ced70.jpeg
   - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/50cb815d-d327-4243-8843-b41c6ce41573.jpeg
+  - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/4b07fc2e-3f85-467b-873a-3b1cec56bbbf.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/b596f8b4-6ea7-41a8-9731-71dbd03b0628.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/c70c3e21-2bab-4c50-ae5d-6eabe4326fdb.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/f5a1e658-bb79-4413-9cb5-f93f6d91e622.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/ab443718-35f8-45b2-a51a-6d55b3f5be49.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/abe32914-9ab2-4245-9d17-c9bf0170c8c3.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/75f3dc84-495f-4b91-a4c5-0abde17063b2.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/8021a88a-3dd9-43ae-96d0-5cb38cd70d0c.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/577288e9-2a24-4f17-ae27-145cb25d232d.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/ea57ea73-ee5b-475e-bbb7-359c377bc3e1.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/f695177c-60f9-4c35-ae10-1adea078bb3a.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/87a224aa-2b48-4858-9f63-ac78975248ae.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/49a51191-8cd4-4bcb-bbc2-5bd995f9dc4f.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/bc6091b4-698e-4d3b-9e63-a69e0676ff36.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/cbb33799-b334-4106-aa9e-dad330c00f4f.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/c6ebbb52-3dc6-47de-992a-8452f7f1b883.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/10ac89d6-8e83-4e93-b6b2-a321ec7e382e.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/3e3af7e0-3180-4afe-8496-b299bc25f8fe.jpeg
-  - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/b6fe1a4e-3146-44d4-83a5-1ed7a36d5a0d.jpeg
   - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/b62dd87b-ad09-4f29-9d7e-3f3048a10368.jpeg
   - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/c64d975a-6174-4a0d-99f2-ec13af066ecd.jpeg
   - >-
-    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/c72ec4d7-2737-4836-b628-89fd15681196.jpeg
-  - >-
     https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/76a0f366-b0b4-44e8-a559-e83a3126ebcd.jpeg
+  - >-
+    https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/c72ec4d7-2737-4836-b628-89fd15681196.jpeg
 primary_image: >-
-  https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/88f8dfc1-f0fa-4933-912d-ce2b34097236.jpeg
-accident_history: None
-service_records_on_file: Available
+  https://cdn.jpautomotivegroup.com/vehicles/5TDKRKEC3MS068521/full/87a224aa-2b48-4858-9f63-ac78975248ae.jpeg
+previous_owners: '1'
+accident_history: No accidents
+service_records_on_file: 5-10
 carfax_available: false
 date_added: '2025-12-22'
 ---
 This 2021 TOYOTA Sienna LE is now available at JP Auto. With 136,600 miles, this vehicle comes with a clean title. 
+
+Fuel economy: 36/36 MPG (city/highway). 
 
 **Schedule a test drive today!**
