@@ -4,6 +4,12 @@ const { processVehicleImages, scanForVirus } = require('../services/imageProcess
 const { Op } = require('sequelize');
 const { sequelize } = require('../models');
 const logger = require('../config/logger');
+const {
+  serializeInventoryPublic,
+  serializeInventoryAdmin,
+  serializeStatsPublic,
+  serializeStatsAdmin
+} = require('../utils/responseSerializer');
 
 /**
  * Sanitize user input for LIKE queries to prevent SQL wildcards in user input
@@ -68,27 +74,35 @@ const getAllInventory = async (req, res) => {
       if (priceMax) where.price[Op.lte] = parseFloat(priceMax);
     }
 
+    // Conditionally include sensitive associations based on authentication
+    const includeOptions = req.user ? [
+      {
+        model: User,
+        as: 'creator',
+        attributes: ['id', 'name', 'email']
+      },
+      {
+        model: PendingSubmission,
+        as: 'sourceSubmission',
+        attributes: ['id', 'customerName', 'customerEmail']
+      }
+    ] : []; // No sensitive includes for unauthenticated users
+
     const { count, rows: inventory } = await Inventory.findAndCountAll({
       where,
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [[sortBy, order]],
-      include: [
-        {
-          model: User,
-          as: 'creator',
-          attributes: ['id', 'name', 'email']
-        },
-        {
-          model: PendingSubmission,
-          as: 'sourceSubmission',
-          attributes: ['id', 'customerName', 'customerEmail']
-        }
-      ]
+      include: includeOptions
     });
 
+    // Serialize response based on authentication status
+    const serializedInventory = req.user
+      ? inventory.map(serializeInventoryAdmin)  // Authenticated: include everything
+      : inventory.map(serializeInventoryPublic); // Public: filter sensitive fields
+
     res.json({
-      inventory,
+      inventory: serializedInventory,
       pagination: {
         total: count,
         page: parseInt(page),
@@ -113,24 +127,27 @@ const getInventoryById = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Conditionally include sensitive associations based on authentication
+    const includeOptions = req.user ? [
+      {
+        model: User,
+        as: 'creator',
+        attributes: ['id', 'name', 'email']
+      },
+      {
+        model: User,
+        as: 'updater',
+        attributes: ['id', 'name', 'email']
+      },
+      {
+        model: PendingSubmission,
+        as: 'sourceSubmission',
+        attributes: ['id', 'customerName', 'customerEmail', 'customerNotes']
+      }
+    ] : []; // No sensitive includes for unauthenticated users
+
     const vehicle = await Inventory.findByPk(id, {
-      include: [
-        {
-          model: User,
-          as: 'creator',
-          attributes: ['id', 'name', 'email']
-        },
-        {
-          model: User,
-          as: 'updater',
-          attributes: ['id', 'name', 'email']
-        },
-        {
-          model: PendingSubmission,
-          as: 'sourceSubmission',
-          attributes: ['id', 'customerName', 'customerEmail', 'customerNotes']
-        }
-      ]
+      include: includeOptions
     });
 
     if (!vehicle) {
@@ -139,7 +156,12 @@ const getInventoryById = async (req, res) => {
       });
     }
 
-    res.json(vehicle);
+    // Serialize response based on authentication status
+    const serializedVehicle = req.user
+      ? serializeInventoryAdmin(vehicle)  // Authenticated: include everything
+      : serializeInventoryPublic(vehicle); // Public: filter sensitive fields
+
+    res.json(serializedVehicle);
   } catch (error) {
     console.error('Error fetching vehicle:', error);
     res.status(500).json({
@@ -152,6 +174,7 @@ const getInventoryById = async (req, res) => {
 /**
  * Create new inventory item
  * POST /api/inventory
+ * NOTE: This endpoint requires authentication (isManagerOrAdmin middleware)
  */
 const createInventory = async (req, res) => {
   const transaction = await sequelize.transaction();
@@ -163,7 +186,8 @@ const createInventory = async (req, res) => {
       source: 'manual'
     };
 
-    const vehicle = await Inventory.create(vehicleData, { transaction });
+    // Use unscoped to bypass defaultScope and allow setting cost field
+    const vehicle = await Inventory.unscoped().create(vehicleData, { transaction });
 
     // Explicitly commit transaction to ensure data is immediately available
     await transaction.commit();
@@ -171,9 +195,12 @@ const createInventory = async (req, res) => {
     // Log vehicle creation for export tracking
     logger.info(`[InventoryController] Vehicle created: ID=${vehicle.id}, VIN=${vehicle.vin}, Status=${vehicle.status}, Time=${new Date().toISOString()}`);
 
+    // Reload with full data including sensitive fields for admin response
+    const fullVehicle = await Inventory.scope('withSensitiveData').findByPk(vehicle.id);
+
     res.status(201).json({
       message: 'Vehicle added to inventory',
-      vehicle
+      vehicle: fullVehicle
     });
   } catch (error) {
     await transaction.rollback();
@@ -196,12 +223,14 @@ const createInventory = async (req, res) => {
 /**
  * Update inventory item
  * PUT /api/inventory/:id
+ * NOTE: This endpoint requires authentication (isManagerOrAdmin middleware)
  */
 const updateInventory = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const vehicle = await Inventory.findByPk(id);
+    // Use withSensitiveData scope to allow reading and updating cost field
+    const vehicle = await Inventory.scope('withSensitiveData').findByPk(id);
 
     if (!vehicle) {
       return res.status(404).json({
@@ -247,7 +276,7 @@ const uploadInventoryImages = async (req, res) => {
 
     logger.info(`[InventoryController] Upload request - Vehicle ID: ${id}, Files: ${req.files?.length || 0}, Time=${new Date().toISOString()}`);
 
-    const vehicle = await Inventory.findByPk(id, { transaction });
+    const vehicle = await Inventory.scope('withSensitiveData').findByPk(id, { transaction });
 
     if (!vehicle) {
       await transaction.rollback();
@@ -407,7 +436,7 @@ const reorderPhotos = async (req, res) => {
       });
     }
 
-    const vehicle = await Inventory.findByPk(id);
+    const vehicle = await Inventory.scope('withSensitiveData').findByPk(id);
 
     if (!vehicle) {
       return res.status(404).json({
@@ -462,7 +491,7 @@ const deletePhoto = async (req, res) => {
       });
     }
 
-    const vehicle = await Inventory.findByPk(id);
+    const vehicle = await Inventory.scope('withSensitiveData').findByPk(id);
 
     if (!vehicle) {
       return res.status(404).json({
@@ -520,7 +549,7 @@ const deleteInventory = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const vehicle = await Inventory.findByPk(id);
+    const vehicle = await Inventory.scope('withSensitiveData').findByPk(id);
 
     if (!vehicle) {
       return res.status(404).json({
@@ -556,7 +585,7 @@ const markAsSold = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const vehicle = await Inventory.findByPk(id);
+    const vehicle = await Inventory.scope('withSensitiveData').findByPk(id);
 
     if (!vehicle) {
       return res.status(404).json({
@@ -591,7 +620,7 @@ const toggleFeatured = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const vehicle = await Inventory.findByPk(id);
+    const vehicle = await Inventory.scope('withSensitiveData').findByPk(id);
 
     if (!vehicle) {
       return res.status(404).json({
@@ -623,30 +652,11 @@ const toggleFeatured = async (req, res) => {
  */
 const getInventoryStats = async (req, res) => {
   try {
-    const [
-      totalInventory,
-      availableInventory,
-      soldInventory,
-      pendingSubmissions,
-      totalValueResult,
-      totalCostResult,
-      averagePrice,
-      averageMileage
-    ] = await Promise.all([
+    // Build queries - include cost data only for authenticated users
+    const queries = [
       Inventory.count(),
       Inventory.count({ where: { status: 'available' } }),
       Inventory.count({ where: { status: 'sold' } }),
-      PendingSubmission.count({ where: { submissionStatus: 'pending' } }),
-      Inventory.findOne({
-        attributes: [[Inventory.sequelize.fn('SUM', Inventory.sequelize.col('price')), 'totalValue']],
-        where: { status: 'available' },
-        raw: true
-      }),
-      Inventory.findOne({
-        attributes: [[Inventory.sequelize.fn('SUM', Inventory.sequelize.col('cost')), 'totalCost']],
-        where: { status: 'available' },
-        raw: true
-      }),
       Inventory.findOne({
         attributes: [[Inventory.sequelize.fn('AVG', Inventory.sequelize.col('price')), 'avgPrice']],
         where: { status: 'available' },
@@ -657,18 +667,49 @@ const getInventoryStats = async (req, res) => {
         where: { status: 'available' },
         raw: true
       })
-    ]);
+    ];
 
-    res.json({
-      total: totalInventory,
-      available: availableInventory,
-      sold: soldInventory,
-      pending: pendingSubmissions,
-      totalValue: parseFloat(totalValueResult?.totalValue || 0),
-      totalCost: parseFloat(totalCostResult?.totalCost || 0),
-      averagePrice: parseFloat(averagePrice?.avgPrice || 0),
-      averageMileage: parseInt(averageMileage?.avgMileage || 0)
-    });
+    // Add sensitive queries only for authenticated users
+    if (req.user) {
+      queries.push(
+        PendingSubmission.count({ where: { submissionStatus: 'pending' } }),
+        Inventory.findOne({
+          attributes: [[Inventory.sequelize.fn('SUM', Inventory.sequelize.col('price')), 'totalValue']],
+          where: { status: 'available' },
+          raw: true
+        }),
+        Inventory.findOne({
+          attributes: [[Inventory.sequelize.fn('SUM', Inventory.sequelize.col('cost')), 'totalCost']],
+          where: { status: 'available' },
+          raw: true
+        })
+      );
+    }
+
+    const results = await Promise.all(queries);
+
+    // Build stats object
+    const stats = {
+      total: results[0],
+      available: results[1],
+      sold: results[2],
+      averagePrice: parseFloat(results[3]?.avgPrice || 0),
+      averageMileage: parseInt(results[4]?.avgMileage || 0)
+    };
+
+    // Add admin-only fields if authenticated
+    if (req.user) {
+      stats.pending = results[5];
+      stats.totalValue = parseFloat(results[6]?.totalValue || 0);
+      stats.totalCost = parseFloat(results[7]?.totalCost || 0);
+    }
+
+    // Serialize response based on authentication status
+    const serializedStats = req.user
+      ? serializeStatsAdmin(stats)  // Authenticated: include everything
+      : serializeStatsPublic(stats); // Public: filter sensitive fields
+
+    res.json(serializedStats);
   } catch (error) {
     console.error('Error fetching stats:', error);
     res.status(500).json({

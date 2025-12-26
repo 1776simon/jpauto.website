@@ -278,7 +278,38 @@ const Inventory = sequelize.define('Inventory', {
   tableName: 'inventory',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: 'updated_at',
+  // Default scope: Hide sensitive fields from public queries
+  defaultScope: {
+    attributes: {
+      exclude: [
+        'cost',              // Internal profit margin - business sensitive
+        'createdBy',         // Internal user ID
+        'updatedBy',         // Internal user ID
+        'sourceSubmissionId' // Internal reference to customer submission
+      ]
+    }
+  },
+  scopes: {
+    // Admin scope: Include everything including sensitive fields
+    withSensitiveData: {
+      attributes: {} // Empty = include all attributes
+    },
+    // Public scope: Explicit list of public fields (alternative to defaultScope)
+    publicFields: {
+      attributes: [
+        'id', 'status', 'featured', 'year', 'make', 'model', 'trim',
+        'vin', 'stockNumber', 'price', 'msrp', 'mileage',
+        'exteriorColor', 'interiorColor', 'transmission', 'engine',
+        'fuelType', 'drivetrain', 'bodyType', 'doors', 'titleStatus',
+        'mpgCity', 'mpgHighway', 'horsepower', 'features', 'images',
+        'primaryImageUrl', 'previousOwners', 'accidentHistory',
+        'serviceRecordsOnFile', 'carfaxAvailable', 'carfaxUrl',
+        'warrantyDescription', 'description', 'marketingTitle',
+        'dateAdded', 'soldDate', 'createdAt', 'updatedAt'
+      ]
+    }
+  }
 });
 
 module.exports = Inventory;
