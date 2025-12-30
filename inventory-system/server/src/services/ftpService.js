@@ -2,6 +2,7 @@ const ftp = require('basic-ftp');
 const fs = require('fs').promises;
 const path = require('path');
 const dealerCenterConfig = require('../config/dealerCenter');
+const carsforsaleConfig = require('../config/carsforsale');
 const logger = require('../config/logger');
 
 /**
@@ -102,8 +103,80 @@ const uploadDealerCenterExport = async (csvFilePath) => {
   }
 };
 
+/**
+ * Upload file to CarsForSale FTP server
+ * @param {string} localFilePath - Path to local file
+ * @param {string} remoteFileName - Name for file on FTP server
+ * @returns {Promise<object>} - Upload result
+ */
+const uploadToCarsForSale = async (localFilePath, remoteFileName = null) => {
+  const client = new ftp.Client();
+  client.ftp.verbose = process.env.NODE_ENV === 'development';
+
+  try {
+    // Connect to FTP server
+    await client.access({
+      host: carsforsaleConfig.ftp.host,
+      user: carsforsaleConfig.ftp.user,
+      password: carsforsaleConfig.ftp.password,
+      port: carsforsaleConfig.ftp.port,
+      secure: carsforsaleConfig.ftp.secure,
+      secureOptions: carsforsaleConfig.ftp.secureOptions
+    });
+
+    logger.info('Connected to CarsForSale FTP server');
+
+    // Upload file
+    const remotePath = path.join(
+      carsforsaleConfig.export.remotePath,
+      remoteFileName || path.basename(localFilePath)
+    );
+
+    await client.uploadFrom(localFilePath, remotePath);
+
+    logger.info(`File uploaded successfully: ${remotePath}`);
+
+    return {
+      success: true,
+      remotePath,
+      uploadedAt: new Date().toISOString()
+    };
+  } catch (error) {
+    logger.error('CarsForSale FTP upload failed:', error);
+    throw new Error(`CarsForSale FTP upload failed: ${error.message}`);
+  } finally {
+    client.close();
+  }
+};
+
+/**
+ * Upload CarsForSale export
+ * @param {string} txtFilePath - Path to TXT export file
+ * @returns {Promise<object>} - Upload result
+ */
+const uploadCarsForSaleExport = async (txtFilePath) => {
+  try {
+    const result = await uploadToCarsForSale(
+      txtFilePath,
+      carsforsaleConfig.export.filename
+    );
+
+    logger.info('CarsForSale export uploaded successfully');
+
+    return {
+      ...result,
+      fileName: carsforsaleConfig.export.filename
+    };
+  } catch (error) {
+    logger.error('Failed to upload CarsForSale export:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   uploadToDealerCenter,
   testConnection,
-  uploadDealerCenterExport
+  uploadDealerCenterExport,
+  uploadToCarsForSale,
+  uploadCarsForSaleExport
 };

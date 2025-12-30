@@ -8,6 +8,7 @@ const {
   exportFacebook,
   exportCarsForSale,
   exportAndUploadDealerCenter,
+  exportAndUploadCarsForSale,
   getExportHistory
 } = require('../controllers/exportsController');
 const { isManagerOrAdmin } = require('../middleware/auth');
@@ -54,6 +55,12 @@ router.post('/facebook',
 router.post('/carsforsale',
   isManagerOrAdmin,
   exportCarsForSale
+);
+
+// Export to CarsForSale and upload to FTP
+router.post('/carsforsale/upload',
+  isManagerOrAdmin,
+  exportAndUploadCarsForSale
 );
 
 // Get export history/statistics

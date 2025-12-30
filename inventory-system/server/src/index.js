@@ -208,15 +208,17 @@ const startServer = async () => {
     }
 
     // Schedule automated exports
-    // Jekyll export runs at 1:55 AM, Dealer Center at 2:00 AM (5 min later for VDP links)
+    // Jekyll export runs at 1:55 AM, Dealer Center at 2:00 AM, CarsForSale at 3:00 AM
     if (process.env.ENABLE_SCHEDULED_EXPORTS === 'true') {
       const { scheduleJekyllExport } = require('./jobs/jekyllExport');
       const { scheduleDealerCenterExport } = require('./jobs/dealerCenterExport');
+      const { scheduleCarsForSaleExport } = require('./jobs/carsforsaleExport');
 
       scheduleJekyllExport(); // 1:55 AM - Website inventory deploy
       scheduleDealerCenterExport(); // 2:00 AM - Dealer Center FTP upload
+      scheduleCarsForSaleExport(); // 3:00 AM - CarsForSale FTP upload
 
-      logger.info('Scheduled exports enabled: Jekyll (1:55 AM) → Dealer Center (2:00 AM)');
+      logger.info('Scheduled exports enabled: Jekyll (1:55 AM) → Dealer Center (2:00 AM) → CarsForSale (3:00 AM)');
     }
 
     // Start market research jobs

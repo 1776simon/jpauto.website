@@ -312,6 +312,29 @@ const exportAndUploadDealerCenter = async (req, res) => {
   }
 };
 
+/**
+ * Export to CarsForSale and upload to FTP
+ * POST /api/exports/carsforsale/upload
+ */
+const exportAndUploadCarsForSale = async (req, res) => {
+  try {
+    const { runCarsForSaleExport } = require('../jobs/carsforsaleExport');
+
+    const result = await runCarsForSaleExport();
+
+    res.json({
+      message: 'CarsForSale export uploaded successfully',
+      ...result
+    });
+  } catch (error) {
+    console.error('Export and upload failed:', error);
+    res.status(500).json({
+      error: 'Failed to export and upload to CarsForSale',
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   exportJekyll,
   exportDealerCenter,
@@ -320,5 +343,6 @@ module.exports = {
   exportFacebook,
   exportCarsForSale,
   exportAndUploadDealerCenter,
+  exportAndUploadCarsForSale,
   getExportHistory
 };

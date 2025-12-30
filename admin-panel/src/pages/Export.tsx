@@ -55,13 +55,24 @@ export default function Export() {
       fileFormat: "CSV",
     },
     {
+      id: "carsforsale-upload",
+      name: "Export to CarsForSale.com",
+      description: "Export and upload inventory to CarsForSale.com lead provider via FTP",
+      icon: Building2,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      borderColor: "border-green-200",
+      exportFn: () => api.exportAndUploadToCarsForSale(),
+      fileFormat: "TXT",
+    },
+    {
       id: "carsforsale-download",
       name: "Download CarsForSale.com export",
       description: "Download inventory.txt file for CarsForSale.com lead provider",
       icon: Download,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
+      borderColor: "border-emerald-200",
       exportFn: () => api.exportToCarsForSale(),
       fileFormat: "TXT",
     },
@@ -185,12 +196,23 @@ export default function Export() {
 
             <div>
               <h4 className="font-medium text-foreground mb-2">
+                Export to CarsForSale.com
+              </h4>
+              <p className="text-muted-foreground">
+                Automatically exports and uploads your inventory to CarsForSale.com lead provider via FTP.
+                This is the same process that runs on the scheduled daily export at 3:00 AM.
+                Use this option to manually trigger an immediate export and upload.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-medium text-foreground mb-2">
                 Download CarsForSale.com export
               </h4>
               <p className="text-muted-foreground">
-                Downloads an inventory.txt file formatted for CarsForSale.com lead provider.
-                Use this file to submit your inventory to CarsForSale.com for increased vehicle visibility
-                and lead generation. The file includes all available vehicles with complete details and photos.
+                Downloads an inventory.txt file formatted for CarsForSale.com lead provider to your computer.
+                Use this option if you need to manually review the export file or upload it yourself
+                through CarsForSale.com's inventory import tool.
               </p>
             </div>
           </div>
@@ -205,7 +227,7 @@ export default function Export() {
             <li className="flex items-start gap-2">
               <span className="text-primary mt-1">•</span>
               <span>
-                The scheduled export runs daily at 2:00 AM - use manual export only when immediate updates are needed
+                Scheduled exports run daily: Dealer Center at 2:00 AM, CarsForSale at 3:00 AM - use manual export only when immediate updates are needed
               </span>
             </li>
             <li className="flex items-start gap-2">
