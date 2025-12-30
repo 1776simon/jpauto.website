@@ -6,6 +6,7 @@ const {
   exportAutoTrader,
   exportCarGurus,
   exportFacebook,
+  exportCarsForSale,
   exportAndUploadDealerCenter,
   getExportHistory
 } = require('../controllers/exportsController');
@@ -47,6 +48,12 @@ router.post('/cargurus',
 router.post('/facebook',
   isManagerOrAdmin,
   exportFacebook
+);
+
+// Export to CarsForSale.com
+router.post('/carsforsale',
+  isManagerOrAdmin,
+  exportCarsForSale
 );
 
 // Get export history/statistics

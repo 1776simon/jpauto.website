@@ -54,6 +54,17 @@ export default function Export() {
       exportFn: () => api.exportToDealerCenter(),
       fileFormat: "CSV",
     },
+    {
+      id: "carsforsale-download",
+      name: "Download CarsForSale.com export",
+      description: "Download inventory.txt file for CarsForSale.com lead provider",
+      icon: Download,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      borderColor: "border-green-200",
+      exportFn: () => api.exportToCarsForSale(),
+      fileFormat: "TXT",
+    },
   ];
 
   return (
@@ -169,6 +180,17 @@ export default function Export() {
                 Downloads a CSV file compatible with Dealer Center format to your computer.
                 Use this option if you need to manually review the export file or upload it yourself
                 through your DMS's inventory import tool.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-medium text-foreground mb-2">
+                Download CarsForSale.com export
+              </h4>
+              <p className="text-muted-foreground">
+                Downloads an inventory.txt file formatted for CarsForSale.com lead provider.
+                Use this file to submit your inventory to CarsForSale.com for increased vehicle visibility
+                and lead generation. The file includes all available vehicles with complete details and photos.
               </p>
             </div>
           </div>

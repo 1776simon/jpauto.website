@@ -4,6 +4,7 @@ const { exportToDealerCenter } = require('../exports/dealer-center/dealerCenterE
 const { exportToAutoTrader } = require('../exports/autotrader/autotraderExporter');
 const { exportToCarGurus } = require('../exports/cargurus/cargurusExporter');
 const { exportToFacebook } = require('../exports/facebook/facebookExporter');
+const { exportToCarsForSale } = require('../exports/carsforsale/carsforsaleExporter');
 const logger = require('../config/logger');
 const path = require('path');
 
@@ -222,6 +223,21 @@ const exportFacebook = async (req, res) => {
 };
 
 /**
+ * Export inventory to CarsForSale.com
+ * POST /api/exports/carsforsale
+ */
+const exportCarsForSale = async (req, res) => {
+  return handleExport(req, res, {
+    exportFunction: exportToCarsForSale,
+    exportType: 'carsforsale',
+    displayName: 'CarsForSale.com',
+    fieldPrefix: 'CarsForSale',
+    downloadable: true,
+    fileExtension: 'txt'
+  });
+};
+
+/**
  * Get export history/statistics
  * GET /api/exports/history
  */
@@ -302,6 +318,7 @@ module.exports = {
   exportAutoTrader,
   exportCarGurus,
   exportFacebook,
+  exportCarsForSale,
   exportAndUploadDealerCenter,
   getExportHistory
 };

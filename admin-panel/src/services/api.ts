@@ -567,6 +567,40 @@ class ApiService {
     document.body.removeChild(a);
   }
 
+  async exportToCarsForSale(): Promise<void> {
+    const url = `${API_URL}/api/exports/carsforsale`;
+    const response = await fetch(url, {
+      credentials: 'include',
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error('Export failed');
+    }
+
+    const blob = await response.blob();
+
+    // Try to get filename from Content-Disposition header
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let filename = 'inventory.txt'; // Default CarsForSale.com filename
+
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+      if (filenameMatch) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(downloadUrl);
+    document.body.removeChild(a);
+  }
+
   async exportAndUploadToDealerCenter(): Promise<any> {
     const url = `${API_URL}/api/exports/dealer-center/upload`;
     const response = await fetch(url, {
