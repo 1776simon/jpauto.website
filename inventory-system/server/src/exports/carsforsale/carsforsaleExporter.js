@@ -125,26 +125,23 @@ const formatBodyStyle = (bodyStyle) => {
 
 /**
  * Clean description for CarsForSale format
- * Remove excessive HTML/formatting, keep readable text
+ * Remove ALL formatting - convert to plain text only
  * @param {string} description - Raw description
- * @returns {string} - Cleaned description
+ * @returns {string} - Cleaned plain text description
  */
 const cleanDescription = (description) => {
   if (!description) return '';
 
   let cleaned = description.trim();
 
-  // Remove HTML tags but preserve line breaks
-  cleaned = cleaned.replace(/<br\s*\/?>/gi, '\n');
-  cleaned = cleaned.replace(/<\/p>/gi, '\n\n');
-  cleaned = cleaned.replace(/<[^>]+>/g, '');
+  // Remove ALL HTML tags (no line break preservation)
+  cleaned = cleaned.replace(/<[^>]+>/g, ' ');
 
-  // Normalize whitespace
-  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
-  cleaned = cleaned.replace(/[ \t]+/g, ' ');
+  // Remove all line breaks and convert to spaces
+  cleaned = cleaned.replace(/[\r\n]+/g, ' ');
 
-  // Trim each line
-  cleaned = cleaned.split('\n').map(line => line.trim()).join('\n');
+  // Normalize all whitespace to single spaces
+  cleaned = cleaned.replace(/\s+/g, ' ');
 
   return cleaned.trim();
 };
