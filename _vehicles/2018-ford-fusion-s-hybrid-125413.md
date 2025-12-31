@@ -5,7 +5,7 @@ year: 2018
 make: FORD
 model: Fusion
 trim: S Hybrid
-price: '12999.00'
+price: '12499.00'
 mileage: 35250
 vin: 3FA6P0UU9JR125413
 status: available
