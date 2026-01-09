@@ -5,7 +5,7 @@ year: 2016
 make: FORD
 model: Escape
 trim: SE
-price: '13999.00'
+price: '12999.00'
 mileage: 22635
 vin: 1FMCU0GX4GUA13661
 status: available
