@@ -136,15 +136,11 @@ const generateVehicleMarkdown = (vehicle) => {
  * @returns {string} - Filename
  */
 const generateFileName = (vehicle) => {
-  const year = vehicle.year;
-  const make = vehicle.make.toLowerCase().replace(/\s+/g, '-');
-  const model = vehicle.model.toLowerCase().replace(/\s+/g, '-');
-  const trim = vehicle.trim ? `-${vehicle.trim.toLowerCase().replace(/\s+/g, '-')}` : '';
+  // Use last 8 characters of VIN as stock number (uppercased)
+  // This matches the Dealer Center format
+  const stockNumber = vehicle.vin.slice(-8).toUpperCase();
 
-  // Use VIN last 6 characters to ensure uniqueness
-  const uniqueId = vehicle.vin.slice(-6).toLowerCase();
-
-  return `${year}-${make}-${model}${trim}-${uniqueId}.md`;
+  return `${stockNumber}.md`;
 };
 
 /**
