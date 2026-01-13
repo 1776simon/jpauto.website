@@ -62,10 +62,14 @@ const exportToJekyll = async (vehicles, outputPath = '../../../_vehicles') => {
  * @returns {string} - Markdown content with frontmatter
  */
 const generateVehicleMarkdown = (vehicle) => {
+  // Generate stock number from last 8 characters of VIN (uppercase)
+  const stockNumber = vehicle.vin.slice(-8).toUpperCase();
+
   // Frontmatter data
   const frontmatter = {
     layout: 'vehicle',
     title: vehicle.marketingTitle || `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim || ''}`.trim(),
+    permalink: `/vehicles/${stockNumber}/`,
     year: vehicle.year,
     make: vehicle.make,
     model: vehicle.model,
