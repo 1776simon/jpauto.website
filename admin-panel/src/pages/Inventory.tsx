@@ -155,6 +155,36 @@ export default function Inventory() {
     },
   });
 
+  // Apply banner to main photo mutation
+  const applyBannerMutation = useMutation({
+    mutationFn: ({
+      vehicleId,
+      mainPhotoUrl,
+      titleStatus,
+      price,
+    }: {
+      vehicleId: number;
+      mainPhotoUrl: string;
+      titleStatus: string;
+      price: number;
+    }) => {
+      const websiteUrl = import.meta.env.VITE_WEBSITE_URL || 'https://www.jpautomotivegroup.com';
+      return api.applyBannerToMainPhoto(vehicleId, mainPhotoUrl, titleStatus, price, websiteUrl);
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      if (selectedItem) {
+        setSelectedItem({ ...selectedItem, images: data.images });
+        setEditFormData({ ...editFormData, images: data.images });
+        setDisplayImages(data.images);
+      }
+      toast.success("Banner applied successfully! New photo is now the main photo.");
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to apply banner: ${error.message}`);
+    },
+  });
+
   // Filter inventory by search query
   const filteredInventory =
     data?.inventory?.filter((item) => {
@@ -427,6 +457,38 @@ export default function Inventory() {
     deletePhotoMutation.mutate({
       id: selectedItem.id as number,
       imageUrl
+    });
+  };
+
+  const handleApplyBanner = () => {
+    if (!selectedItem || !editFormData.images || editFormData.images.length === 0) {
+      toast.error('No photos available to apply banner');
+      return;
+    }
+
+    const price = typeof editFormData.price === 'string' ? parseFloat(editFormData.price) : editFormData.price;
+    const titleStatus = editFormData.titleStatus || editFormData.title_status;
+
+    if (!price || !titleStatus) {
+      toast.error('Please set price and title status before applying banner');
+      return;
+    }
+
+    if (!confirm(
+      'This will create a new main photo with the banner.\n\n' +
+      'The new photo will be added at position 0, and your original photo will be kept at position 1.\n\n' +
+      'Continue?'
+    )) {
+      return;
+    }
+
+    const mainPhotoUrl = editFormData.images[0];
+
+    applyBannerMutation.mutate({
+      vehicleId: selectedItem.id as number,
+      mainPhotoUrl,
+      titleStatus,
+      price,
     });
   };
 
@@ -1197,6 +1259,42 @@ export default function Inventory() {
                                   className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
                                 >
                                   Click to Reorder
+                                </button>
+                              )}
+
+                              {!isReordering && displayImages.length > 0 && (
+                                <button
+                                  onClick={handleApplyBanner}
+                                  disabled={
+                                    applyBannerMutation.isPending ||
+                                    !editFormData.price ||
+                                    !editFormData.titleStatus ||
+                                    !editFormData.title_status
+                                  }
+                                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                                    applyBannerMutation.isPending ||
+                                    !editFormData.price ||
+                                    (!editFormData.titleStatus && !editFormData.title_status)
+                                      ? 'bg-secondary/50 text-white/50 cursor-not-allowed'
+                                      : 'bg-secondary text-white hover:bg-secondary/90 cursor-pointer'
+                                  }`}
+                                  title={
+                                    !editFormData.price || (!editFormData.titleStatus && !editFormData.title_status)
+                                      ? 'Please set price and title status first'
+                                      : 'Apply banner to main photo'
+                                  }
+                                >
+                                  {applyBannerMutation.isPending ? (
+                                    <>
+                                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                      Processing...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Upload className="w-4 h-4" />
+                                      Apply Banner
+                                    </>
+                                  )}
                                 </button>
                               )}
                             </div>

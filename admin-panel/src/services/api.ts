@@ -443,6 +443,100 @@ class ApiService {
     });
   }
 
+  /**
+   * Apply banner to vehicle's main photo
+   * Workflow:
+   * 1. Calls Next.js website API to process image with banner
+   * 2. Receives processed image blob
+   * 3. Uploads processed image to backend (appends to array)
+   * 4. Reorders images to put new bannered photo at position 0
+   */
+  async applyBannerToMainPhoto(
+    vehicleId: number,
+    mainPhotoUrl: string,
+    titleStatus: string,
+    price: number,
+    nextjsWebsiteUrl: string
+  ): Promise<{ images: string[] }> {
+    // Step 1: Call Next.js website API to process image
+    const bannerApiUrl = `${nextjsWebsiteUrl}/api/process-vehicle-image`;
+
+    const processResponse = await fetch(bannerApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        imageUrl: mainPhotoUrl,
+        titleStatus,
+        price,
+        height: 180,
+        position: 'bottom',
+      }),
+    });
+
+    if (!processResponse.ok) {
+      const errorText = await processResponse.text();
+      throw new Error(`Failed to process image with banner: ${errorText}`);
+    }
+
+    // Step 2: Get processed image blob
+    const processedBlob = await processResponse.blob();
+
+    // Step 3: Upload processed image to backend
+    const formData = new FormData();
+    formData.append('images', processedBlob, 'main-photo-with-banner.jpg');
+
+    const url = `${API_URL}/api/inventory/${vehicleId}/images`;
+
+    // Upload using XMLHttpRequest for Safari compatibility
+    const uploadResult = await new Promise<{ images: string[] }>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (error) {
+            reject(new Error('Failed to parse response'));
+          }
+        } else {
+          try {
+            const error = JSON.parse(xhr.responseText);
+            reject(new Error(error.message || error.error || 'Failed to upload banner photo'));
+          } catch {
+            reject(new Error(`HTTP ${xhr.status}: Failed to upload banner photo`));
+          }
+        }
+      };
+
+      xhr.onerror = function() {
+        reject(new Error('Network error - failed to upload banner photo'));
+      };
+
+      xhr.ontimeout = function() {
+        reject(new Error('Upload timed out'));
+      };
+
+      xhr.timeout = 120000; // 2 minutes
+
+      xhr.open('POST', url);
+      xhr.withCredentials = true;
+
+      xhr.send(formData);
+    });
+
+    // Step 4: Reorder images - move new bannered photo to position 0
+    // Backend appends new image, so it's at the end. We need to move it to front.
+    const currentImages = uploadResult.images;
+    const newBanneredPhoto = currentImages[currentImages.length - 1]; // Last image (just uploaded)
+    const reorderedImages = [newBanneredPhoto, ...currentImages.slice(0, -1)]; // New photo first, then all others
+
+    // Call reorder endpoint
+    return this.reorderInventoryPhotos(vehicleId, reorderedImages);
+  }
+
   // ===== Export endpoints =====
   async exportToJekyll(): Promise<void> {
     const url = `${API_URL}/api/exports/jekyll`;
