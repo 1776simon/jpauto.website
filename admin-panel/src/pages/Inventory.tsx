@@ -1268,8 +1268,7 @@ export default function Inventory() {
                                   disabled={
                                     applyBannerMutation.isPending ||
                                     !editFormData.price ||
-                                    !editFormData.titleStatus ||
-                                    !editFormData.title_status
+                                    (!editFormData.titleStatus && !editFormData.title_status)
                                   }
                                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                                     applyBannerMutation.isPending ||
