@@ -225,21 +225,26 @@ const COMPANY_INFO = {
  * Add JP Auto banner to vehicle image
  * @param {Buffer} imageBuffer - Original image buffer
  * @param {object} options - Banner options
- * @param {number} options.height - Banner height in pixels (default: 180)
+ * @param {number} options.height - Banner height in pixels (default: 360)
  * @param {string} options.position - Banner position 'top' | 'bottom' (default: 'bottom')
  * @param {object} options.vehicleData - Vehicle-specific data
- * @param {string} options.vehicleData.titleStatus - Title status (e.g., "Clean Title")
+ * @param {string} options.vehicleData.titleStatus - Title status (e.g., "Clean", "Salvage")
  * @param {number} options.vehicleData.price - Vehicle price
- * @returns {Promise<Buffer>} - Processed image buffer with banner
+ * @returns {Promise<Buffer>} - Processed image buffer with banner overlay
  */
 const addJPAutoBanner = async (imageBuffer, options = {}) => {
   const {
-    height: bannerHeight = 180,
+    height: bannerHeight = 360,
     position = 'bottom',
     vehicleData = {}
   } = options;
 
-  const { titleStatus = 'Clean Title', price = 0 } = vehicleData;
+  const { titleStatus = 'Clean', price = 0 } = vehicleData;
+
+  // Append "Title" to the title status if not already present
+  const displayTitleStatus = titleStatus.toLowerCase().includes('title')
+    ? titleStatus
+    : `${titleStatus} Title`;
 
   try {
     // Get original image metadata
@@ -254,7 +259,7 @@ const addJPAutoBanner = async (imageBuffer, options = {}) => {
       maximumFractionDigits: 0
     }).format(price);
 
-    // Create banner SVG
+    // Create banner SVG (360px height, doubled font sizes)
     const bannerSvg = `
       <svg width="${imageWidth}" height="${bannerHeight}" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -268,32 +273,32 @@ const addJPAutoBanner = async (imageBuffer, options = {}) => {
         <rect width="${imageWidth}" height="${bannerHeight}" fill="url(#bannerGradient)"/>
 
         <!-- Top accent line -->
-        <rect x="0" y="0" width="${imageWidth}" height="4" fill="#FF4433"/>
+        <rect x="0" y="0" width="${imageWidth}" height="8" fill="#FF4433"/>
 
         <!-- Left section: Company info (static) -->
-        <text x="40" y="50" font-family="Arial, sans-serif" font-size="18" fill="white" font-weight="bold">
+        <text x="60" y="90" font-family="Arial, sans-serif" font-size="36" fill="white" font-weight="bold">
           JP AUTOMOTIVE GROUP
         </text>
-        <text x="40" y="80" font-family="Arial, sans-serif" font-size="14" fill="#d4d4d8">
+        <text x="60" y="150" font-family="Arial, sans-serif" font-size="28" fill="#d4d4d8">
           ${escapeXml(COMPANY_INFO.address)}
         </text>
-        <text x="40" y="105" font-family="Arial, sans-serif" font-size="14" fill="#d4d4d8">
+        <text x="60" y="200" font-family="Arial, sans-serif" font-size="28" fill="#d4d4d8">
           ${escapeXml(COMPANY_INFO.phone)} | ${escapeXml(COMPANY_INFO.email)}
         </text>
-        <text x="40" y="130" font-family="Arial, sans-serif" font-size="14" fill="#FF4433">
+        <text x="60" y="250" font-family="Arial, sans-serif" font-size="28" fill="#FF4433">
           ${escapeXml(COMPANY_INFO.website)}
         </text>
 
         <!-- Right section: Vehicle info (dynamic) -->
-        <text x="${imageWidth - 40}" y="55" font-family="Arial, sans-serif" font-size="22" fill="white" font-weight="bold" text-anchor="end">
-          ${escapeXml(titleStatus)}
+        <text x="${imageWidth - 60}" y="120" font-family="Arial, sans-serif" font-size="44" fill="white" font-weight="bold" text-anchor="end">
+          ${escapeXml(displayTitleStatus)}
         </text>
-        <text x="${imageWidth - 40}" y="100" font-family="Arial, sans-serif" font-size="40" fill="#FF4433" font-weight="bold" text-anchor="end">
+        <text x="${imageWidth - 60}" y="260" font-family="Arial, sans-serif" font-size="80" fill="#FF4433" font-weight="bold" text-anchor="end">
           ${escapeXml(formattedPrice)}
         </text>
 
         <!-- Decorative separator -->
-        <line x1="${imageWidth * 0.6}" y1="25" x2="${imageWidth * 0.6}" y2="${bannerHeight - 25}" stroke="#FF4433" stroke-width="2" stroke-opacity="0.5"/>
+        <line x1="${imageWidth * 0.6}" y1="40" x2="${imageWidth * 0.6}" y2="${bannerHeight - 40}" stroke="#FF4433" stroke-width="3" stroke-opacity="0.5"/>
       </svg>
     `;
 
@@ -302,18 +307,11 @@ const addJPAutoBanner = async (imageBuffer, options = {}) => {
       .png()
       .toBuffer();
 
-    // Composite banner onto original image
+    // Composite banner directly onto the image (overlay, not extend)
     let composite;
     if (position === 'top') {
-      // Extend canvas at top and place banner there
+      // Overlay banner at top of image
       composite = await sharp(imageBuffer)
-        .extend({
-          top: bannerHeight,
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: { r: 8, g: 51, b: 68, alpha: 1 }
-        })
         .composite([
           {
             input: bannerBuffer,
@@ -324,19 +322,12 @@ const addJPAutoBanner = async (imageBuffer, options = {}) => {
         .jpeg({ quality: IMAGE_QUALITY, progressive: true })
         .toBuffer();
     } else {
-      // Extend canvas at bottom and place banner there
+      // Overlay banner at bottom of image
       composite = await sharp(imageBuffer)
-        .extend({
-          top: 0,
-          bottom: bannerHeight,
-          left: 0,
-          right: 0,
-          background: { r: 8, g: 51, b: 68, alpha: 1 }
-        })
         .composite([
           {
             input: bannerBuffer,
-            top: imageHeight,
+            top: imageHeight - bannerHeight,
             left: 0
           }
         ])
