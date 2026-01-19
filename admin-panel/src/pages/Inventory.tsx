@@ -157,26 +157,12 @@ export default function Inventory() {
 
   // Apply banner to main photo mutation
   const applyBannerMutation = useMutation({
-    mutationFn: ({
-      vehicleId,
-      mainPhotoUrl,
-      titleStatus,
-      price,
-    }: {
-      vehicleId: number;
-      mainPhotoUrl: string;
-      titleStatus: string;
-      price: number;
-    }) => {
-      const websiteUrl = import.meta.env.VITE_WEBSITE_URL || 'https://www.jpautomotivegroup.com';
-      return api.applyBannerToMainPhoto(vehicleId, mainPhotoUrl, titleStatus, price, websiteUrl);
-    },
+    mutationFn: (vehicleId: number | string) => api.applyBannerToMainPhoto(vehicleId),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["inventory"] });
       if (selectedItem) {
         setSelectedItem({ ...selectedItem, images: data.images });
         setEditFormData({ ...editFormData, images: data.images });
-        setDisplayImages(data.images);
       }
       toast.success("Banner applied successfully! New photo is now the main photo.");
     },
@@ -482,14 +468,7 @@ export default function Inventory() {
       return;
     }
 
-    const mainPhotoUrl = editFormData.images[0];
-
-    applyBannerMutation.mutate({
-      vehicleId: selectedItem.id as number,
-      mainPhotoUrl,
-      titleStatus,
-      price,
-    });
+    applyBannerMutation.mutate(selectedItem.id as number);
   };
 
   const displayImages = editFormData.images || [];

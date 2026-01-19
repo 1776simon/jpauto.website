@@ -11,7 +11,8 @@ const {
   deleteInventory,
   markAsSold,
   toggleFeatured,
-  getInventoryStats
+  getInventoryStats,
+  applyBannerToPhoto
 } = require('../controllers/inventoryController');
 const {
   verifyInventoryImages,
@@ -108,6 +109,13 @@ router.post('/:id/toggle-featured',
   isManagerOrAdmin,
   validateUUID,
   toggleFeatured
+);
+
+// Apply banner to main photo
+router.post('/:id/apply-banner',
+  isManagerOrAdmin,
+  validateUUID,
+  applyBannerToPhoto
 );
 
 /**

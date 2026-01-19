@@ -1,6 +1,7 @@
 const { Inventory, PendingSubmission, User } = require('../models');
 const { uploadFile, deleteMultipleFiles, extractKeyFromUrl, uploadFileWithVerification } = require('../services/r2Storage');
-const { processVehicleImages, scanForVirus } = require('../services/imageProcessor');
+const { processVehicleImages, scanForVirus, addJPAutoBanner } = require('../services/imageProcessor');
+const { v4: uuidv4 } = require('uuid');
 const { Op } = require('sequelize');
 const { sequelize } = require('../models');
 const logger = require('../config/logger');
@@ -678,6 +679,121 @@ const getInventoryStats = async (req, res) => {
   }
 };
 
+/**
+ * Apply banner to main vehicle photo
+ * POST /api/inventory/:id/apply-banner
+ *
+ * Creates a bannered version of the main photo and inserts it at position 0,
+ * keeping the original photo at position 1 as backup.
+ */
+const applyBannerToPhoto = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const { id } = req.params;
+
+    logger.info(`[InventoryController] Apply banner request - Vehicle ID: ${id}`);
+
+    const vehicle = await Inventory.findByPk(id, { transaction });
+
+    if (!vehicle) {
+      await transaction.rollback();
+      return res.status(404).json({
+        error: 'Vehicle not found'
+      });
+    }
+
+    // Check if vehicle has images
+    if (!vehicle.images || vehicle.images.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({
+        error: 'Vehicle has no images to apply banner to'
+      });
+    }
+
+    // Get main photo URL (first image)
+    const mainPhotoUrl = vehicle.images[0];
+
+    // Fetch the main photo
+    logger.info(`[InventoryController] Fetching main photo: ${mainPhotoUrl}`);
+    const imageResponse = await fetch(mainPhotoUrl);
+
+    if (!imageResponse.ok) {
+      await transaction.rollback();
+      return res.status(400).json({
+        error: 'Failed to fetch main photo from storage'
+      });
+    }
+
+    const imageArrayBuffer = await imageResponse.arrayBuffer();
+    const imageBuffer = Buffer.from(imageArrayBuffer);
+
+    // Get vehicle data for banner
+    const titleStatus = vehicle.titleStatus || vehicle.title_status || 'Clean Title';
+    const price = vehicle.price || 0;
+
+    logger.info(`[InventoryController] Processing banner - Title: ${titleStatus}, Price: ${price}`);
+
+    // Apply banner to image
+    const banneredImageBuffer = await addJPAutoBanner(imageBuffer, {
+      height: 180,
+      position: 'bottom',
+      vehicleData: {
+        titleStatus,
+        price
+      }
+    });
+
+    // Generate unique filename for bannered image
+    const fileName = `${uuidv4()}-bannered.jpg`;
+    const filePath = `vehicles/${vehicle.vin}/full/${fileName}`;
+
+    // Upload bannered image to R2
+    logger.info(`[InventoryController] Uploading bannered image: ${filePath}`);
+    const uploadResult = await uploadFileWithVerification(
+      banneredImageBuffer,
+      filePath,
+      'image/jpeg'
+    );
+
+    if (!uploadResult.success) {
+      await transaction.rollback();
+      return res.status(500).json({
+        error: 'Failed to upload bannered image',
+        message: uploadResult.error
+      });
+    }
+
+    // Insert bannered image at position 0, keeping original at position 1
+    const updatedImages = [uploadResult.url, ...vehicle.images];
+
+    // Update vehicle with new images array
+    await vehicle.update({
+      images: updatedImages,
+      primaryImageUrl: uploadResult.url,
+      latestPhotoModified: new Date(),
+      updatedBy: req.user.id
+    }, { transaction });
+
+    await transaction.commit();
+
+    logger.info(`[InventoryController] Banner applied successfully - Vehicle ID: ${id}, New photo: ${uploadResult.url}`);
+
+    res.json({
+      message: 'Banner applied successfully',
+      banneredImageUrl: uploadResult.url,
+      images: updatedImages
+    });
+  } catch (error) {
+    await transaction.rollback();
+    logger.error('Error applying banner to photo:', error);
+    res.status(500).json({
+      error: 'Failed to apply banner to photo',
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllInventory,
   getInventoryById,
@@ -689,5 +805,6 @@ module.exports = {
   deleteInventory,
   markAsSold,
   toggleFeatured,
-  getInventoryStats
+  getInventoryStats,
+  applyBannerToPhoto
 };

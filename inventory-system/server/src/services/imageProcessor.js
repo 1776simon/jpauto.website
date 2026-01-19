@@ -211,9 +211,163 @@ const processVehicleImages = async (files, vin) => {
 
 // Virus scanning removed - implement with ClamAV or VirusTotal if needed
 
+/**
+ * Company contact information for banner
+ */
+const COMPANY_INFO = {
+  address: '2529 Connie Dr #15, Sacramento, CA 95815',
+  email: 'jpautomotivegroupllc@gmail.com',
+  phone: '(916) 618-7197',
+  website: 'www.jpautomotivegroup.com'
+};
+
+/**
+ * Add JP Auto banner to vehicle image
+ * @param {Buffer} imageBuffer - Original image buffer
+ * @param {object} options - Banner options
+ * @param {number} options.height - Banner height in pixels (default: 180)
+ * @param {string} options.position - Banner position 'top' | 'bottom' (default: 'bottom')
+ * @param {object} options.vehicleData - Vehicle-specific data
+ * @param {string} options.vehicleData.titleStatus - Title status (e.g., "Clean Title")
+ * @param {number} options.vehicleData.price - Vehicle price
+ * @returns {Promise<Buffer>} - Processed image buffer with banner
+ */
+const addJPAutoBanner = async (imageBuffer, options = {}) => {
+  const {
+    height: bannerHeight = 180,
+    position = 'bottom',
+    vehicleData = {}
+  } = options;
+
+  const { titleStatus = 'Clean Title', price = 0 } = vehicleData;
+
+  try {
+    // Get original image metadata
+    const metadata = await sharp(imageBuffer).metadata();
+    const imageWidth = metadata.width || 1920;
+    const imageHeight = metadata.height || 1080;
+
+    // Format price
+    const formattedPrice = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }).format(price);
+
+    // Create banner SVG
+    const bannerSvg = `
+      <svg width="${imageWidth}" height="${bannerHeight}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bannerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#0D4D62;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#083344;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+
+        <!-- Banner background -->
+        <rect width="${imageWidth}" height="${bannerHeight}" fill="url(#bannerGradient)"/>
+
+        <!-- Top accent line -->
+        <rect x="0" y="0" width="${imageWidth}" height="4" fill="#FF4433"/>
+
+        <!-- Left section: Company info (static) -->
+        <text x="40" y="50" font-family="Arial, sans-serif" font-size="18" fill="white" font-weight="bold">
+          JP AUTOMOTIVE GROUP
+        </text>
+        <text x="40" y="80" font-family="Arial, sans-serif" font-size="14" fill="#d4d4d8">
+          ${escapeXml(COMPANY_INFO.address)}
+        </text>
+        <text x="40" y="105" font-family="Arial, sans-serif" font-size="14" fill="#d4d4d8">
+          ${escapeXml(COMPANY_INFO.phone)} | ${escapeXml(COMPANY_INFO.email)}
+        </text>
+        <text x="40" y="130" font-family="Arial, sans-serif" font-size="14" fill="#FF4433">
+          ${escapeXml(COMPANY_INFO.website)}
+        </text>
+
+        <!-- Right section: Vehicle info (dynamic) -->
+        <text x="${imageWidth - 40}" y="55" font-family="Arial, sans-serif" font-size="22" fill="white" font-weight="bold" text-anchor="end">
+          ${escapeXml(titleStatus)}
+        </text>
+        <text x="${imageWidth - 40}" y="100" font-family="Arial, sans-serif" font-size="40" fill="#FF4433" font-weight="bold" text-anchor="end">
+          ${escapeXml(formattedPrice)}
+        </text>
+
+        <!-- Decorative separator -->
+        <line x1="${imageWidth * 0.6}" y1="25" x2="${imageWidth * 0.6}" y2="${bannerHeight - 25}" stroke="#FF4433" stroke-width="2" stroke-opacity="0.5"/>
+      </svg>
+    `;
+
+    // Create banner image from SVG
+    const bannerBuffer = await sharp(Buffer.from(bannerSvg))
+      .png()
+      .toBuffer();
+
+    // Composite banner onto original image
+    let composite;
+    if (position === 'top') {
+      // Extend canvas at top and place banner there
+      composite = await sharp(imageBuffer)
+        .extend({
+          top: bannerHeight,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: { r: 8, g: 51, b: 68, alpha: 1 }
+        })
+        .composite([
+          {
+            input: bannerBuffer,
+            top: 0,
+            left: 0
+          }
+        ])
+        .jpeg({ quality: IMAGE_QUALITY, progressive: true })
+        .toBuffer();
+    } else {
+      // Extend canvas at bottom and place banner there
+      composite = await sharp(imageBuffer)
+        .extend({
+          top: 0,
+          bottom: bannerHeight,
+          left: 0,
+          right: 0,
+          background: { r: 8, g: 51, b: 68, alpha: 1 }
+        })
+        .composite([
+          {
+            input: bannerBuffer,
+            top: imageHeight,
+            left: 0
+          }
+        ])
+        .jpeg({ quality: IMAGE_QUALITY, progressive: true })
+        .toBuffer();
+    }
+
+    return composite;
+  } catch (error) {
+    console.error('Error adding banner to image:', error);
+    throw new Error(`Failed to add banner: ${error.message}`);
+  }
+};
+
+/**
+ * Escape XML special characters for SVG
+ */
+const escapeXml = (str) => {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+};
+
 module.exports = {
   processImage,
   createThumbnail,
   validateImage,
-  processVehicleImages
+  processVehicleImages,
+  addJPAutoBanner
 };
