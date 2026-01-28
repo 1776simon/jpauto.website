@@ -217,7 +217,7 @@ description: Sacramento's trusted source for quality pre-owned vehicles. Browse 
     {% for vehicle in featured_vehicles limit:6 %}
     <div class="border border-gray-300 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300 flex flex-col">
       <!-- Vehicle Image -->
-      <a href="{{ vehicle.url }}" class="block w-full h-64 bg-gray-100 overflow-hidden relative">
+      <a href="{{ vehicle.url }}" class="block w-full aspect-[4/3] bg-gray-100 overflow-hidden relative">
         {% if vehicle.primary_image %}
           <img src="{{ vehicle.primary_image }}" alt="{{ vehicle.title }}" class="w-full h-full object-contain" loading="lazy">
         {% else %}

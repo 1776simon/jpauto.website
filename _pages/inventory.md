@@ -155,7 +155,7 @@ permalink: /inventory/
                data-date="{{ vehicle.date_added }}">
 
             <!-- Vehicle Image -->
-            <a href="{{ vehicle.url }}" class="block w-full h-64 bg-gray-100 overflow-hidden relative">
+            <a href="{{ vehicle.url }}" class="block w-full aspect-[4/3] bg-gray-100 overflow-hidden relative">
               {% if vehicle.primary_image %}
                 <img src="{{ vehicle.primary_image }}"
                      alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}"
