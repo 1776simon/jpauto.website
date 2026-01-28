@@ -155,11 +155,11 @@ permalink: /inventory/
                data-date="{{ vehicle.date_added }}">
 
             <!-- Vehicle Image -->
-            <div class="w-full h-64 bg-gray-300 overflow-hidden relative">
+            <a href="{{ vehicle.url }}" class="block w-full h-64 bg-gray-100 overflow-hidden relative">
               {% if vehicle.primary_image %}
                 <img src="{{ vehicle.primary_image }}"
                      alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}"
-                     class="w-full h-full object-cover"
+                     class="w-full h-full object-contain"
                      loading="lazy"
                      onerror="this.src='/assets/images/placeholder-car.jpg'">
               {% else %}
@@ -173,7 +173,7 @@ permalink: /inventory/
                 FEATURED
               </div>
               {% endif %}
-            </div>
+            </a>
 
             <!-- Vehicle Info -->
             <div class="p-6 flex flex-col">
