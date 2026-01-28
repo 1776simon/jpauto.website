@@ -34,9 +34,9 @@ layout: default
           <!-- Main Display Image -->
           <div class="bg-gray-200 rounded-lg overflow-hidden mb-4 relative group">
             {% if page.primary_image and page.primary_image != "" %}
-            <img id="main-image" src="{{ page.primary_image }}" alt="{{ page.title }}" class="w-full h-96 object-contain bg-gray-100 cursor-pointer" onclick="openLightbox(0)">
+            <img id="main-image" src="{{ page.primary_image }}" alt="{{ page.title }}" class="w-full aspect-[4/3] object-contain bg-gray-100 cursor-pointer" onclick="openLightbox(0)">
             {% else %}
-            <div class="w-full h-96 flex items-center justify-center bg-gray-200">
+            <div class="w-full aspect-[4/3] flex items-center justify-center bg-gray-200">
               <span class="text-gray-400 text-6xl">🚗</span>
             </div>
             {% endif %}
