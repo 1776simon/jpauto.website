@@ -232,6 +232,7 @@ export default function Inventory() {
       serviceRecordsOnFile: item.serviceRecordsOnFile || item.service_records_on_file || '',
       description: item.description || '',
       images: item.images || [],
+      featured: item.featured || false,
     });
     setIsEditing(true);
   };
@@ -339,6 +340,7 @@ export default function Inventory() {
       serviceRecordsOnFile: '',
       description: '',
       images: [],
+      featured: false,
     });
   };
 
@@ -672,17 +674,25 @@ export default function Inventory() {
                 className="m3-card overflow-hidden hover:shadow-lg transition-shadow group flex flex-col"
               >
                 {/* Vehicle Image */}
-                <div className="relative h-48 bg-muted overflow-hidden flex-shrink-0">
+                <div className="relative aspect-[4/3] bg-muted overflow-hidden flex-shrink-0">
                   {item.images && item.images.length > 0 ? (
                     <img
                       src={item.images[0]}
                       alt={`${item.year} ${item.make} ${item.model}`}
                       onClick={() => openGallery(item.images, 0)}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+                      className="w-full h-full object-contain bg-gray-100 group-hover:scale-105 transition-transform duration-300 cursor-pointer"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Car className="w-16 h-16 text-muted-foreground" />
+                    </div>
+                  )}
+                  {/* Featured Badge */}
+                  {item.featured && (
+                    <div className="absolute top-3 left-3">
+                      <span className="text-xs px-3 py-1 rounded-full font-medium bg-primary text-white">
+                        FEATURED
+                      </span>
                     </div>
                   )}
                   {/* Status Badge */}
@@ -1119,6 +1129,17 @@ export default function Inventory() {
                             <option value="Salvage">Salvage</option>
                             <option value="Junk">Junk</option>
                           </select>
+                        </div>
+                        <div className="flex items-center">
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={editFormData.featured || false}
+                              onChange={(e) => setEditFormData({ ...editFormData, featured: e.target.checked })}
+                              className="w-5 h-5 rounded border-border text-primary focus:ring-primary"
+                            />
+                            <span className="text-sm font-medium text-foreground">Featured Vehicle</span>
+                          </label>
                         </div>
                       </div>
                     </div>
