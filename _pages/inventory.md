@@ -7,8 +7,8 @@ permalink: /inventory/
 ---
 
 <div class="bg-white">
-  <!-- Page Header -->
-  <div class="bg-gradient-to-r from-primary to-primary-dark py-12">
+  <!-- Page Header - Hidden on mobile -->
+  <div class="hidden md:block bg-gradient-to-r from-primary to-primary-dark py-12">
     <div class="container mx-auto px-4 text-center text-white">
       <h1 class="text-4xl md:text-5xl font-bold mb-4">Browse Our Inventory</h1>
       <p class="text-lg md:text-xl">Quality Pre-Owned Vehicles at Unbeatable Prices</p>
@@ -32,18 +32,30 @@ permalink: /inventory/
 
       <!-- Sidebar Filters -->
       <aside class="w-full">
-        <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-900">Filters</h2>
+        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 lg:sticky lg:top-24">
+          <!-- Filter Header with Toggle -->
+          <div class="flex justify-between items-center mb-4 lg:mb-6">
+            <button id="filter-toggle" class="lg:hidden flex items-center gap-2 text-xl font-bold text-gray-900">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+              </svg>
+              Filters
+              <svg id="filter-chevron" class="w-5 h-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <h2 class="hidden lg:block text-2xl font-bold text-gray-900">Filters</h2>
             <button id="clear-filters" class="text-sm text-primary hover:text-primary-dark font-semibold">Clear All</button>
           </div>
 
-          <!-- Active Filters Display -->
-          <div id="active-filters" class="mb-6 hidden">
-            <div class="flex flex-wrap gap-2" id="filter-badges"></div>
-          </div>
+          <!-- Collapsible Filter Content -->
+          <div id="filter-content" class="hidden lg:block">
+            <!-- Active Filters Display -->
+            <div id="active-filters" class="mb-6 hidden">
+              <div class="flex flex-wrap gap-2" id="filter-badges"></div>
+            </div>
 
-          <!-- Make Filter -->
+            <!-- Make Filter -->
           <div class="mb-6">
             <label class="block text-sm font-bold text-gray-700 mb-2">Make</label>
             <select id="filter-make" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
@@ -105,13 +117,14 @@ permalink: /inventory/
           </div>
 
           <!-- Fuel Type -->
-          <div class="mb-6">
+          <div class="mb-6 lg:mb-0">
             <label class="block text-sm font-bold text-gray-700 mb-2">Fuel Type</label>
             <select id="filter-fuel-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
               <option value="">All Fuel Types</option>
             </select>
           </div>
 
+          </div><!-- End filter-content -->
         </div>
       </aside>
 
@@ -253,6 +266,24 @@ permalink: /inventory/
 <script>
 (function() {
   'use strict';
+
+  // Mobile filter toggle
+  const filterToggle = document.getElementById('filter-toggle');
+  const filterContent = document.getElementById('filter-content');
+  const filterChevron = document.getElementById('filter-chevron');
+
+  if (filterToggle && filterContent) {
+    filterToggle.addEventListener('click', function() {
+      const isHidden = filterContent.classList.contains('hidden');
+      if (isHidden) {
+        filterContent.classList.remove('hidden');
+        filterChevron.classList.add('rotate-180');
+      } else {
+        filterContent.classList.add('hidden');
+        filterChevron.classList.remove('rotate-180');
+      }
+    });
+  }
 
   // Get all vehicle cards
   const vehicleCards = document.querySelectorAll('.vehicle-card');
