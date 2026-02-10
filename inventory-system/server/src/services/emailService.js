@@ -2,6 +2,16 @@ const nodemailer = require('nodemailer');
 const sgMail = require('@sendgrid/mail');
 const logger = require('../config/logger');
 
+/**
+ * Format a YYYY-MM-DD date string to MM/DD/YYYY for display
+ */
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  return `${parts[1]}/${parts[2]}/${parts[0]}`;
+}
+
 // Configure SendGrid if API key is provided
 const useSendGrid = process.env.SENDGRID_API_KEY && process.env.USE_SENDGRID === 'true';
 
@@ -119,7 +129,7 @@ function formatFinancingEmail(data) {
        <strong>Phone:</strong> ${data.coMobileNumber}<br>
        <strong>Email:</strong> ${data.coEmail}<br>
        <strong>SSN:</strong> ${data.coSsn}<br>
-       <strong>Birth Date:</strong> ${data.coBirthDate}</p>
+       <strong>Birth Date:</strong> ${formatDate(data.coBirthDate)}</p>
 
        <p><strong>Employer:</strong> ${data.coCompanyName}<br>
        <strong>Job Title:</strong> ${data.coJobTitle}<br>
@@ -150,7 +160,7 @@ function formatFinancingEmail(data) {
         <strong>Email:</strong> ${data.email}<br>
         <strong>SSN:</strong> ${data.ssn}<br>
         <strong>Driver's License:</strong> ${data.driversLicense} (${data.state})<br>
-        <strong>Birth Date:</strong> ${data.birthDate}</p>
+        <strong>Birth Date:</strong> ${formatDate(data.birthDate)}</p>
 
         <h3>Current Residence</h3>
         <p><strong>Address:</strong> ${data.currentAddress}${data.currentApt ? ' ' + data.currentApt : ''}<br>
@@ -215,7 +225,7 @@ Phone: ${data.mobileNumber}
 Email: ${data.email}
 SSN: ${data.ssn}
 Driver's License: ${data.driversLicense} (${data.state})
-Birth Date: ${data.birthDate}
+Birth Date: ${formatDate(data.birthDate)}
 
 CURRENT RESIDENCE
 Address: ${data.currentAddress}${data.currentApt ? ' ' + data.currentApt : ''}
