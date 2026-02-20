@@ -32,104 +32,145 @@ layout: default
         <!-- Image Gallery -->
         <div class="mb-8">
           <!-- Main Display Image -->
-          <div class="bg-gray-200 rounded-lg overflow-hidden mb-4 relative group">
+          <div id="gallery-container" class="bg-gray-200 rounded-lg overflow-hidden mb-3 relative" style="touch-action: pan-y; user-select: none;">
             {% if page.primary_image and page.primary_image != "" %}
-            <img id="main-image" src="{{ page.primary_image }}" alt="{{ page.title }}" class="w-full aspect-[4/3] object-contain bg-gray-100 cursor-pointer" onclick="openLightbox(0)">
+            <img id="main-image" src="{{ page.primary_image }}" alt="{{ page.title }}" class="w-full aspect-[4/3] object-contain bg-gray-100 cursor-pointer" onclick="openLightbox(currentIndex)">
             {% else %}
             <div class="w-full aspect-[4/3] flex items-center justify-center bg-gray-200">
               <span class="text-gray-400 text-6xl">🚗</span>
             </div>
             {% endif %}
 
-            <!-- Navigation Arrows (appear on hover) -->
             {% if page.images.size > 1 %}
-            <button onclick="previousImage()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            <!-- Prev Arrow -->
+            <button onclick="previousImage()" style="touch-action: manipulation;" class="gallery-arrow absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 md:p-3 rounded-full transition-opacity duration-200 opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:outline-none">
+              <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
               </svg>
             </button>
-            <button onclick="nextImage()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            <!-- Next Arrow -->
+            <button onclick="nextImage()" style="touch-action: manipulation;" class="gallery-arrow absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 md:p-3 rounded-full transition-opacity duration-200 opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:outline-none">
+              <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
               </svg>
             </button>
 
             <!-- Image Counter -->
-            <div class="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+            <div class="absolute bottom-3 right-3 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium pointer-events-none">
               <span id="current-image-num">1</span> / {{ page.images.size }}
             </div>
             {% endif %}
           </div>
 
-          <!-- Thumbnail Grid -->
-          {% if page.images %}
-          <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+          <!-- Carousel Strip (replaces thumbnail grid) -->
+          {% if page.images.size > 1 %}
+          <div id="carousel-strip" class="flex gap-2 overflow-x-auto pb-1" style="scrollbar-width: none; -ms-overflow-style: none;">
             {% for image in page.images %}
             {% if image and image != "" %}
-            <div class="thumbnail bg-gray-200 rounded overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition border-2 {% if forloop.first %}border-primary{% else %}border-transparent{% endif %}" onclick="changeImage({{ forloop.index0 }})">
-              <img src="{{ image }}" alt="{{ page.title }}" class="w-full h-20 object-cover">
+            <div class="carousel-thumb flex-shrink-0 rounded overflow-hidden cursor-pointer border-2 transition-all duration-150 {% if forloop.first %}border-primary{% else %}border-transparent{% endif %}" style="width: 64px; height: 56px; touch-action: manipulation;" onclick="changeImage({{ forloop.index0 }})">
+              <img src="{{ image }}" alt="{{ page.title }} photo {{ forloop.index }}" class="w-full h-full object-cover" loading="lazy">
             </div>
             {% endif %}
             {% endfor %}
           </div>
+          <style>#carousel-strip::-webkit-scrollbar { display: none; }</style>
           {% endif %}
         </div>
 
         <!-- Lightbox Modal -->
-        <div id="lightbox" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center">
-          <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white hover:text-gray-300 transition">
+        <div id="lightbox" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center" style="display: none;">
+          <!-- Close -->
+          <button onclick="closeLightbox()" style="touch-action: manipulation;" class="absolute top-4 right-4 text-white hover:text-gray-300 transition z-10 focus:outline-none">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
 
-          <button onclick="previousImage()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          <!-- Prev Arrow -->
+          <button onclick="previousImage()" style="touch-action: manipulation;" class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/60 text-white p-3 rounded-full transition focus:outline-none z-10">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
             </svg>
           </button>
 
-          {% if page.primary_image and page.primary_image != "" %}
-          <img id="lightbox-image" src="{{ page.primary_image }}" alt="{{ page.title }}" class="max-h-[90vh] max-w-[90vw] object-contain">
-          {% else %}
-          <div class="max-h-[90vh] max-w-[90vw] flex items-center justify-center">
+          <!-- Main Lightbox Image -->
+          <div id="lightbox-image-wrap" class="flex items-center justify-center w-full" style="height: calc(100vh - 120px); touch-action: pan-y; user-select: none;">
+            {% if page.primary_image and page.primary_image != "" %}
+            <img id="lightbox-image" src="{{ page.primary_image }}" alt="{{ page.title }}" class="max-h-full max-w-full object-contain">
+            {% else %}
             <span class="text-gray-400 text-9xl">🚗</span>
+            {% endif %}
           </div>
-          {% endif %}
 
-          <button onclick="nextImage()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          <!-- Next Arrow -->
+          <button onclick="nextImage()" style="touch-action: manipulation;" class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/60 text-white p-3 rounded-full transition focus:outline-none z-10">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
             </svg>
           </button>
 
-          <div class="absolute bottom-4 text-white text-lg">
+          <!-- Counter -->
+          <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium pointer-events-none">
             <span id="lightbox-counter">1</span> / {{ page.images.size }}
           </div>
+
+          <!-- Lightbox Carousel Strip -->
+          {% if page.images.size > 1 %}
+          <div class="absolute bottom-0 left-0 right-0 bg-black/60 py-2 px-3">
+            <div id="lightbox-strip" class="flex gap-2 overflow-x-auto" style="scrollbar-width: none; -ms-overflow-style: none;">
+              {% for image in page.images %}
+              {% if image and image != "" %}
+              <div class="lightbox-thumb flex-shrink-0 rounded overflow-hidden cursor-pointer border-2 transition-all duration-150 {% if forloop.first %}border-primary{% else %}border-transparent opacity-60{% endif %}" style="width: 56px; height: 48px; touch-action: manipulation;" onclick="changeImage({{ forloop.index0 }})">
+                <img src="{{ image }}" alt="{{ page.title }} photo {{ forloop.index }}" class="w-full h-full object-cover" loading="lazy">
+              </div>
+              {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <style>#lightbox-strip::-webkit-scrollbar { display: none; }</style>
+          {% endif %}
         </div>
 
         <script>
-          // Image gallery functionality
           const images = {{ page.images | jsonify }};
           let currentIndex = 0;
 
           function changeImage(index) {
             currentIndex = index;
-            document.getElementById('main-image').src = images[index];
-            document.getElementById('lightbox-image').src = images[index];
+            const mainImg = document.getElementById('main-image');
+            const lbImg  = document.getElementById('lightbox-image');
+            if (mainImg) mainImg.src = images[index];
+            if (lbImg)   lbImg.src  = images[index];
             document.getElementById('current-image-num').textContent = index + 1;
-            document.getElementById('lightbox-counter').textContent = index + 1;
+            document.getElementById('lightbox-counter').textContent  = index + 1;
 
-            // Update thumbnail borders
-            document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
-              if (i === index) {
-                thumb.classList.remove('border-transparent');
-                thumb.classList.add('border-primary');
-              } else {
-                thumb.classList.remove('border-primary');
-                thumb.classList.add('border-transparent');
-              }
+            // Update carousel strip highlights
+            document.querySelectorAll('.carousel-thumb').forEach((t, i) => {
+              t.classList.toggle('border-primary', i === index);
+              t.classList.toggle('border-transparent', i !== index);
             });
+            // Update lightbox strip highlights
+            document.querySelectorAll('.lightbox-thumb').forEach((t, i) => {
+              t.classList.toggle('border-primary', i === index);
+              t.classList.toggle('border-transparent', i !== index);
+              t.classList.toggle('opacity-60', i !== index);
+            });
+
+            // Scroll both strips to keep active thumb centered
+            scrollStripToIndex('carousel-strip',  '.carousel-thumb',  index);
+            scrollStripToIndex('lightbox-strip',  '.lightbox-thumb',  index);
+          }
+
+          function scrollStripToIndex(stripId, thumbSelector, index) {
+            const strip = document.getElementById(stripId);
+            if (!strip) return;
+            const thumbs = strip.querySelectorAll(thumbSelector);
+            if (!thumbs[index]) return;
+            const thumb = thumbs[index];
+            const stripRect = strip.getBoundingClientRect();
+            const thumbRect = thumb.getBoundingClientRect();
+            const offset = thumb.offsetLeft - strip.offsetLeft - (strip.clientWidth / 2) + (thumb.clientWidth / 2);
+            strip.scrollTo({ left: offset, behavior: 'smooth' });
           }
 
           function nextImage() {
@@ -145,28 +186,64 @@ layout: default
           function openLightbox(index) {
             currentIndex = index;
             changeImage(index);
-            document.getElementById('lightbox').classList.remove('hidden');
+            const lb = document.getElementById('lightbox');
+            lb.style.display = 'flex';
+            lb.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
           }
 
           function closeLightbox() {
-            document.getElementById('lightbox').classList.add('hidden');
-            document.body.style.overflow = 'auto';
+            const lb = document.getElementById('lightbox');
+            lb.style.display = 'none';
+            lb.classList.add('hidden');
+            document.body.style.overflow = '';
           }
 
           // Keyboard navigation
           document.addEventListener('keydown', (e) => {
-            if (document.getElementById('lightbox').classList.contains('hidden')) return;
-
-            if (e.key === 'ArrowLeft') previousImage();
+            if (document.getElementById('lightbox').style.display === 'none') return;
+            if (e.key === 'ArrowLeft')  previousImage();
             if (e.key === 'ArrowRight') nextImage();
-            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'Escape')     closeLightbox();
           });
 
-          // Close lightbox when clicking outside image
+          // Close lightbox on backdrop click
           document.getElementById('lightbox').addEventListener('click', (e) => {
-            if (e.target.id === 'lightbox') closeLightbox();
+            if (e.target === document.getElementById('lightbox') ||
+                e.target === document.getElementById('lightbox-image-wrap')) {
+              closeLightbox();
+            }
           });
+
+          // ── Swipe support ──────────────────────────────────────────────
+          function addSwipe(elementId, onSwipeLeft, onSwipeRight) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            let startX = 0, startY = 0, isDragging = false;
+
+            el.addEventListener('touchstart', (e) => {
+              startX = e.touches[0].clientX;
+              startY = e.touches[0].clientY;
+              isDragging = true;
+            }, { passive: true });
+
+            el.addEventListener('touchend', (e) => {
+              if (!isDragging) return;
+              isDragging = false;
+              const dx = e.changedTouches[0].clientX - startX;
+              const dy = e.changedTouches[0].clientY - startY;
+              // Only register horizontal swipe if mostly horizontal
+              if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                if (dx < 0) onSwipeLeft();
+                else        onSwipeRight();
+              }
+            }, { passive: true });
+
+            el.addEventListener('touchcancel', () => { isDragging = false; });
+          }
+
+          addSwipe('gallery-container',    nextImage, previousImage);
+          addSwipe('lightbox-image-wrap',  nextImage, previousImage);
         </script>
 
         <!-- Vehicle Description -->
@@ -281,40 +358,345 @@ layout: default
             <a href="tel:+19166187197" class="block md:hidden w-full bg-primary text-white text-center py-3 rounded-lg hover:bg-primary-dark transition font-semibold">
               📞 Call Now
             </a>
-            <a href="/contact?vehicle={{ page.title | url_encode }}&type=testdrive" class="block w-full border-2 border-primary text-primary text-center py-3 rounded-lg hover:bg-primary hover:text-white transition font-semibold">
-              🚗 Schedule Test Drive
+            <a href="{{ site.business.maps_link }}" target="_blank" rel="noopener" class="block w-full border-2 border-primary text-primary text-center py-3 rounded-lg hover:bg-primary hover:text-white transition font-semibold">
+              📍 Get Directions
             </a>
+          </div>
+
+          <!-- OTD Price Button -->
+          <div class="mt-4">
+            <button onclick="openOTD()" style="touch-action: manipulation;" class="block w-full bg-gray-900 text-white text-center py-3 rounded-lg hover:bg-gray-700 transition font-semibold text-sm">
+              🧾 What's my Out-the-Door Price?
+            </button>
           </div>
 
           <!-- Payment Estimator -->
           <div class="mt-6 pt-6 border-t border-gray-200">
-            <p class="text-sm text-gray-600 mb-2">Estimated Monthly Payment</p>
-            <p class="text-2xl font-bold text-gray-900 mb-2">$<span id="monthly-payment"></span>/mo</p>
-            <p class="text-xs text-gray-500">Based on 60 months @ 11% APR with $2,000 down</p>
+            <p class="text-sm text-gray-600 mb-1">Estimated Monthly Payment</p>
+            <p class="text-2xl font-bold text-gray-900 mb-1">$<span id="monthly-payment"></span>/mo</p>
+            <p class="text-xs text-gray-500 mb-1">Est. ~$<span id="down-payment-display"></span> down · 14% APR · 60 mo · 650+ credit score</p>
+            <p class="text-xs text-gray-400">Subject to credit approval. Actual terms may vary.</p>
             <a href="/financing?vehicle={{ page.title | url_encode }}" class="block mt-4 text-center text-primary hover:text-primary-dark font-semibold text-sm">
               Get Pre-Approved →
             </a>
           </div>
 
           <script>
-            // Calculate monthly payment using loan amortization formula
             (function() {
               const price = {{ page.price }};
-              const downPayment = 2000;
+              // Down payment: 20% of price rounded up to nearest $100
+              const downPayment = Math.ceil((price * 0.20) / 100) * 100;
               const principal = price - downPayment;
-              const annualRate = 0.11; // 11% APR
-              const monthlyRate = annualRate / 12;
-              const numPayments = 60;
+              const monthlyRate = 0.14 / 12;
+              const n = 60;
+              const calculated = principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+              const monthly = Math.max(250, Math.round(calculated));
 
-              // Monthly payment formula: M = P * [r(1 + r)^n] / [(1 + r)^n - 1]
-              const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
-
-              document.getElementById('monthly-payment').textContent = Math.round(monthlyPayment).toLocaleString();
+              document.getElementById('monthly-payment').textContent = monthly.toLocaleString();
+              document.getElementById('down-payment-display').textContent = downPayment.toLocaleString();
             })();
           </script>
         </div>
       </div>
     </div>
+
+    <!-- OTD Price Modal -->
+    <div id="otd-modal" class="fixed inset-0 bg-black/60 z-50 items-center justify-center p-4" style="display: none;">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-5 border-b border-gray-200">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Out-the-Door Price</h2>
+            <p class="text-sm text-gray-500 mt-0.5">{{ page.year }} {{ page.make }} {{ page.model }}</p>
+          </div>
+          <button onclick="closeOTD()" style="touch-action: manipulation;" class="text-gray-400 hover:text-gray-600 transition focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- ZIP Input -->
+        <div class="p-5 border-b border-gray-100">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Your ZIP Code</label>
+          <div class="flex gap-2">
+            <input id="otd-zip" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" placeholder="e.g. 95815" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length===5) calcOTD();">
+            <button onclick="calcOTD()" style="touch-action: manipulation;" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-dark transition">
+              Calculate
+            </button>
+          </div>
+          <p id="otd-zip-note" class="text-xs text-gray-400 mt-1.5">Enter your CA ZIP code for an accurate estimate.</p>
+        </div>
+
+        <!-- Fee Breakdown -->
+        <div id="otd-breakdown" class="p-5 space-y-2.5 hidden">
+          <!-- Vehicle Price -->
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-700">Vehicle Price</span>
+            <span class="text-sm font-semibold text-gray-900" id="otd-vehicle-price"></span>
+          </div>
+          <!-- Doc Fee -->
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-700">Document Processing Fee</span>
+            <span class="text-sm font-semibold text-gray-900">$70.00</span>
+          </div>
+          <!-- E-Filing -->
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-700">Electronic Filing Fee</span>
+            <span class="text-sm font-semibold text-gray-900">$33.00</span>
+          </div>
+          <!-- Emission Testing (CA non-EV only) -->
+          <div id="otd-row-emission" class="flex justify-between items-center hidden">
+            <span class="text-sm text-gray-700">Emission Testing Fee</span>
+            <span class="text-sm font-semibold text-gray-900">$50.00</span>
+          </div>
+          <!-- Smog Cert (CA non-EV only) -->
+          <div id="otd-row-smog" class="flex justify-between items-center hidden">
+            <span class="text-sm text-gray-700">Smog Certification Fee</span>
+            <span class="text-sm font-semibold text-gray-900">$8.25</span>
+          </div>
+          <!-- Sales Tax -->
+          <div id="otd-row-tax" class="flex justify-between items-center hidden">
+            <div>
+              <span class="text-sm text-gray-700">Sales Tax</span>
+              <span id="otd-tax-rate-label" class="text-xs text-gray-400 ml-1"></span>
+            </div>
+            <span class="text-sm font-semibold text-gray-900" id="otd-tax-amount"></span>
+          </div>
+          <!-- License Fee -->
+          <div id="otd-row-license" class="flex justify-between items-center hidden">
+            <div>
+              <span class="text-sm text-gray-700">License Fee</span>
+              <span class="text-xs text-amber-600 ml-1 font-medium">ESTIMATE</span>
+            </div>
+            <span class="text-sm font-semibold text-gray-900">$135.00</span>
+          </div>
+          <!-- DMV Registration -->
+          <div id="otd-row-dmv" class="flex justify-between items-center hidden">
+            <div>
+              <span class="text-sm text-gray-700">DMV Registration</span>
+              <span class="text-xs text-amber-600 ml-1 font-medium">ESTIMATE</span>
+            </div>
+            <span class="text-sm font-semibold text-gray-900">$351.00</span>
+          </div>
+
+          <!-- Divider -->
+          <div class="border-t border-gray-200 pt-2.5 mt-2.5">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-gray-900">Estimated OTD Total</span>
+              <span class="text-xl font-bold text-primary" id="otd-total"></span>
+            </div>
+          </div>
+
+          <!-- Out-of-state note -->
+          <div id="otd-oos-note" class="hidden mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 leading-relaxed">
+            <p class="font-semibold mb-1">Out-of-State Purchase Notice</p>
+            <p>For out-of-state purchases you're required to process registration yourself at your home state DMV. Please check with your local DMV for a list of requirements to register an out-of-state vehicle. Additionally, out-of-state purchasers can <strong>only ship the vehicle</strong> — in-person pickup is not available.</p>
+          </div>
+
+          <!-- Disclaimer -->
+          <p id="otd-disclaimer" class="text-xs text-gray-400 pt-1 leading-relaxed hidden">
+            This estimate is for informational purposes only. License and registration fees are estimates based on standard CA rates. Final amounts determined at time of sale. Sales tax calculated on vehicle price, doc fee, and electronic filing fee per CA CDTFA guidelines.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    // ── OTD Modal ───────────────────────────────────────────────────────
+    const OTD_VEHICLE_PRICE = {{ page.price }};
+    const OTD_FUEL_TYPE = {{ page.fuel_type | jsonify }};
+    const OTD_YEAR = {{ page.year }};
+
+    // CA ZIP → sales tax rate lookup (Sacramento metro + major CA counties)
+    // Rates as of 2025. Source: CA CDTFA. Update quarterly if rates change.
+    const CA_TAX_RATES = {
+      // Sacramento County (8.75%)
+      "94203":0.0875,"94204":0.0875,"94205":0.0875,"94206":0.0875,"94207":0.0875,
+      "94208":0.0875,"94209":0.0875,"94211":0.0875,"94229":0.0875,"94230":0.0875,
+      "94232":0.0875,"94234":0.0875,"94235":0.0875,"94236":0.0875,"94237":0.0875,
+      "94239":0.0875,"94240":0.0875,"94244":0.0875,"94245":0.0875,"94247":0.0875,
+      "94248":0.0875,"94249":0.0875,"94250":0.0875,"94252":0.0875,"94254":0.0875,
+      "94256":0.0875,"94257":0.0875,"94258":0.0875,"94259":0.0875,"94261":0.0875,
+      "94262":0.0875,"94263":0.0875,"94267":0.0875,"94268":0.0875,"94269":0.0875,
+      "94271":0.0875,"94273":0.0875,"94274":0.0875,"94277":0.0875,"94278":0.0875,
+      "94279":0.0875,"94280":0.0875,"94282":0.0875,"94283":0.0875,"94284":0.0875,
+      "94285":0.0875,"94286":0.0875,"94287":0.0875,"94288":0.0875,"94289":0.0875,
+      "94290":0.0875,"94291":0.0875,"94293":0.0875,"94294":0.0875,"94295":0.0875,
+      "94296":0.0875,"94297":0.0875,"94298":0.0875,"94299":0.0875,
+      "95811":0.0875,"95812":0.0875,"95813":0.0875,"95814":0.0875,"95815":0.0875,
+      "95816":0.0875,"95817":0.0875,"95818":0.0875,"95819":0.0875,"95820":0.0875,
+      "95821":0.0875,"95822":0.0875,"95823":0.0875,"95824":0.0875,"95825":0.0875,
+      "95826":0.0875,"95827":0.0875,"95828":0.0875,"95829":0.0875,"95830":0.0875,
+      "95831":0.0875,"95832":0.0875,"95833":0.0875,"95834":0.0875,"95835":0.0875,
+      "95836":0.0875,"95837":0.0875,"95838":0.0875,"95840":0.0875,"95841":0.0875,
+      "95842":0.0875,"95843":0.0875,"95851":0.0875,"95852":0.0875,"95853":0.0875,
+      "95860":0.0875,"95864":0.0875,"95865":0.0875,"95866":0.0875,"95867":0.0875,
+      "95894":0.0875,"95899":0.0875,
+      // Elk Grove / South Sac (Sacramento County, 8.75%)
+      "95624":0.0875,"95757":0.0875,"95758":0.0875,"95759":0.0875,
+      // Citrus Heights / Rancho Cordova / Fair Oaks (Sacramento County, 8.75%)
+      "95610":0.0875,"95621":0.0875,"95628":0.0875,"95630":0.0875,"95655":0.0875,
+      "95660":0.0875,"95670":0.0875,"95673":0.0875,"95683":0.0875,"95693":0.0875,
+      "95741":0.0875,"95742":0.0875,"95743":0.0875,"95762":0.0875,"95763":0.0875,
+      // Placer County (7.25%)
+      "95602":0.0725,"95603":0.0725,"95604":0.0725,"95613":0.0725,"95631":0.0725,
+      "95648":0.0725,"95650":0.0725,"95658":0.0725,"95661":0.0725,"95663":0.0725,
+      "95677":0.0725,"95678":0.0725,"95681":0.0725,"95703":0.0725,"95722":0.0725,
+      "95726":0.0725,"95736":0.0725,"95746":0.0725,"95747":0.0725,"95765":0.0725,
+      // El Dorado County (7.25%)
+      "95614":0.0725,"95619":0.0725,"95623":0.0725,"95633":0.0725,"95634":0.0725,
+      "95636":0.0725,"95637":0.0725,"95664":0.0725,"95667":0.0725,"95672":0.0725,
+      "95682":0.0725,"95684":0.0725,"95709":0.0725,"95720":0.0725,"95721":0.0725,
+      "95726":0.0725,"95728":0.0725,"95762":0.0725,
+      // Yolo County (8.25%)
+      "95605":0.0825,"95606":0.0825,"95607":0.0825,"95612":0.0825,"95616":0.0825,
+      "95617":0.0825,"95618":0.0825,"95627":0.0825,"95645":0.0825,"95694":0.0825,
+      "95695":0.0825,"95697":0.0825,"95698":0.0825,"95776":0.0825,
+      // Los Angeles County (10.25%)
+      "90001":0.1025,"90002":0.1025,"90003":0.1025,"90004":0.1025,"90005":0.1025,
+      "90006":0.1025,"90007":0.1025,"90008":0.1025,"90010":0.1025,"90011":0.1025,
+      "90012":0.1025,"90013":0.1025,"90014":0.1025,"90015":0.1025,"90016":0.1025,
+      "90017":0.1025,"90018":0.1025,"90019":0.1025,"90020":0.1025,"90021":0.1025,
+      "90023":0.1025,"90024":0.1025,"90025":0.1025,"90026":0.1025,"90027":0.1025,
+      "90028":0.1025,"90029":0.1025,"90031":0.1025,"90032":0.1025,"90033":0.1025,
+      "90034":0.1025,"90035":0.1025,"90036":0.1025,"90037":0.1025,"90038":0.1025,
+      "90039":0.1025,"90041":0.1025,"90042":0.1025,"90043":0.1025,"90044":0.1025,
+      "90045":0.1025,"90046":0.1025,"90047":0.1025,"90048":0.1025,"90049":0.1025,
+      // San Francisco County (8.625%)
+      "94102":0.08625,"94103":0.08625,"94104":0.08625,"94105":0.08625,"94107":0.08625,
+      "94108":0.08625,"94109":0.08625,"94110":0.08625,"94111":0.08625,"94112":0.08625,
+      "94114":0.08625,"94115":0.08625,"94116":0.08625,"94117":0.08625,"94118":0.08625,
+      "94121":0.08625,"94122":0.08625,"94123":0.08625,"94124":0.08625,"94127":0.08625,
+      "94129":0.08625,"94130":0.08625,"94131":0.08625,"94132":0.08625,"94133":0.08625,
+      "94134":0.08625,"94158":0.08625,
+      // San Diego County (7.75%)
+      "92101":0.0775,"92102":0.0775,"92103":0.0775,"92104":0.0775,"92105":0.0775,
+      "92106":0.0775,"92107":0.0775,"92108":0.0775,"92109":0.0775,"92110":0.0775,
+      "92111":0.0775,"92113":0.0775,"92114":0.0775,"92115":0.0775,"92116":0.0775,
+      "92117":0.0775,"92118":0.0775,"92119":0.0775,"92120":0.0775,"92121":0.0775,
+      "92122":0.0775,"92123":0.0775,"92124":0.0775,"92126":0.0775,"92127":0.0775,
+      "92128":0.0775,"92129":0.0775,"92130":0.0775,"92131":0.0775,"92132":0.0775,
+      // Alameda County (10.25%)
+      "94501":0.1025,"94502":0.1025,"94536":0.1025,"94537":0.1025,"94538":0.1025,
+      "94539":0.1025,"94540":0.1025,"94541":0.1025,"94542":0.1025,"94543":0.1025,
+      "94544":0.1025,"94545":0.1025,"94546":0.1025,"94550":0.1025,"94551":0.1025,
+      "94552":0.1025,"94555":0.1025,"94560":0.1025,"94566":0.1025,"94568":0.1025,
+      "94577":0.1025,"94578":0.1025,"94579":0.1025,"94580":0.1025,"94587":0.1025,
+      "94588":0.1025,"94601":0.1025,"94602":0.1025,"94603":0.1025,"94605":0.1025,
+      "94606":0.1025,"94607":0.1025,"94608":0.1025,"94609":0.1025,"94610":0.1025,
+      "94611":0.1025,"94612":0.1025,"94613":0.1025,"94619":0.1025,"94621":0.1025,
+      // Santa Clara County (9.125%)
+      "95002":0.09125,"95008":0.09125,"95013":0.09125,"95014":0.09125,"95020":0.09125,
+      "95032":0.09125,"95035":0.09125,"95037":0.09125,"95046":0.09125,"95050":0.09125,
+      "95051":0.09125,"95054":0.09125,"95070":0.09125,"95101":0.09125,"95110":0.09125,
+      "95111":0.09125,"95112":0.09125,"95113":0.09125,"95116":0.09125,"95117":0.09125,
+      "95118":0.09125,"95119":0.09125,"95120":0.09125,"95121":0.09125,"95122":0.09125,
+      "95123":0.09125,"95124":0.09125,"95125":0.09125,"95126":0.09125,"95127":0.09125,
+      "95128":0.09125,"95129":0.09125,"95130":0.09125,"95131":0.09125,"95132":0.09125,
+      "95133":0.09125,"95134":0.09125,"95135":0.09125,"95136":0.09125,"95138":0.09125,
+      "95139":0.09125,"95140":0.09125,"95141":0.09125,"95148":0.09125
+    };
+
+    // CA ZIP prefix ranges (first 3 digits) for detecting CA ZIPs
+    // CA ZIPs start with 900–961
+    function isCaliforniaZip(zip) {
+      if (!/^\d{5}$/.test(zip)) return false;
+      const prefix = parseInt(zip.substring(0, 3));
+      return prefix >= 900 && prefix <= 961;
+    }
+
+    function isElectric() {
+      const ft = (OTD_FUEL_TYPE || '').toLowerCase();
+      return ft.includes('electric') || ft.includes('ev') || ft === 'bev' || ft === 'phev';
+    }
+
+    function fmt(n) {
+      return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    function openOTD() {
+      const modal = document.getElementById('otd-modal');
+      modal.style.removeProperty('display');
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      document.getElementById('otd-zip').focus();
+    }
+
+    function closeOTD() {
+      document.getElementById('otd-modal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // Close on backdrop click
+    document.getElementById('otd-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeOTD();
+    });
+
+    function calcOTD() {
+      const zip = document.getElementById('otd-zip').value.trim();
+      if (zip.length !== 5) return;
+
+      const caZip  = isCaliforniaZip(zip);
+      const ev     = isElectric();
+      const docFee = 70;
+      const eFiling = 33;
+
+      // Show breakdown panel
+      const bd = document.getElementById('otd-breakdown');
+      bd.classList.remove('hidden');
+
+      // Vehicle price row
+      document.getElementById('otd-vehicle-price').textContent = fmt(OTD_VEHICLE_PRICE);
+
+      // Emission / smog rows
+      const showEmission = caZip && !ev;
+      document.getElementById('otd-row-emission').classList.toggle('hidden', !showEmission);
+      document.getElementById('otd-row-smog').classList.toggle('hidden', !showEmission);
+
+      // CA-only rows
+      document.getElementById('otd-row-license').classList.toggle('hidden', !caZip);
+      document.getElementById('otd-row-dmv').classList.toggle('hidden', !caZip);
+
+      // OOS note
+      document.getElementById('otd-oos-note').classList.toggle('hidden', caZip);
+      document.getElementById('otd-disclaimer').classList.toggle('hidden', !caZip);
+
+      // ZIP note
+      const zipNote = document.getElementById('otd-zip-note');
+
+      let taxAmount = 0;
+      if (caZip) {
+        const rate = CA_TAX_RATES[zip] || 0.0725; // default to state minimum if ZIP not in table
+        const taxLabel = (rate * 100).toFixed(3).replace(/\.?0+$/, '') + '%';
+        const taxBase  = OTD_VEHICLE_PRICE + docFee + eFiling;
+        taxAmount = taxBase * rate;
+        document.getElementById('otd-tax-rate-label').textContent = '(' + taxLabel + ')';
+        document.getElementById('otd-tax-amount').textContent = fmt(taxAmount);
+        document.getElementById('otd-row-tax').classList.remove('hidden');
+        if (!CA_TAX_RATES[zip]) {
+          zipNote.textContent = 'ZIP ' + zip + ' not found — using CA state minimum rate (7.25%). Verify your local rate at cdtfa.ca.gov.';
+          zipNote.className = 'text-xs text-amber-600 mt-1.5';
+        } else {
+          zipNote.textContent = 'Rate for ' + zip + ': ' + taxLabel;
+          zipNote.className = 'text-xs text-gray-400 mt-1.5';
+        }
+      } else {
+        document.getElementById('otd-row-tax').classList.add('hidden');
+        zipNote.textContent = 'Out-of-state ZIP detected — DMV and tax fees set to $0.';
+        zipNote.className = 'text-xs text-amber-600 mt-1.5';
+      }
+
+      // Calculate total
+      let total = OTD_VEHICLE_PRICE + docFee + eFiling;
+      if (showEmission) total += 50 + 8.25;
+      if (caZip) {
+        total += taxAmount + 135 + 351;
+      }
+
+      document.getElementById('otd-total').textContent = fmt(total);
+    }
+    </script>
 
     <!-- Similar Vehicles -->
     <div class="mt-12">
