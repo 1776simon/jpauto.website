@@ -260,7 +260,7 @@ layout: default
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div class="bg-gray-50 p-4 rounded-lg">
               <p class="text-sm text-gray-600">Mileage</p>
-              <p class="text-lg font-semibold text-gray-900">{{ page.mileage | divided_by: 1000 }}K miles</p>
+              <p class="text-lg font-semibold text-gray-900">{{ page.mileage | number_with_delimiter }} miles</p>
             </div>
             <div class="bg-gray-50 p-4 rounded-lg">
               <p class="text-sm text-gray-600">Transmission</p>
