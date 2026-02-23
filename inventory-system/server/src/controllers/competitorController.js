@@ -237,7 +237,7 @@ exports.createCompetitor = async (req, res) => {
 exports.updateCompetitor = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, websiteUrl, inventoryUrl, active } = req.body;
+    const { name, websiteUrl, inventoryUrl, active, usePlaywright } = req.body;
 
     const competitor = await Competitor.findByPk(id);
 
@@ -249,7 +249,8 @@ exports.updateCompetitor = async (req, res) => {
       name: name || competitor.name,
       websiteUrl: websiteUrl !== undefined ? websiteUrl : competitor.websiteUrl,
       inventoryUrl: inventoryUrl || competitor.inventoryUrl,
-      active: active !== undefined ? active : competitor.active
+      active: active !== undefined ? active : competitor.active,
+      usePlaywright: usePlaywright !== undefined ? usePlaywright : competitor.usePlaywright
     });
 
     res.json(competitor);
@@ -457,31 +458,87 @@ exports.scrapeCompetitor = async (req, res) => {
 
 /**
  * GET /api/competitors/:id/inventory
- * Get current inventory for competitor
+ * Get current inventory for competitor with server-side filtering
  */
 exports.getCompetitorInventory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { page = 1, limit = 50 } = req.query;
+    const { page = 1, limit = 20, year, make, model, sortBy = 'days-newest' } = req.query;
 
-    const offset = (page - 1) * limit;
+    const safeLimit = Math.min(parseInt(limit), 100);
+    const offset = (parseInt(page) - 1) * safeLimit;
+
+    const where = { competitorId: id, status: 'active' };
+    if (year) where.year = parseInt(year);
+    if (make) where.make = make;
+    if (model) where.model = model;
+
+    const orderMap = {
+      'price-asc': [['currentPrice', 'ASC']],
+      'price-desc': [['currentPrice', 'DESC']],
+      'days-oldest': [['firstSeenAt', 'ASC']],
+      'days-newest': [['firstSeenAt', 'DESC']],
+      'mileage-asc': [['mileage', 'ASC']],
+      'mileage-desc': [['mileage', 'DESC']],
+    };
+    const order = orderMap[sortBy] || [['firstSeenAt', 'DESC']];
 
     const { count, rows } = await CompetitorInventory.findAndCountAll({
-      where: { competitorId: id, status: 'active' },
-      order: [['lastUpdatedAt', 'DESC']],
-      limit: parseInt(limit),
-      offset: parseInt(offset)
+      where,
+      order,
+      limit: safeLimit,
+      offset
     });
 
     res.json({
       total: count,
       page: parseInt(page),
-      limit: parseInt(limit),
+      limit: safeLimit,
       vehicles: rows
     });
   } catch (error) {
     logger.error('Error fetching competitor inventory:', error);
     res.status(500).json({ error: 'Failed to fetch inventory' });
+  }
+};
+
+/**
+ * GET /api/competitors/:id/inventory/filters
+ * Get unique filter options for a competitor's active inventory
+ */
+exports.getCompetitorInventoryFilters = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { sequelize: db } = require('../config/database');
+
+    const [years, makes, models] = await Promise.all([
+      CompetitorInventory.findAll({
+        where: { competitorId: id, status: 'active', year: { [Op.not]: null } },
+        attributes: ['year', [db.fn('COUNT', db.col('id')), 'count']],
+        group: ['year'],
+        order: [['year', 'DESC']],
+        raw: true
+      }),
+      CompetitorInventory.findAll({
+        where: { competitorId: id, status: 'active', make: { [Op.not]: null } },
+        attributes: ['make', [db.fn('COUNT', db.col('id')), 'count']],
+        group: ['make'],
+        order: [['make', 'ASC']],
+        raw: true
+      }),
+      CompetitorInventory.findAll({
+        where: { competitorId: id, status: 'active', model: { [Op.not]: null } },
+        attributes: ['model', [db.fn('COUNT', db.col('id')), 'count']],
+        group: ['model'],
+        order: [['model', 'ASC']],
+        raw: true
+      })
+    ]);
+
+    res.json({ years, makes, models });
+  } catch (error) {
+    logger.error('Error fetching inventory filters:', error);
+    res.status(500).json({ error: 'Failed to fetch filters' });
   }
 };
 
@@ -523,6 +580,117 @@ exports.getCompetitorSales = async (req, res) => {
   } catch (error) {
     logger.error('Error fetching competitor sales:', error);
     res.status(500).json({ error: 'Failed to fetch sales' });
+  }
+};
+
+/**
+ * GET /api/competitors/:id/sales/summary
+ * Get monthly sales aggregates with price buckets for chart
+ */
+exports.getCompetitorSalesSummary = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { months = 12, make, model } = req.query;
+
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - parseInt(months));
+    startDate.setDate(1);
+    startDate.setHours(0, 0, 0, 0);
+
+    const where = {
+      competitorId: id,
+      status: 'sold',
+      soldAt: { [Op.gte]: startDate }
+    };
+    if (make) where.make = make;
+    if (model) where.model = model;
+
+    const soldVehicles = await CompetitorInventory.findAll({
+      where,
+      attributes: ['soldAt', 'currentPrice', 'daysOnMarket'],
+      raw: true
+    });
+
+    const monthMap = new Map();
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    soldVehicles.forEach(v => {
+      if (!v.soldAt) return;
+      const d = new Date(v.soldAt);
+      const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
+
+      if (!monthMap.has(key)) {
+        monthMap.set(key, {
+          month: d.getMonth() + 1,
+          year: d.getFullYear(),
+          count: 0,
+          totalPrice: 0,
+          priceCount: 0,
+          totalDom: 0,
+          domCount: 0,
+          buckets: { under10k: 0, from10to20k: 0, from20to30k: 0, over30k: 0 }
+        });
+      }
+
+      const entry = monthMap.get(key);
+      entry.count++;
+
+      const price = parseFloat(v.currentPrice || 0);
+      if (price > 0) {
+        entry.totalPrice += price;
+        entry.priceCount++;
+        if (price <= 10000) entry.buckets.under10k++;
+        else if (price <= 20000) entry.buckets.from10to20k++;
+        else if (price <= 30000) entry.buckets.from20to30k++;
+        else entry.buckets.over30k++;
+      }
+
+      if (v.daysOnMarket) {
+        entry.totalDom += v.daysOnMarket;
+        entry.domCount++;
+      }
+    });
+
+    const result = Array.from(monthMap.values())
+      .sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month)
+      .map(entry => ({
+        month: entry.month,
+        year: entry.year,
+        label: `${monthNames[entry.month - 1]} ${entry.year}`,
+        count: entry.count,
+        avgSalePrice: entry.priceCount > 0 ? Math.round(entry.totalPrice / entry.priceCount) : null,
+        avgDaysOnMarket: entry.domCount > 0 ? Math.round(entry.totalDom / entry.domCount) : null,
+        buckets: entry.buckets
+      }));
+
+    // Available makes/models for chart filter dropdowns
+    const [availableMakes, availableModels] = await Promise.all([
+      CompetitorInventory.findAll({
+        where: { competitorId: id, status: 'sold', make: { [Op.not]: null } },
+        attributes: ['make'],
+        group: ['make'],
+        order: [['make', 'ASC']],
+        raw: true
+      }),
+      CompetitorInventory.findAll({
+        where: { competitorId: id, status: 'sold', model: { [Op.not]: null }, ...(make ? { make } : {}) },
+        attributes: ['model'],
+        group: ['model'],
+        order: [['model', 'ASC']],
+        raw: true
+      })
+    ]);
+
+    res.json({
+      months: result,
+      filters: {
+        makes: availableMakes.map(m => m.make),
+        models: availableModels.map(m => m.model)
+      }
+    });
+  } catch (error) {
+    logger.error('Error fetching sales summary:', error);
+    res.status(500).json({ error: 'Failed to fetch sales summary' });
   }
 };
 

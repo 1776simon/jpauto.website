@@ -9,7 +9,9 @@ const {
   validateCompetitorUrl,
   scrapeCompetitor,
   getCompetitorInventory,
+  getCompetitorInventoryFilters,
   getCompetitorSales,
+  getCompetitorSalesSummary,
   getCompetitorMetrics
 } = require('../controllers/competitorController');
 const {
@@ -63,6 +65,7 @@ router.put('/:id',
   body('inventoryUrl').optional().isURL().withMessage('Inventory URL must be valid'),
   body('websiteUrl').optional().isURL().withMessage('Website URL must be valid'),
   body('active').optional().isBoolean().withMessage('Active must be boolean'),
+  body('usePlaywright').optional().isBoolean().withMessage('usePlaywright must be boolean'),
   handleValidationErrors,
   updateCompetitor
 );
@@ -83,17 +86,40 @@ router.post('/:id/scrape',
   scrapeCompetitor
 );
 
-// Get competitor inventory (current)
+// Get competitor inventory filter options (must be before /:id/inventory)
+router.get('/:id/inventory/filters',
+  isManagerOrAdmin,
+  param('id').isUUID(),
+  handleValidationErrors,
+  getCompetitorInventoryFilters
+);
+
+// Get competitor inventory (server-side filtering)
 router.get('/:id/inventory',
   isManagerOrAdmin,
   param('id').isUUID(),
   query('page').optional().isInt({ min: 1 }),
-  query('limit').optional().isInt({ min: 1, max: 5000 }), // Allow high limit for client-side filtering
+  query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('year').optional().isInt({ min: 1900, max: 2100 }),
+  query('make').optional().isString(),
+  query('model').optional().isString(),
+  query('sortBy').optional().isIn(['price-asc', 'price-desc', 'days-oldest', 'days-newest', 'mileage-asc', 'mileage-desc']),
   handleValidationErrors,
   getCompetitorInventory
 );
 
-// Get competitor sales
+// Get monthly sales summary for chart (must be before /:id/sales)
+router.get('/:id/sales/summary',
+  isManagerOrAdmin,
+  param('id').isUUID(),
+  query('months').optional().isInt({ min: 1, max: 36 }),
+  query('make').optional().isString(),
+  query('model').optional().isString(),
+  handleValidationErrors,
+  getCompetitorSalesSummary
+);
+
+// Get competitor sales for a specific month
 router.get('/:id/sales',
   isManagerOrAdmin,
   param('id').isUUID(),

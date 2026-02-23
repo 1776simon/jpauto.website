@@ -1,6 +1,7 @@
 import { AdminLayout } from "@/components/AdminLayout";
 import { CompetitorDetailModal } from "@/components/CompetitorDetailModal";
 import { AddCompetitorModal } from "@/components/AddCompetitorModal";
+import { EditCompetitorModal } from "@/components/EditCompetitorModal";
 import {
   TrendingUp,
   TrendingDown,
@@ -40,6 +41,7 @@ export default function CompetitorTracking() {
   const queryClient = useQueryClient();
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedCompetitor, setSelectedCompetitor] = useState<any | null>(null);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [selectedError, setSelectedError] = useState<{ competitorName: string; errorType: string; errorMessage: string } | null>(null);
@@ -188,6 +190,16 @@ export default function CompetitorTracking() {
                         >
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedCompetitor(competitor);
+                            setEditModalOpen(true);
+                          }}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={(e) => {
@@ -353,6 +365,15 @@ export default function CompetitorTracking() {
         <CompetitorDetailModal
           open={detailModalOpen}
           onOpenChange={setDetailModalOpen}
+          competitor={selectedCompetitor}
+        />
+      )}
+
+      {/* Edit Competitor Modal */}
+      {selectedCompetitor && (
+        <EditCompetitorModal
+          open={editModalOpen}
+          onOpenChange={setEditModalOpen}
           competitor={selectedCompetitor}
         />
       )}

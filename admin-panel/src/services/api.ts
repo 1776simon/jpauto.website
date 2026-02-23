@@ -752,7 +752,7 @@ class ApiService {
     });
   }
 
-  async updateCompetitor(id: string, data: { name?: string; inventoryUrl?: string; websiteUrl?: string; active?: boolean }): Promise<any> {
+  async updateCompetitor(id: string, data: { name?: string; inventoryUrl?: string; websiteUrl?: string; active?: boolean; usePlaywright?: boolean }): Promise<any> {
     return this.request(`/api/competitors/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -778,19 +778,39 @@ class ApiService {
     });
   }
 
-  async getCompetitorInventory(id: string, page = 1, limit = 50): Promise<any> {
-    return this.request(`/api/competitors/${id}/inventory?page=${page}&limit=${limit}`);
+  async getCompetitorInventory(
+    id: string,
+    page = 1,
+    limit = 20,
+    filters?: { year?: string; make?: string; model?: string; sortBy?: string }
+  ): Promise<any> {
+    const params = new URLSearchParams({ page: page.toString(), limit: limit.toString() });
+    if (filters?.year) params.append('year', filters.year);
+    if (filters?.make) params.append('make', filters.make);
+    if (filters?.model) params.append('model', filters.model);
+    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+    return this.request(`/api/competitors/${id}/inventory?${params.toString()}`);
+  }
+
+  async getCompetitorInventoryFilters(id: string): Promise<any> {
+    return this.request(`/api/competitors/${id}/inventory/filters`);
   }
 
   async getCompetitorSales(id: string, month?: number, year?: number): Promise<any> {
-    let url = `/api/competitors/${id}/sales`;
-    if (month || year) {
-      const params = new URLSearchParams();
-      if (month) params.append('month', month.toString());
-      if (year) params.append('year', year.toString());
-      url += `?${params.toString()}`;
-    }
-    return this.request(url);
+    const params = new URLSearchParams();
+    if (month) params.append('month', month.toString());
+    if (year) params.append('year', year.toString());
+    const qs = params.toString();
+    return this.request(`/api/competitors/${id}/sales${qs ? '?' + qs : ''}`);
+  }
+
+  async getCompetitorSalesSummary(id: string, filters?: { months?: number; make?: string; model?: string }): Promise<any> {
+    const params = new URLSearchParams();
+    if (filters?.months) params.append('months', filters.months.toString());
+    if (filters?.make) params.append('make', filters.make);
+    if (filters?.model) params.append('model', filters.model);
+    const qs = params.toString();
+    return this.request(`/api/competitors/${id}/sales/summary${qs ? '?' + qs : ''}`);
   }
 
   async getCompetitorMetrics(id: string, days = 30): Promise<any> {
