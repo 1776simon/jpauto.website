@@ -607,8 +607,7 @@ exports.getCompetitorSalesSummary = async (req, res) => {
 
     const soldVehicles = await CompetitorInventory.findAll({
       where,
-      attributes: ['soldAt', 'currentPrice', 'daysOnMarket'],
-      raw: true
+      attributes: ['soldAt', 'currentPrice', 'daysOnMarket']
     });
 
     const monthMap = new Map();
