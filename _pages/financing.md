@@ -62,7 +62,7 @@ permalink: /financing/
 
       <!-- Form Container -->
       <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
-        <form id="financing-form">
+        <form id="financing-form" novalidate>
 
           <!-- Step 1: Personal Information -->
           <div class="form-step active" data-step="1">
@@ -610,6 +610,9 @@ permalink: /financing/
             </div>
           </div>
 
+          <!-- Validation Error Banner -->
+          <div id="form-error-banner" class="hidden bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mt-4 font-medium" role="alert"></div>
+
           <!-- Navigation Buttons -->
           <div class="flex justify-between mt-8">
             <button type="button" id="prevBtn" class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-semibold hidden">
@@ -674,6 +677,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Define functions
   function showStep(step) {
+    // Clear any validation errors when changing steps
+    clearStepError();
+
     // Hide all steps
     formSteps.forEach(s => s.classList.remove('active'));
 
@@ -737,48 +743,104 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  function showStepError(message) {
+    const errorDiv = document.getElementById('form-error-banner');
+    if (errorDiv) {
+      errorDiv.textContent = message;
+      errorDiv.classList.remove('hidden');
+      errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function clearStepError() {
+    const errorDiv = document.getElementById('form-error-banner');
+    if (errorDiv) {
+      errorDiv.classList.add('hidden');
+      errorDiv.textContent = '';
+    }
+  }
+
+  function getFieldLabel(field) {
+    const wrapper = field.closest('div');
+    const label = wrapper && wrapper.querySelector('label');
+    return label ? label.textContent.replace('*', '').trim() : field.name;
+  }
+
   function validateStep(step) {
     const stepElement = document.querySelector(`.form-step[data-step="${step}"].active`);
     if (!stepElement) return true;
 
-    const requiredFields = stepElement.querySelectorAll('[required]');
-    let isValid = true;
-    let errorMessage = '';
+    clearStepError();
 
-    requiredFields.forEach(field => {
-      // Skip disabled fields
+    const fields = stepElement.querySelectorAll('input, select, textarea');
+    let isValid = true;
+    let firstError = '';
+    let firstErrorField = null;
+
+    fields.forEach(field => {
       if (field.disabled) return;
 
-      // Check if field is empty
-      if (!field.value.trim()) {
+      const value = field.value.trim();
+      const label = getFieldLabel(field);
+
+      // Required check
+      if (field.required && !value) {
         isValid = false;
         field.classList.add('border-red-500');
-        errorMessage = 'Please fill in all required fields.';
-
-        // Remove error styling on input
-        field.addEventListener('input', function() {
-          this.classList.remove('border-red-500');
-        }, { once: true });
+        if (!firstError) {
+          firstError = 'Please fill in all required fields.';
+          firstErrorField = field;
+        }
+        field.addEventListener('input', () => field.classList.remove('border-red-500'), { once: true });
+        return;
       }
-      // Check pattern validation (for zip codes, etc.)
-      else if (field.pattern && !new RegExp(field.pattern).test(field.value)) {
+
+      // Pattern check
+      if (value && field.pattern && !new RegExp(field.pattern).test(value)) {
         isValid = false;
         field.classList.add('border-red-500');
-        const fieldTitle = field.getAttribute('title') || 'Please enter a valid value.';
-        errorMessage = fieldTitle;
+        if (!firstError) {
+          firstError = field.getAttribute('title') || `Please enter a valid value for "${label}".`;
+          firstErrorField = field;
+        }
+        field.addEventListener('input', () => field.classList.remove('border-red-500'), { once: true });
+        return;
+      }
 
-        // Remove error styling on input
-        field.addEventListener('input', function() {
-          this.classList.remove('border-red-500');
-        }, { once: true });
+      // Min/max check for number inputs (required or optional if a value was entered)
+      if (field.type === 'number' && value !== '') {
+        const num = parseFloat(value);
+        const min = field.hasAttribute('min') ? parseFloat(field.getAttribute('min')) : null;
+        const max = field.hasAttribute('max') ? parseFloat(field.getAttribute('max')) : null;
+
+        if (min !== null && num < min) {
+          isValid = false;
+          field.classList.add('border-red-500');
+          if (!firstError) {
+            firstError = `"${label}" must be ${min} or greater.`;
+            firstErrorField = field;
+          }
+          field.addEventListener('input', () => field.classList.remove('border-red-500'), { once: true });
+        } else if (max !== null && num > max) {
+          isValid = false;
+          field.classList.add('border-red-500');
+          if (!firstError) {
+            firstError = `"${label}" must be ${max} or less.`;
+            firstErrorField = field;
+          }
+          field.addEventListener('input', () => field.classList.remove('border-red-500'), { once: true });
+        } else {
+          field.classList.remove('border-red-500');
+        }
+        return;
       }
-      else {
-        field.classList.remove('border-red-500');
-      }
+
+      field.classList.remove('border-red-500');
     });
 
-    if (!isValid && errorMessage) {
-      alert(errorMessage);
+    if (!isValid) {
+      showStepError(firstError);
+      if (firstErrorField) firstErrorField.focus();
     }
 
     return isValid;
@@ -897,7 +959,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       } catch (error) {
         console.error('Error submitting application:', error);
-        alert('There was an error submitting your application. Please try again or call us at (916) 618-7197.');
+        showStepError('There was an error submitting your application. Please try again or call us at (916) 618-7197.');
 
         // Reset submit button
         submitBtn.disabled = false;

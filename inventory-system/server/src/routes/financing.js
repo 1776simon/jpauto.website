@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 const financingController = require('../controllers/financingController');
 const { isAdmin } = require('../middleware/auth');
+const { validateFinancingApplication } = require('../middleware/validation');
 
 /**
  * @route   POST /api/financing/apply
  * @desc    Submit financing application (public endpoint)
  * @access  Public
  */
-router.post('/apply', financingController.submitApplication);
+router.post('/apply', validateFinancingApplication, financingController.submitApplication);
 
 /**
  * @route   GET /api/financing/test-connection

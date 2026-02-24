@@ -219,6 +219,32 @@ const validatePagination = [
   handleValidationErrors
 ];
 
+/**
+ * Validation rules for financing application
+ */
+const validateFinancingApplication = [
+  body('firstName').trim().notEmpty().withMessage('First name is required'),
+  body('lastName').trim().notEmpty().withMessage('Last name is required'),
+  body('email').trim().isEmail().withMessage('Valid email is required'),
+  body('mobileNumber').trim().notEmpty().withMessage('Mobile number is required'),
+  body('ssn').trim().notEmpty().withMessage('SSN is required'),
+  body('birthDate').trim().notEmpty().withMessage('Birth date is required'),
+  body('currentAddress').trim().notEmpty().withMessage('Current address is required'),
+  body('currentCity').trim().notEmpty().withMessage('City is required'),
+  body('currentState').trim().notEmpty().withMessage('State is required'),
+  body('currentZip').trim().matches(/^[0-9]{5}$/).withMessage('Valid 5-digit zip code is required'),
+  body('residenceStatus').trim().notEmpty().withMessage('Residence status is required'),
+  body('monthlyPayment').isFloat({ min: 0 }).withMessage('Monthly payment must be 0 or greater'),
+  body('yearsAtResidence').isInt({ min: 0, max: 50 }).withMessage('Years at residence must be between 0 and 50'),
+  body('monthsAtResidence').isInt({ min: 0, max: 11 }).withMessage('Months at residence must be between 0 and 11'),
+  body('companyName').trim().notEmpty().withMessage('Company name is required'),
+  body('jobTitle').trim().notEmpty().withMessage('Job title is required'),
+  body('grossMonthlyIncome').isFloat({ min: 0 }).withMessage('Gross monthly income must be 0 or greater'),
+  body('yearsAtCompany').isInt({ min: 0, max: 50 }).withMessage('Years at company must be between 0 and 50'),
+  body('monthsAtCompany').isInt({ min: 0, max: 11 }).withMessage('Months at company must be between 0 and 11'),
+  handleValidationErrors
+];
+
 module.exports = {
   validateSubmission,
   validateInventory,
@@ -227,5 +253,6 @@ module.exports = {
   validateSubmissionReview,
   validateUserRole,
   validatePagination,
+  validateFinancingApplication,
   handleValidationErrors
 };
