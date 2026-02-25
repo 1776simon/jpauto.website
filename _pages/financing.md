@@ -114,15 +114,26 @@ permalink: /financing/
                 <input type="text" name="ssn" required placeholder="XXX-XX-XXXX" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Driver's License Number *</label>
-                <input type="text" name="driversLicense" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <label class="block text-sm font-semibold mb-2">Birth Date *</label>
+                <input type="date" name="birthDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div id="dlFieldsWrapper">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">State *</label>
-                <select name="state" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <div class="flex items-center justify-between mb-2">
+                  <label class="block text-sm font-semibold">Driver's License # *</label>
+                  <label class="flex items-center text-xs font-normal text-gray-600 cursor-pointer">
+                    <input type="checkbox" id="noDrivingLicense" class="mr-1">
+                    I don't have a Driver License
+                  </label>
+                </div>
+                <input type="text" name="driversLicense" required class="dl-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-2">DL State *</label>
+                <select name="state" required class="dl-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                   <option value="">Select State...</option>
                   <option value="CA">California</option>
                   <option value="AL">Alabama</option>
@@ -176,10 +187,18 @@ permalink: /financing/
                   <option value="WY">Wyoming</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Birth Date *</label>
-                <input type="date" name="birthDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
               </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label class="block text-sm font-semibold mb-2">DL Issue Date *</label>
+                <input type="date" name="dlIssueDate" required class="dl-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-2">DL Expiration Date *</label>
+                <input type="date" name="dlExpirationDate" required class="dl-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              </div>
+            </div>
             </div>
 
             <div class="mb-6">
@@ -317,16 +336,16 @@ permalink: /financing/
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
+                <label class="block text-sm font-semibold mb-2">Gross Monthly Income *</label>
+                <input type="number" name="grossMonthlyIncome" required placeholder="$" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              </div>
+              <div>
                 <label class="block text-sm font-semibold mb-2">Years at Company *</label>
                 <input type="number" name="yearsAtCompany" required min="0" max="50" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
               </div>
               <div>
                 <label class="block text-sm font-semibold mb-2">Months *</label>
                 <input type="number" name="monthsAtCompany" required min="0" max="11" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Gross Monthly Income *</label>
-                <input type="number" name="grossMonthlyIncome" required placeholder="$" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
               </div>
             </div>
 
@@ -404,23 +423,41 @@ permalink: /financing/
                 <input type="text" name="coSsn" placeholder="XXX-XX-XXXX" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-2">Driver's License Number *</label>
-                <input type="text" name="coDriversLicense" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2">Birth Date *</label>
+                <input type="date" name="coBirthDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div id="coDlFieldsWrapper">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-semibold mb-2">State *</label>
-                <select name="coState" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <div class="flex items-center justify-between mb-2">
+                  <label class="block text-sm font-semibold">Driver's License # *</label>
+                  <label class="flex items-center text-xs font-normal text-gray-600 cursor-pointer">
+                    <input type="checkbox" id="noCoApplicantDL" class="mr-1">
+                    I don't have a Driver License
+                  </label>
+                </div>
+                <input type="text" name="coDriversLicense" class="co-dl-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-2">DL State *</label>
+                <select name="coState" class="co-dl-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
                   <option value="">Select State...</option>
                   <option value="CA">California</option>
                 </select>
               </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label class="block text-sm font-semibold mb-2">Birth Date *</label>
-                <input type="date" name="coBirthDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+                <label class="block text-sm font-semibold mb-2">DL Issue Date *</label>
+                <input type="date" name="coDlIssueDate" class="co-dl-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
               </div>
+              <div>
+                <label class="block text-sm font-semibold mb-2">DL Expiration Date *</label>
+                <input type="date" name="coDlExpirationDate" class="co-dl-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent co-applicant-field">
+              </div>
+            </div>
             </div>
 
             <div class="mb-6">
@@ -520,6 +557,13 @@ permalink: /financing/
                 </div>
 
                 <button type="button" id="resetVehicleSearch" class="mb-4 text-sm text-gray-600 hover:text-primary">Reset Search</button>
+
+                <div class="mb-4">
+                  <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="vehicleNotInList" name="vehicleNotInList" class="mr-2">
+                    <span class="text-sm font-medium">The vehicle I'm applying for is not in the list</span>
+                  </label>
+                </div>
 
                 <!-- Vehicle List -->
                 <div id="vehicleList" class="space-y-3 max-h-96 overflow-y-auto">
@@ -888,6 +932,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // No driving license toggle (main applicant)
+  const noDrivingLicenseCheckbox = document.getElementById('noDrivingLicense');
+  noDrivingLicenseCheckbox.addEventListener('change', function() {
+    const wrapper = document.getElementById('dlFieldsWrapper');
+    const dlFields = wrapper.querySelectorAll('.dl-field');
+    if (this.checked) {
+      wrapper.style.opacity = '0.5';
+      dlFields.forEach(field => {
+        field.disabled = true;
+        field.required = false;
+      });
+    } else {
+      wrapper.style.opacity = '1';
+      dlFields.forEach(field => {
+        field.disabled = false;
+        field.required = true;
+      });
+    }
+  });
+
+  // No driving license toggle (co-applicant)
+  const noCoApplicantDLCheckbox = document.getElementById('noCoApplicantDL');
+  noCoApplicantDLCheckbox.addEventListener('change', function() {
+    const wrapper = document.getElementById('coDlFieldsWrapper');
+    const coDlFields = wrapper.querySelectorAll('.co-dl-field');
+    if (this.checked) {
+      wrapper.style.opacity = '0.5';
+      coDlFields.forEach(field => {
+        field.disabled = true;
+        field.required = false;
+      });
+    } else {
+      wrapper.style.opacity = '1';
+      coDlFields.forEach(field => {
+        field.disabled = false;
+        if (hasCoApplicant) field.required = true;
+      });
+    }
+  });
+
   // Navigation
   nextBtn.addEventListener('click', function() {
     if (validateStep(currentStep)) {
@@ -1128,6 +1212,19 @@ document.addEventListener('DOMContentLoaded', function() {
     reviewBtn.classList.remove('hidden');
   }
 
+  // Vehicle not in list toggle
+  document.getElementById('vehicleNotInList').addEventListener('change', function() {
+    if (currentStep === 5) {
+      if (this.checked || selectedVehicleData) {
+        nextBtn.classList.add('hidden');
+        reviewBtn.classList.remove('hidden');
+      } else {
+        reviewBtn.classList.add('hidden');
+        nextBtn.classList.remove('hidden');
+      }
+    }
+  });
+
   // Filter change handlers
   vehicleYearSelect.addEventListener('change', populateVehicleFilters);
   vehicleMakeSelect.addEventListener('change', populateVehicleFilters);
@@ -1147,10 +1244,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Review button handler
   reviewBtn.addEventListener('click', () => {
-    if (selectedVehicleData && validateStep(5)) {
+    const vehicleNotInList = document.getElementById('vehicleNotInList').checked;
+    const canProceed = vehicleNotInList || selectedVehicleData;
+    if (canProceed && validateStep(5)) {
       currentStep = 6;
       populateReviewPage();
       showStep(6);
+    } else if (!canProceed) {
+      showStepError('Please select a vehicle from the list, or check "The vehicle I\'m applying for is not in the list".');
     }
   });
 
@@ -1207,6 +1308,12 @@ document.addEventListener('DOMContentLoaded', function() {
         <div><strong>Down Payment:</strong> $${formData.get('downPayment') || '0'}</div>
         ${formData.get('comments') ? `<div class="col-span-2"><strong>Comments:</strong> ${formData.get('comments')}</div>` : ''}
       `;
+    } else {
+      document.getElementById('reviewVehicle').innerHTML = `
+        <div><strong>Vehicle:</strong> Not selected — see comments</div>
+        <div><strong>Down Payment:</strong> $${formData.get('downPayment') || '0'}</div>
+        ${formData.get('comments') ? `<div class="col-span-2"><strong>Comments:</strong> ${formData.get('comments')}</div>` : ''}
+      `;
     }
   }
 
@@ -1233,13 +1340,12 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (step === 5) {
       // Vehicle selection page
       populateVehicleFilters();
-      if (selectedVehicleData) {
-        // Vehicle selected: show Back and Review Information buttons
+      const vehicleNotInList = document.getElementById('vehicleNotInList').checked;
+      if (selectedVehicleData || vehicleNotInList) {
         nextBtn.classList.add('hidden');
         reviewBtn.classList.remove('hidden');
         submitBtn.classList.add('hidden');
       } else {
-        // No vehicle selected: hide Review and Submit buttons
         reviewBtn.classList.add('hidden');
         submitBtn.classList.add('hidden');
       }
