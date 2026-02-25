@@ -188,7 +188,6 @@ permalink: /financing/
                 </select>
               </div>
               </div>
-            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
                 <label class="block text-sm font-semibold mb-2">DL Issue Date *</label>
