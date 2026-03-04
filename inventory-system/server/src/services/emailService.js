@@ -125,11 +125,17 @@ function formatFinancingEmail(data) {
 
   const coApplicantInfo = data.hasCoApplicant === 'true'
     ? `<h3>Co-Applicant Information</h3>
-       <p><strong>Name:</strong> ${data.coFirstName} ${data.coMiddleInitial || ''} ${data.coLastName}<br>
+       <p><strong>Name:</strong> ${data.coFirstName} ${data.coMiddleInitial || ''} ${data.coLastName} ${data.coSuffix || ''}<br>
        <strong>Phone:</strong> ${data.coMobileNumber}<br>
        <strong>Email:</strong> ${data.coEmail}<br>
        <strong>SSN:</strong> ${data.coSsn}<br>
+       <strong>Driver's License:</strong> ${data.coDriversLicense || 'N/A'} (${data.coState || 'N/A'})<br>
+       <strong>DL Issue Date:</strong> ${formatDate(data.coDlIssueDate)}<br>
+       <strong>DL Expiration Date:</strong> ${formatDate(data.coDlExpirationDate)}<br>
        <strong>Birth Date:</strong> ${formatDate(data.coBirthDate)}</p>
+
+       ${data.coCurrentAddress ? `<p><strong>Residence:</strong> ${data.coCurrentAddress}<br>
+       <strong>City, State, Zip:</strong> ${data.coCurrentCity}, ${data.coCurrentState} ${data.coCurrentZip}</p>` : ''}
 
        <p><strong>Employer:</strong> ${data.coCompanyName}<br>
        <strong>Job Title:</strong> ${data.coJobTitle}<br>
@@ -159,7 +165,9 @@ function formatFinancingEmail(data) {
         <strong>Phone:</strong> ${data.mobileNumber}<br>
         <strong>Email:</strong> ${data.email}<br>
         <strong>SSN:</strong> ${data.ssn}<br>
-        <strong>Driver's License:</strong> ${data.driversLicense} (${data.state})<br>
+        <strong>Driver's License:</strong> ${data.driversLicense || 'N/A'} (${data.state || 'N/A'})<br>
+        <strong>DL Issue Date:</strong> ${formatDate(data.dlIssueDate)}<br>
+        <strong>DL Expiration Date:</strong> ${formatDate(data.dlExpirationDate)}<br>
         <strong>Birth Date:</strong> ${formatDate(data.birthDate)}</p>
 
         <h3>Current Residence</h3>
@@ -184,6 +192,7 @@ function formatFinancingEmail(data) {
 
         ${data.previousCompanyName ? `
         <p><strong>Previous Employer:</strong> ${data.previousCompanyName}<br>
+        <strong>Phone:</strong> ${data.previousEmployerPhone || 'N/A'}<br>
         <strong>Job Title:</strong> ${data.previousJobTitle}<br>
         <strong>Time at Company:</strong> ${data.yearsAtPreviousCompany || 0} years</p>
         ` : ''}
@@ -224,7 +233,9 @@ Name: ${data.firstName} ${data.middleInitial || ''} ${data.lastName} ${data.suff
 Phone: ${data.mobileNumber}
 Email: ${data.email}
 SSN: ${data.ssn}
-Driver's License: ${data.driversLicense} (${data.state})
+Driver's License: ${data.driversLicense || 'N/A'} (${data.state || 'N/A'})
+DL Issue Date: ${formatDate(data.dlIssueDate)}
+DL Expiration Date: ${formatDate(data.dlExpirationDate)}
 Birth Date: ${formatDate(data.birthDate)}
 
 CURRENT RESIDENCE
@@ -233,6 +244,11 @@ City, State, Zip: ${data.currentCity}, ${data.currentState} ${data.currentZip}
 Status: ${data.residenceStatus}
 Monthly Payment: $${data.monthlyPayment}
 Time at Residence: ${data.yearsAtResidence} years, ${data.monthsAtResidence} months
+${data.previousAddress ? `
+PREVIOUS RESIDENCE
+Address: ${data.previousAddress}
+City, State, Zip: ${data.previousCity}, ${data.previousState} ${data.previousZip}
+Time at Previous: ${data.yearsAtPreviousResidence || 0} years, ${data.monthsAtPreviousResidence || 0} months` : ''}
 
 CURRENT EMPLOYMENT
 Employer: ${data.companyName}
@@ -240,6 +256,27 @@ Phone: ${data.employerPhone}
 Job Title: ${data.jobTitle}
 Monthly Income: $${data.grossMonthlyIncome}
 Time at Company: ${data.yearsAtCompany} years, ${data.monthsAtCompany} months
+${data.previousCompanyName ? `
+PREVIOUS EMPLOYMENT
+Employer: ${data.previousCompanyName}
+Phone: ${data.previousEmployerPhone || 'N/A'}
+Job Title: ${data.previousJobTitle}
+Time at Company: ${data.yearsAtPreviousCompany || 0} years` : ''}
+${data.hasCoApplicant === 'true' ? `
+CO-APPLICANT INFORMATION
+Name: ${data.coFirstName} ${data.coMiddleInitial || ''} ${data.coLastName} ${data.coSuffix || ''}
+Phone: ${data.coMobileNumber}
+Email: ${data.coEmail}
+SSN: ${data.coSsn}
+Driver's License: ${data.coDriversLicense || 'N/A'} (${data.coState || 'N/A'})
+DL Issue Date: ${formatDate(data.coDlIssueDate)}
+DL Expiration Date: ${formatDate(data.coDlExpirationDate)}
+Birth Date: ${formatDate(data.coBirthDate)}
+${data.coCurrentAddress ? `Residence: ${data.coCurrentAddress}, ${data.coCurrentCity}, ${data.coCurrentState} ${data.coCurrentZip}` : ''}
+Employer: ${data.coCompanyName}
+Job Title: ${data.coJobTitle}
+Monthly Income: $${data.coGrossMonthlyIncome}
+Time at Company: ${data.coYearsAtCompany} years, ${data.coMonthsAtCompany} months` : ''}
 
 ${vehicleInfo}
 
