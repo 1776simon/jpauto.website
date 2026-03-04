@@ -202,7 +202,7 @@ permalink: /financing/
 
             <div class="mb-6">
               <label class="flex items-start">
-                <input type="checkbox" id="hasCoApplicant" name="hasCoApplicant" class="mt-1 mr-2">
+                <input type="checkbox" id="hasCoApplicant" name="hasCoApplicant" value="true" class="mt-1 mr-2">
                 <span class="text-sm">I am filing with a Co-Applicant</span>
               </label>
             </div>
