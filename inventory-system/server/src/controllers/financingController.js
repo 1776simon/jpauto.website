@@ -66,29 +66,89 @@ exports.testConnection = async (req, res) => {
 exports.testEmail = async (req, res) => {
   try {
     const testData = {
-      firstName: 'Test',
-      lastName: 'Application',
+      // Main applicant - Personal
+      firstName: 'John',
+      middleInitial: 'A',
+      lastName: 'Testman',
+      suffix: 'Jr',
       email: 'test@example.com',
-      mobileNumber: '(555) 555-5555',
+      mobileNumber: '(916) 555-1234',
       ssn: '123-45-6789',
-      driversLicense: 'TEST123',
+      birthDate: '1990-03-15',
+      driversLicense: 'D1234567',
       state: 'CA',
-      birthDate: '1990-01-01',
-      currentAddress: '123 Test St',
+      dlIssueDate: '2018-06-01',
+      dlExpirationDate: '2026-06-01',
+
+      // Main applicant - Current Residence
+      currentAddress: '123 Maple Street',
+      currentApt: 'Apt 4B',
       currentCity: 'Sacramento',
       currentState: 'CA',
-      currentZip: '95815',
+      currentZip: '95814',
       residenceStatus: 'Rent',
-      monthlyPayment: '1500',
-      yearsAtResidence: '2',
+      monthlyPayment: '1800',
+      yearsAtResidence: '1',
       monthsAtResidence: '6',
-      companyName: 'Test Company',
-      employerPhone: '(555) 555-5555',
-      jobTitle: 'Test Job',
+
+      // Main applicant - Previous Residence (< 2 yrs at current)
+      previousAddress: '456 Oak Avenue',
+      previousCity: 'Roseville',
+      previousState: 'CA',
+      previousZip: '95661',
+      yearsAtPreviousResidence: '2',
+      monthsAtPreviousResidence: '3',
+
+      // Main applicant - Current Employment
+      companyName: 'Acme Corporation',
+      employerPhone: '(916) 555-9876',
+      jobTitle: 'Software Engineer',
+      grossMonthlyIncome: '7500',
       yearsAtCompany: '1',
-      monthsAtCompany: '3',
-      grossMonthlyIncome: '5000',
-      comments: 'This is a test financing application'
+      monthsAtCompany: '8',
+
+      // Main applicant - Previous Employment (< 2 yrs at current)
+      previousCompanyName: 'Old Corp Inc',
+      previousEmployerPhone: '(916) 555-4321',
+      previousJobTitle: 'Junior Developer',
+      yearsAtPreviousCompany: '3',
+
+      // Co-applicant
+      hasCoApplicant: 'true',
+      coFirstName: 'Jane',
+      coMiddleInitial: 'B',
+      coLastName: 'Testwoman',
+      coSuffix: '',
+      coMobileNumber: '(916) 555-5678',
+      coEmail: 'co-test@example.com',
+      coSsn: '987-65-4321',
+      coBirthDate: '1992-07-20',
+      coDriversLicense: 'D7654321',
+      coState: 'CA',
+      coDlIssueDate: '2019-09-15',
+      coDlExpirationDate: '2027-09-15',
+      coCurrentAddress: '789 Pine Road',
+      coCurrentCity: 'Elk Grove',
+      coCurrentState: 'CA',
+      coCurrentZip: '95758',
+      coCompanyName: 'Beta Industries',
+      coJobTitle: 'Marketing Manager',
+      coGrossMonthlyIncome: '6000',
+      coYearsAtCompany: '4',
+      coMonthsAtCompany: '2',
+
+      // Vehicle
+      selectedVehicle: {
+        year: 2022,
+        make: 'Toyota',
+        model: 'Camry',
+        vin: '4T1BF1FK5CU123456',
+        price: 24500,
+        mileage: 32000
+      },
+      downPayment: '3000',
+
+      comments: 'This is a full test financing application covering all fields.'
     };
 
     await sendFinancingApplication(testData);
