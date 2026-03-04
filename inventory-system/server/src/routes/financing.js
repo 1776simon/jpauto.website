@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const financingController = require('../controllers/financingController');
+const { isAdmin } = require('../middleware/auth');
 const { validateFinancingApplication } = require('../middleware/validation');
 
 /**
@@ -18,16 +19,10 @@ router.post('/apply', validateFinancingApplication, financingController.submitAp
 router.get('/test-connection', financingController.testConnection);
 
 /**
- * @route   GET /api/financing/test-email?secret=TEST_SECRET
- * @desc    Test email configuration
- * @access  Secret token
+ * @route   GET /api/financing/test-email
+ * @desc    Test email configuration (admin only)
+ * @access  Admin
  */
-router.get('/test-email', (req, res, next) => {
-  const secret = process.env.TEST_EMAIL_SECRET;
-  if (!secret || req.query.secret !== secret) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  next();
-}, financingController.testEmail);
+router.get('/test-email', isAdmin, financingController.testEmail);
 
 module.exports = router;
