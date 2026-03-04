@@ -816,6 +816,10 @@ class ApiService {
   async getCompetitorMetrics(id: string, days = 30): Promise<any> {
     return this.request(`/api/competitors/${id}/metrics?days=${days}`);
   }
+
+  async testFinancingEmail(): Promise<{ success: boolean; message: string }> {
+    return this.request('/api/financing/test-email');
+  }
 }
 
 export default new ApiService();

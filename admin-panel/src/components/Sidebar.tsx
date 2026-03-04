@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LayoutDashboard, FileText, Package, Download, TrendingUp, LogOut, Search, Users } from "lucide-react";
+import { Menu, X, LayoutDashboard, FileText, Package, Download, TrendingUp, LogOut, Search, Users, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
     { icon: TrendingUp, label: "Market Research", href: "/dashboard/market-research" },
     { icon: Users, label: "Competitor Tracking", href: "/dashboard/competitor-tracking" },
     { icon: Download, label: "Export", href: "/dashboard/export" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
   ];
 
   const actionItems = [

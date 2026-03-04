@@ -16,6 +16,7 @@ import Inventory from "./pages/Inventory";
 import MarketResearch from "./pages/MarketResearch";
 import CompetitorTracking from "./pages/CompetitorTracking";
 import Export from "./pages/Export";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Export />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/settings"
+                element={
+                  <ProtectedRoute>
+                    <Settings />
                   </ProtectedRoute>
                 }
               />
