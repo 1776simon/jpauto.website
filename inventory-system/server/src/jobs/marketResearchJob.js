@@ -2,14 +2,12 @@
  * Market Research Scheduled Job
  *
  * Schedule: Every 3 days at midnight PST
- * Process: Analyze all vehicles → Detect alerts → Store in database
- * Alerts are viewable in the admin dashboard (no email notifications)
+ * Process: Analyze all vehicles → Store in database
  * User specified: 20 vehicles × 1 token every 3 days = ~200 tokens/month
  */
 
 const cron = require('node-cron');
 const marketAnalysisService = require('../services/marketAnalysisService');
-const marketAlertService = require('../services/marketAlertService');
 const marketDb = require('../services/marketDatabaseService');
 const logger = require('../config/logger');
 
@@ -87,26 +85,9 @@ class MarketResearchJob {
         failures: failureCount
       });
 
-      // Step 2: Detect alerts for each analyzed vehicle
-      logger.info('Detecting alerts...');
-      const allAlerts = [];
-
-      for (const result of analysisResults) {
-        if (result.success) {
-          const alerts = await marketAlertService.detectAlerts(result.vehicleId, result.result);
-          allAlerts.push(...alerts);
-        }
-      }
-
-      logger.info('Alert detection complete', {
-        alertsDetected: allAlerts.length
-      });
-
-      // Alerts are now stored in database and viewable in admin dashboard
       logger.info('Market research analysis complete', {
         vehiclesAnalyzed: successCount,
-        failures: failureCount,
-        alertsDetected: allAlerts.length
+        failures: failureCount
       });
 
       const completedAt = new Date();
@@ -117,7 +98,6 @@ class MarketResearchJob {
         success: true,
         vehiclesAnalyzed: successCount,
         failures: failureCount,
-        alertsDetected: allAlerts.length,
         duration,
         timestamp: this.lastRun
       };

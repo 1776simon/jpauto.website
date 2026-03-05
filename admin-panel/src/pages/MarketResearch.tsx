@@ -4,9 +4,7 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  AlertTriangle,
   RefreshCw,
-  CheckCircle2,
   XCircle,
   Clock,
   BarChart3,
@@ -14,8 +12,6 @@ import {
   Play,
   Info,
   AlertCircle,
-  X,
-  History,
   Eye,
   Edit,
   Minus,
@@ -37,7 +33,6 @@ export default function MarketResearch() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
-  const [showAllAlerts, setShowAllAlerts] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [detailVehicle, setDetailVehicle] = useState<{id: string; name: string; price: number} | null>(null);
   const [priceChangeModalOpen, setPriceChangeModalOpen] = useState(false);
@@ -54,12 +49,6 @@ export default function MarketResearch() {
     queryKey: ["marketOverview"],
     queryFn: () => api.getMarketOverview(),
     refetchInterval: 60000, // Refetch every minute
-  });
-
-  // Fetch recent alerts
-  const { data: alerts } = useQuery({
-    queryKey: ["marketAlerts", showAllAlerts],
-    queryFn: () => api.getMarketAlerts({ limit: showAllAlerts ? 100 : 10, includeDismissed: showAllAlerts }),
   });
 
   // Fetch job status
@@ -132,25 +121,6 @@ export default function MarketResearch() {
     },
   });
 
-  // Dismiss alert mutation
-  const dismissAlertMutation = useMutation({
-    mutationFn: (alertId: number) => api.dismissAlert(alertId),
-    onSuccess: () => {
-      toast({
-        title: "Alert Dismissed",
-        description: "The alert has been hidden.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["marketAlerts"] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Failed to Dismiss",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
   // Update price mutation
   const updatePriceMutation = useMutation({
     mutationFn: ({ id, price }: { id: string; price: number }) =>
@@ -206,20 +176,6 @@ export default function MarketResearch() {
         return <Badge className="bg-red-500">Above Market</Badge>;
       default:
         return <Badge variant="secondary">{position}</Badge>;
-    }
-  };
-
-  // Get severity badge
-  const getSeverityBadge = (severity: string) => {
-    switch (severity) {
-      case "critical":
-        return <Badge variant="destructive">Critical</Badge>;
-      case "warning":
-        return <Badge className="bg-yellow-500">Warning</Badge>;
-      case "info":
-        return <Badge variant="secondary">Info</Badge>;
-      default:
-        return <Badge>{severity}</Badge>;
     }
   };
 
@@ -311,74 +267,6 @@ export default function MarketResearch() {
             );
           })}
         </div>
-
-        {/* Recent Alerts - Always Show */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5" />
-                  {showAllAlerts ? "All Alerts" : "Recent Alerts"}
-                </CardTitle>
-                <CardDescription>Price changes and market alerts</CardDescription>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAllAlerts(!showAllAlerts)}
-              >
-                <History className="h-4 w-4 mr-2" />
-                {showAllAlerts ? "Show Recent Only" : "View All History"}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {alerts && alerts.length > 0 ? (
-              <div className="space-y-3">
-                {alerts.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className="flex items-start gap-3 p-3 rounded-lg border bg-card"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        {getSeverityBadge(alert.severity)}
-                        <span className="text-sm font-medium">{alert.title}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        {alert.year} {alert.make} {alert.model} {alert.trim}
-                      </p>
-                      <p className="text-sm">{alert.message}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {timeAgo(alert.created_at)}
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => dismissAlertMutation.mutate(alert.id)}
-                      disabled={dismissAlertMutation.isPending}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <CheckCircle2 className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p className="font-medium">No {showAllAlerts ? '' : 'Recent '}Alerts</p>
-                <p className="text-sm mt-1">
-                  {showAllAlerts
-                    ? "All alerts have been dismissed or there are no alerts yet."
-                    : "All recent alerts have been dismissed. Click 'View All History' to see older alerts."}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
         {/* Vehicles Table */}
         <Card>

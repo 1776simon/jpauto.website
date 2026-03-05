@@ -161,22 +161,6 @@ export interface MarketMetrics {
   created_at: string;
 }
 
-export interface MarketAlert {
-  id: number;
-  vehicle_id: string;
-  snapshot_id: number;
-  severity: 'info' | 'warning' | 'critical';
-  alert_type: string;
-  title: string;
-  message: string;
-  emailed_at?: string;
-  year: number;
-  make: string;
-  model: string;
-  trim?: string;
-  vin: string;
-  created_at: string;
-}
 
 export interface MarketPriceHistory {
   vehicle_id: string;
@@ -222,7 +206,6 @@ export interface VehicleMarketDetail {
   latestSnapshot: MarketSnapshot | null;
   latestMetrics: MarketMetrics | null;
   priceHistory: MarketPriceHistory[];
-  recentAlerts: MarketAlert[];
 }
 
 export interface JobStatus {
@@ -684,25 +667,6 @@ class ApiService {
   async analyzeAllVehicles(): Promise<any> {
     return this.request('/api/market-research/analyze-all', {
       method: 'POST',
-    });
-  }
-
-  async getMarketAlerts(params?: { severity?: string; limit?: number; vehicleId?: string; includeDismissed?: boolean }): Promise<MarketAlert[]> {
-    const query = new URLSearchParams(params as any).toString();
-    const response = await this.request<{ success: boolean; data: MarketAlert[] }>(`/api/market-research/alerts${query ? '?' + query : ''}`);
-    return response.data;
-  }
-
-  async dismissAlert(alertId: number): Promise<void> {
-    await this.request(`/api/market-research/alerts/${alertId}/dismiss`, {
-      method: 'POST',
-    });
-  }
-
-  async dismissAllAlerts(alertIds: number[]): Promise<void> {
-    await this.request('/api/market-research/alerts/dismiss-all', {
-      method: 'POST',
-      body: JSON.stringify({ alertIds }),
     });
   }
 
