@@ -5,6 +5,7 @@ import {
   TrendingDown,
   DollarSign,
   RefreshCw,
+  CheckCircle2,
   XCircle,
   Clock,
   BarChart3,
