@@ -355,10 +355,98 @@ const escapeXml = (str) => {
     .replace(/'/g, '&apos;');
 };
 
+/**
+ * Add custom highlight text to the top portion of a vehicle image
+ * @param {Buffer} imageBuffer - Original image buffer
+ * @param {string} highlightText - Text to overlay (will be uppercased)
+ * @returns {Promise<Buffer>} - Processed image buffer with highlight overlay
+ */
+const addCustomHighlight = async (imageBuffer, highlightText) => {
+  const metadata = await sharp(imageBuffer).metadata();
+  const imageWidth = metadata.width || 1920;
+  const imageHeight = metadata.height || 1080;
+
+  const text = String(highlightText).toUpperCase().trim();
+
+  // Available horizontal space with padding
+  const paddingH = 80;
+  const availableWidth = imageWidth - paddingH * 2;
+
+  // Arial Bold uppercase average character width ratio
+  const charWidthRatio = 0.65;
+
+  // Font size caps
+  const maxFontSingle = Math.min(180, Math.floor(imageHeight * 0.28));
+  const maxFontDouble = Math.min(140, Math.floor(imageHeight * 0.13));
+  const minFont = 50;
+
+  const words = text.split(' ');
+  const singleLineFontSize = availableWidth / (text.length * charWidthRatio);
+
+  let lines, fontSize;
+
+  if (words.length === 1 || singleLineFontSize >= 90) {
+    // Single line
+    lines = [text];
+    fontSize = Math.round(Math.min(maxFontSingle, Math.max(minFont, singleLineFontSize)));
+  } else {
+    // Find most balanced two-line split at word boundary
+    let bestSplit = 1;
+    let bestBalance = Infinity;
+    for (let i = 1; i < words.length; i++) {
+      const diff = Math.abs(
+        words.slice(0, i).join(' ').length - words.slice(i).join(' ').length
+      );
+      if (diff < bestBalance) {
+        bestBalance = diff;
+        bestSplit = i;
+      }
+    }
+    lines = [
+      words.slice(0, bestSplit).join(' '),
+      words.slice(bestSplit).join(' ')
+    ];
+    const longestLineLen = Math.max(lines[0].length, lines[1].length);
+    const twoLineFontSize = availableWidth / (longestLineLen * charWidthRatio);
+    fontSize = Math.round(Math.min(maxFontDouble, Math.max(minFont, twoLineFontSize)));
+  }
+
+  const lineHeight = Math.round(fontSize * 1.25);
+  const topPadding = 50;
+  const centerX = Math.round(imageWidth / 2);
+  const shadowOffset = Math.max(2, Math.round(fontSize * 0.03));
+
+  // Build SVG text elements: shadow layer then white layer per line
+  let textElements = '';
+  lines.forEach((line, idx) => {
+    const y = topPadding + fontSize + idx * lineHeight;
+    const escapedLine = escapeXml(line);
+
+    // Shadow (dark, offset down-right)
+    textElements += `<text x="${centerX}" y="${y + shadowOffset}" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="bold" fill="rgba(0,0,0,0.75)" text-anchor="middle">${escapedLine}</text>`;
+    // Main white text
+    textElements += `<text x="${centerX}" y="${y}" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="bold" fill="white" text-anchor="middle">${escapedLine}</text>`;
+  });
+
+  const highlightSvg = `<svg width="${imageWidth}" height="${imageHeight}" xmlns="http://www.w3.org/2000/svg">${textElements}</svg>`;
+
+  const highlightBuffer = await sharp(Buffer.from(highlightSvg))
+    .png()
+    .toBuffer();
+
+  const composite = await sharp(imageBuffer)
+    .composite([{ input: highlightBuffer, top: 0, left: 0 }])
+    .jpeg({ quality: IMAGE_QUALITY, progressive: true })
+    .toBuffer();
+
+  return composite;
+};
+
 module.exports = {
   processImage,
   createThumbnail,
   validateImage,
   processVehicleImages,
-  addJPAutoBanner
+  addJPAutoBanner,
+  addCustomHighlight
 };

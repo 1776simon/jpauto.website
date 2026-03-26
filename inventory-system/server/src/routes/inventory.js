@@ -12,7 +12,8 @@ const {
   markAsSold,
   toggleFeatured,
   getInventoryStats,
-  applyBannerToPhoto
+  applyBannerToPhoto,
+  applyHighlightToPhoto
 } = require('../controllers/inventoryController');
 const {
   verifyInventoryImages,
@@ -116,6 +117,13 @@ router.post('/:id/apply-banner',
   isManagerOrAdmin,
   validateUUID,
   applyBannerToPhoto
+);
+
+// Apply custom highlight text to main photo
+router.post('/:id/apply-highlight',
+  isManagerOrAdmin,
+  validateUUID,
+  applyHighlightToPhoto
 );
 
 /**

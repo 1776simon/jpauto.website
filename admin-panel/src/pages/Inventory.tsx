@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Upload,
+  Type,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -39,6 +40,8 @@ export default function Inventory() {
   const [vinDecoding, setVinDecoding] = useState(false);
   const [vinStatus, setVinStatus] = useState<{type: 'success' | 'error' | 'loading' | null, message: string}>({type: null, message: ''});
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number, percentage: number} | null>(null);
+  const [showHighlightInput, setShowHighlightInput] = useState(false);
+  const [highlightText, setHighlightText] = useState('');
 
   // Fetch inventory
   const { data, isLoading } = useQuery({
@@ -168,6 +171,29 @@ export default function Inventory() {
     },
     onError: (error: Error) => {
       toast.error(`Failed to apply banner: ${error.message}`);
+    },
+  });
+
+  // Apply custom highlight text to main photo mutation
+  const applyHighlightMutation = useMutation({
+    mutationFn: ({ vehicleId, text }: { vehicleId: number | string; text: string }) =>
+      api.applyHighlightToMainPhoto(vehicleId, text),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      if (selectedItem) {
+        setSelectedItem({ ...selectedItem, images: data.images });
+        setEditFormData({ ...editFormData, images: data.images });
+      }
+      setShowHighlightInput(false);
+      setHighlightText('');
+      if (data.warning) {
+        toast.warning(data.warning);
+      } else {
+        toast.success("Highlight applied successfully! New photo is now the main photo.");
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to apply highlight: ${error.message}`);
     },
   });
 
@@ -311,6 +337,8 @@ export default function Inventory() {
     setIsReordering(false);
     setSelectedPhotos([]);
     setUploadProgress(null);
+    setShowHighlightInput(false);
+    setHighlightText('');
   };
 
   const handleAddNewClick = () => {
@@ -471,6 +499,16 @@ export default function Inventory() {
     }
 
     applyBannerMutation.mutate(selectedItem.id as number);
+  };
+
+  const handleApplyHighlight = () => {
+    if (!selectedItem || !editFormData.images || editFormData.images.length === 0) return;
+    const text = highlightText.trim();
+    if (!text) {
+      toast.error('Please enter highlight text');
+      return;
+    }
+    applyHighlightMutation.mutate({ vehicleId: selectedItem.id as number, text });
   };
 
   const displayImages = editFormData.images || [];
@@ -1296,7 +1334,66 @@ export default function Inventory() {
                                   )}
                                 </button>
                               )}
+
+                              {!isReordering && displayImages.length > 0 && (
+                                <button
+                                  onClick={() => {
+                                    setShowHighlightInput(v => !v);
+                                    setHighlightText('');
+                                  }}
+                                  disabled={applyHighlightMutation.isPending}
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                  title="Add custom highlight text to main photo"
+                                >
+                                  <Type className="w-4 h-4" />
+                                  Custom Highlight
+                                </button>
+                              )}
                             </div>
+
+                            {showHighlightInput && !isReordering && (
+                              <div className="flex items-center gap-2 mt-2">
+                                <div className="relative flex-1">
+                                  <input
+                                    type="text"
+                                    value={highlightText}
+                                    onChange={e => setHighlightText(e.target.value.toUpperCase().slice(0, 50))}
+                                    onKeyDown={e => {
+                                      if (e.key === 'Enter') handleApplyHighlight();
+                                      if (e.key === 'Escape') { setShowHighlightInput(false); setHighlightText(''); }
+                                    }}
+                                    placeholder="E.G. JUST ARRIVED"
+                                    maxLength={50}
+                                    autoFocus
+                                    className="w-full px-3 py-2 pr-16 bg-background border border-border rounded-lg text-foreground text-sm font-medium tracking-wide placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                  />
+                                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground select-none">
+                                    {highlightText.length}/50
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={handleApplyHighlight}
+                                  disabled={applyHighlightMutation.isPending || highlightText.trim().length === 0}
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  {applyHighlightMutation.isPending ? (
+                                    <>
+                                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                      Applying...
+                                    </>
+                                  ) : (
+                                    'Apply'
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => { setShowHighlightInput(false); setHighlightText(''); }}
+                                  className="inline-flex items-center justify-center w-9 h-9 bg-background border border-border text-muted-foreground rounded-lg hover:bg-muted hover:text-foreground transition-colors"
+                                  title="Close"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
 
                             {isReordering && (
                               <div className="flex items-center gap-3 mb-2">

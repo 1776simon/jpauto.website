@@ -440,6 +440,14 @@ class ApiService {
     });
   }
 
+  async applyHighlightToMainPhoto(vehicleId: number | string, highlightText: string): Promise<{ images: string[]; warning?: string }> {
+    return this.request<{ images: string[]; warning?: string }>(`/api/inventory/${vehicleId}/apply-highlight`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ highlightText }),
+    });
+  }
+
   // ===== Export endpoints =====
   async exportToJekyll(): Promise<void> {
     const url = `${API_URL}/api/exports/jekyll`;

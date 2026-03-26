@@ -1,6 +1,6 @@
 const { Inventory, PendingSubmission, User } = require('../models');
 const { uploadFile, deleteMultipleFiles, extractKeyFromUrl, uploadFileWithVerification } = require('../services/r2Storage');
-const { processVehicleImages, scanForVirus, addJPAutoBanner } = require('../services/imageProcessor');
+const { processVehicleImages, scanForVirus, addJPAutoBanner, addCustomHighlight } = require('../services/imageProcessor');
 const { v4: uuidv4 } = require('uuid');
 const { Op } = require('sequelize');
 const { sequelize } = require('../models');
@@ -794,6 +794,109 @@ const applyBannerToPhoto = async (req, res) => {
   }
 };
 
+const applyHighlightToPhoto = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const { id } = req.params;
+    const { highlightText } = req.body;
+
+    // Validate highlight text
+    if (!highlightText || typeof highlightText !== 'string') {
+      await transaction.rollback();
+      return res.status(400).json({ error: 'highlightText is required' });
+    }
+
+    const trimmedText = highlightText.trim();
+    if (trimmedText.length < 1 || trimmedText.length > 50) {
+      await transaction.rollback();
+      return res.status(400).json({ error: 'highlightText must be between 1 and 50 characters' });
+    }
+
+    logger.info(`[InventoryController] Apply highlight request - Vehicle ID: ${id}, Text: "${trimmedText}"`);
+
+    const vehicle = await Inventory.findByPk(id, { transaction });
+
+    if (!vehicle) {
+      await transaction.rollback();
+      return res.status(404).json({ error: 'Vehicle not found' });
+    }
+
+    if (!vehicle.images || vehicle.images.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({ error: 'Vehicle has no images to apply highlight to' });
+    }
+
+    // Warn if main photo already has a highlight applied
+    const mainPhotoUrl = vehicle.images[0];
+    const alreadyHighlighted = mainPhotoUrl.includes('-highlight');
+
+    // Fetch the main photo
+    logger.info(`[InventoryController] Fetching main photo for highlight: ${mainPhotoUrl}`);
+    const imageResponse = await fetch(mainPhotoUrl);
+
+    if (!imageResponse.ok) {
+      await transaction.rollback();
+      return res.status(400).json({ error: 'Failed to fetch main photo from storage' });
+    }
+
+    const imageArrayBuffer = await imageResponse.arrayBuffer();
+    const imageBuffer = Buffer.from(imageArrayBuffer);
+
+    // Apply highlight overlay
+    const highlightedImageBuffer = await addCustomHighlight(imageBuffer, trimmedText);
+
+    // Generate unique filename
+    const fileName = `${uuidv4()}-highlight.jpg`;
+    const filePath = `vehicles/${vehicle.vin}/full/${fileName}`;
+
+    logger.info(`[InventoryController] Uploading highlighted image: ${filePath}`);
+    const uploadResult = await uploadFileWithVerification(
+      highlightedImageBuffer,
+      filePath,
+      'image/jpeg'
+    );
+
+    if (!uploadResult.success) {
+      await transaction.rollback();
+      return res.status(500).json({
+        error: 'Failed to upload highlighted image',
+        message: uploadResult.error
+      });
+    }
+
+    // Insert highlighted image at position 0, keeping original at position 1
+    const updatedImages = [uploadResult.url, ...vehicle.images];
+
+    await vehicle.update({
+      images: updatedImages,
+      primaryImageUrl: uploadResult.url,
+      latestPhotoModified: new Date(),
+      updatedBy: req.user.id
+    }, { transaction });
+
+    await transaction.commit();
+
+    logger.info(`[InventoryController] Highlight applied successfully - Vehicle ID: ${id}, New photo: ${uploadResult.url}`);
+
+    res.json({
+      message: 'Highlight applied successfully',
+      highlightedImageUrl: uploadResult.url,
+      images: updatedImages,
+      ...(alreadyHighlighted && {
+        warning: 'The previous main photo already had a highlight applied. A new highlight has been stacked on top.'
+      })
+    });
+  } catch (error) {
+    await transaction.rollback();
+    logger.error('Error applying highlight to photo:', error);
+    res.status(500).json({
+      error: 'Failed to apply highlight to photo',
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllInventory,
   getInventoryById,
@@ -806,5 +909,6 @@ module.exports = {
   markAsSold,
   toggleFeatured,
   getInventoryStats,
-  applyBannerToPhoto
+  applyBannerToPhoto,
+  applyHighlightToPhoto
 };
