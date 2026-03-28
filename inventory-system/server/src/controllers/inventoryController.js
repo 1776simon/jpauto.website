@@ -731,8 +731,9 @@ const applyBannerToPhoto = async (req, res) => {
     // Get vehicle data for banner
     const titleStatus = vehicle.titleStatus || vehicle.title_status || 'Clean';
     const price = vehicle.price || 0;
+    const mileage = vehicle.mileage || 0;
 
-    logger.info(`[InventoryController] Processing banner - Title: ${titleStatus}, Price: ${price}`);
+    logger.info(`[InventoryController] Processing banner - Title: ${titleStatus}, Price: ${price}, Mileage: ${mileage}`);
 
     // Apply banner to image (360px height, overlaid on photo)
     const banneredImageBuffer = await addJPAutoBanner(imageBuffer, {
@@ -740,7 +741,8 @@ const applyBannerToPhoto = async (req, res) => {
       position: 'bottom',
       vehicleData: {
         titleStatus,
-        price
+        price,
+        mileage
       }
     });
 

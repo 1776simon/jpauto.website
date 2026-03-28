@@ -230,6 +230,7 @@ const COMPANY_INFO = {
  * @param {object} options.vehicleData - Vehicle-specific data
  * @param {string} options.vehicleData.titleStatus - Title status (e.g., "Clean", "Salvage")
  * @param {number} options.vehicleData.price - Vehicle price
+ * @param {number} options.vehicleData.mileage - Vehicle mileage
  * @returns {Promise<Buffer>} - Processed image buffer with banner overlay
  */
 const addJPAutoBanner = async (imageBuffer, options = {}) => {
@@ -239,12 +240,15 @@ const addJPAutoBanner = async (imageBuffer, options = {}) => {
     vehicleData = {}
   } = options;
 
-  const { titleStatus = 'Clean', price = 0 } = vehicleData;
+  const { titleStatus = 'Clean', price = 0, mileage = 0 } = vehicleData;
 
   // Append "Title" to the title status if not already present
   const displayTitleStatus = titleStatus.toLowerCase().includes('title')
     ? titleStatus
     : `${titleStatus} Title`;
+
+  // Format mileage
+  const formattedMileage = `${new Intl.NumberFormat('en-US').format(mileage)} miles`;
 
   try {
     // Get original image metadata
@@ -275,12 +279,15 @@ const addJPAutoBanner = async (imageBuffer, options = {}) => {
         <!-- Top accent line -->
         <rect x="0" y="0" width="${imageWidth}" height="8" fill="#FF4433"/>
 
-        <!-- Left section: Vehicle info (dynamic) -->
-        <text x="60" y="110" font-family="Arial, sans-serif" font-size="80" fill="white" font-weight="bold">
+        <!-- Left section: Vehicle info (dynamic) - centered in 60% section -->
+        <text x="${imageWidth * 0.3}" y="100" font-family="Arial, sans-serif" font-size="80" fill="white" font-weight="bold" text-anchor="middle">
           ${escapeXml(displayTitleStatus)}
         </text>
-        <text x="60" y="260" font-family="Arial, sans-serif" font-size="80" fill="#FF4433" font-weight="bold">
+        <text x="${imageWidth * 0.3}" y="206" font-family="Arial, sans-serif" font-size="80" fill="#FF4433" font-weight="bold" text-anchor="middle">
           ${escapeXml(formattedPrice)}
+        </text>
+        <text x="${imageWidth * 0.3}" y="312" font-family="Arial, sans-serif" font-size="80" fill="#d4d4d8" font-weight="bold" text-anchor="middle">
+          ${escapeXml(formattedMileage)}
         </text>
 
         <!-- Right section: Company info (static) -->
