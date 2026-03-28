@@ -275,26 +275,26 @@ const addJPAutoBanner = async (imageBuffer, options = {}) => {
         <!-- Top accent line -->
         <rect x="0" y="0" width="${imageWidth}" height="8" fill="#FF4433"/>
 
-        <!-- Left section: Company info (static) -->
-        <text x="60" y="90" font-family="Arial, sans-serif" font-size="36" fill="white" font-weight="bold">
-          JP AUTOMOTIVE GROUP
-        </text>
-        <text x="60" y="150" font-family="Arial, sans-serif" font-size="28" fill="#d4d4d8">
-          ${escapeXml(COMPANY_INFO.address)}
-        </text>
-        <text x="60" y="200" font-family="Arial, sans-serif" font-size="28" fill="#d4d4d8">
-          ${escapeXml(COMPANY_INFO.phone)} | ${escapeXml(COMPANY_INFO.email)}
-        </text>
-        <text x="60" y="250" font-family="Arial, sans-serif" font-size="28" fill="#FF4433">
-          ${escapeXml(COMPANY_INFO.website)}
-        </text>
-
-        <!-- Right section: Vehicle info (dynamic) -->
-        <text x="${imageWidth - 60}" y="120" font-family="Arial, sans-serif" font-size="44" fill="white" font-weight="bold" text-anchor="end">
+        <!-- Left section: Vehicle info (dynamic) -->
+        <text x="60" y="110" font-family="Arial, sans-serif" font-size="80" fill="white" font-weight="bold">
           ${escapeXml(displayTitleStatus)}
         </text>
-        <text x="${imageWidth - 60}" y="260" font-family="Arial, sans-serif" font-size="80" fill="#FF4433" font-weight="bold" text-anchor="end">
+        <text x="60" y="260" font-family="Arial, sans-serif" font-size="80" fill="#FF4433" font-weight="bold">
           ${escapeXml(formattedPrice)}
+        </text>
+
+        <!-- Right section: Company info (static) -->
+        <text x="${imageWidth - 60}" y="90" font-family="Arial, sans-serif" font-size="36" fill="white" font-weight="bold" text-anchor="end">
+          JP AUTOMOTIVE GROUP
+        </text>
+        <text x="${imageWidth - 60}" y="150" font-family="Arial, sans-serif" font-size="28" fill="#d4d4d8" text-anchor="end">
+          ${escapeXml(COMPANY_INFO.address)}
+        </text>
+        <text x="${imageWidth - 60}" y="200" font-family="Arial, sans-serif" font-size="28" fill="#d4d4d8" text-anchor="end">
+          ${escapeXml(COMPANY_INFO.phone)} | ${escapeXml(COMPANY_INFO.email)}
+        </text>
+        <text x="${imageWidth - 60}" y="250" font-family="Arial, sans-serif" font-size="28" fill="#FF4433" text-anchor="end">
+          ${escapeXml(COMPANY_INFO.website)}
         </text>
 
         <!-- Decorative separator -->
