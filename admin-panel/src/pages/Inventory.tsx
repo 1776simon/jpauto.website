@@ -522,7 +522,7 @@ export default function Inventory() {
     try {
       for (let i = 0; i < sorted.length; i++) {
         setDownloadProgress({ current: i + 1, total: sorted.length, phase: 'fetching' });
-        const response = await fetch(sorted[i].url, { cache: 'no-store' });
+        const response = await fetch(sorted[i].url, { cache: 'reload' });
         const blob = await response.blob();
         const num = String(i + 1).padStart(2, '0');
         zip.file(`${vin}-${num}.jpg`, blob);
