@@ -14,9 +14,11 @@ import {
   ChevronRight,
   Upload,
   Type,
+  Download,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import JSZip from "jszip";
 import api, { InventoryItem } from "@/services/api";
 import { toast } from "sonner";
 
@@ -37,6 +39,10 @@ export default function Inventory() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isReordering, setIsReordering] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<{url: string, order: number}[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadSelectedPhotos, setDownloadSelectedPhotos] = useState<{url: string, order: number}[]>([]);
+  const [downloadProgress, setDownloadProgress] = useState<{current: number, total: number, phase: 'fetching' | 'zipping'} | null>(null);
+  const [modeConflictTarget, setModeConflictTarget] = useState<'reorder' | 'download' | null>(null);
   const [vinDecoding, setVinDecoding] = useState(false);
   const [vinStatus, setVinStatus] = useState<{type: 'success' | 'error' | 'loading' | null, message: string}>({type: null, message: ''});
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number, percentage: number} | null>(null);
@@ -84,6 +90,9 @@ export default function Inventory() {
       toast.success("Vehicle updated successfully");
       setSelectedItem(null);
       setIsEditing(false);
+      setIsDownloading(false);
+      setDownloadSelectedPhotos([]);
+      setDownloadProgress(null);
     },
     onError: (error: Error) => {
       toast.error(`Failed to update: ${error.message}`);
@@ -336,6 +345,10 @@ export default function Inventory() {
     setVinStatus({ type: null, message: '' });
     setIsReordering(false);
     setSelectedPhotos([]);
+    setIsDownloading(false);
+    setDownloadSelectedPhotos([]);
+    setDownloadProgress(null);
+    setModeConflictTarget(null);
     setUploadProgress(null);
     setShowHighlightInput(false);
     setHighlightText('');
@@ -439,6 +452,12 @@ export default function Inventory() {
   };
 
   const handleStartReordering = () => {
+    if (isDownloading && downloadSelectedPhotos.length > 0) {
+      setModeConflictTarget('reorder');
+      return;
+    }
+    setIsDownloading(false);
+    setDownloadSelectedPhotos([]);
     setIsReordering(true);
     setSelectedPhotos([]);
   };
@@ -446,6 +465,86 @@ export default function Inventory() {
   const handleCancelReordering = () => {
     setIsReordering(false);
     setSelectedPhotos([]);
+  };
+
+  const handleStartDownloading = () => {
+    if (isReordering && selectedPhotos.length > 0) {
+      setModeConflictTarget('download');
+      return;
+    }
+    setIsReordering(false);
+    setSelectedPhotos([]);
+    setIsDownloading(true);
+    setDownloadSelectedPhotos([]);
+  };
+
+  const handleCancelDownloading = () => {
+    setIsDownloading(false);
+    setDownloadSelectedPhotos([]);
+    setDownloadProgress(null);
+  };
+
+  const handleConfirmModeSwitch = () => {
+    const target = modeConflictTarget;
+    setModeConflictTarget(null);
+    if (target === 'reorder') {
+      setIsDownloading(false);
+      setDownloadSelectedPhotos([]);
+      setIsReordering(true);
+      setSelectedPhotos([]);
+    } else if (target === 'download') {
+      setIsReordering(false);
+      setSelectedPhotos([]);
+      setIsDownloading(true);
+      setDownloadSelectedPhotos([]);
+    }
+  };
+
+  const handleDownloadPhotoClick = (imageUrl: string) => {
+    if (!isDownloading) return;
+    const existingIndex = downloadSelectedPhotos.findIndex(p => p.url === imageUrl);
+    if (existingIndex !== -1) {
+      const newSelected = downloadSelectedPhotos
+        .filter(p => p.url !== imageUrl)
+        .map((p, idx) => ({ url: p.url, order: idx + 1 }));
+      setDownloadSelectedPhotos(newSelected);
+    } else {
+      setDownloadSelectedPhotos([...downloadSelectedPhotos, { url: imageUrl, order: downloadSelectedPhotos.length + 1 }]);
+    }
+  };
+
+  const handleExecuteDownload = async () => {
+    if (downloadSelectedPhotos.length === 0) return;
+    const vin = selectedItem?.vin || 'vehicle';
+    const sorted = [...downloadSelectedPhotos].sort((a, b) => a.order - b.order);
+    const zip = new JSZip();
+
+    try {
+      for (let i = 0; i < sorted.length; i++) {
+        setDownloadProgress({ current: i + 1, total: sorted.length, phase: 'fetching' });
+        const response = await fetch(sorted[i].url);
+        const blob = await response.blob();
+        const num = String(i + 1).padStart(2, '0');
+        zip.file(`${vin}-${num}.jpg`, blob);
+      }
+
+      setDownloadProgress({ current: sorted.length, total: sorted.length, phase: 'zipping' });
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${vin}-photos.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      setIsDownloading(false);
+      setDownloadSelectedPhotos([]);
+      setDownloadProgress(null);
+      toast.success(`Downloaded ${sorted.length} photo${sorted.length !== 1 ? 's' : ''}`);
+    } catch (error) {
+      setDownloadProgress(null);
+      toast.error('Failed to download photos. Please try again.');
+    }
   };
 
   const handlePhotoClick = (imageUrl: string) => {
@@ -1291,7 +1390,7 @@ export default function Inventory() {
                                 {uploadPhotosMutation.isPending ? 'Uploading...' : 'Upload Photos'}
                               </label>
 
-                              {!isReordering && displayImages.length > 1 && (
+                              {!isReordering && !isDownloading && displayImages.length > 1 && (
                                 <button
                                   onClick={handleStartReordering}
                                   className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
@@ -1300,7 +1399,17 @@ export default function Inventory() {
                                 </button>
                               )}
 
-                              {!isReordering && displayImages.length > 0 && (
+                              {!isReordering && !isDownloading && displayImages.length > 0 && (
+                                <button
+                                  onClick={handleStartDownloading}
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
+                                >
+                                  <Download className="w-4 h-4" />
+                                  Download Photos
+                                </button>
+                              )}
+
+                              {!isReordering && !isDownloading && displayImages.length > 0 && (
                                 <button
                                   onClick={handleApplyBanner}
                                   disabled={
@@ -1335,7 +1444,7 @@ export default function Inventory() {
                                 </button>
                               )}
 
-                              {!isReordering && displayImages.length > 0 && (
+                              {!isReordering && !isDownloading && displayImages.length > 0 && (
                                 <button
                                   onClick={() => {
                                     setShowHighlightInput(v => !v);
@@ -1351,7 +1460,7 @@ export default function Inventory() {
                               )}
                             </div>
 
-                            {showHighlightInput && !isReordering && (
+                            {showHighlightInput && !isReordering && !isDownloading && (
                               <div className="flex items-center gap-2 mt-2">
                                 <div className="relative flex-1">
                                   <input
@@ -1412,9 +1521,46 @@ export default function Inventory() {
                               </div>
                             )}
 
+                            {isDownloading && (
+                              <div className="flex items-center gap-3 mb-2">
+                                <button
+                                  onClick={handleCancelDownloading}
+                                  disabled={!!downloadProgress}
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border text-foreground rounded-lg hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  <X className="w-4 h-4" />
+                                  Cancel
+                                </button>
+                                {downloadSelectedPhotos.length > 0 && !downloadProgress && (
+                                  <button
+                                    onClick={handleExecuteDownload}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                    Download ({downloadSelectedPhotos.length})
+                                  </button>
+                                )}
+                                {downloadProgress ? (
+                                  <span className="text-sm text-muted-foreground">
+                                    {downloadProgress.phase === 'fetching'
+                                      ? `Zipping photo ${downloadProgress.current} of ${downloadProgress.total}...`
+                                      : 'Creating zip file...'}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm text-muted-foreground">
+                                    {downloadSelectedPhotos.length > 0
+                                      ? `${downloadSelectedPhotos.length} photo${downloadSelectedPhotos.length !== 1 ? 's' : ''} selected`
+                                      : 'Choose photos to download in order'}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
                             <p className="text-xs text-muted-foreground">
                               {isReordering
                                 ? 'Click photos in the order you want them. Click again to deselect.'
+                                : isDownloading
+                                ? 'Click photos in the order you want to download them. Click again to deselect.'
                                 : 'First photo is the primary image.'}
                             </p>
 
@@ -1464,39 +1610,51 @@ export default function Inventory() {
                         <div className="grid grid-cols-3 gap-3">
                           {displayImages.map((img, idx) => {
                             const selectedPhoto = selectedPhotos.find(p => p.url === img);
-                            const isSelected = !!selectedPhoto;
-                            const orderNumber = selectedPhoto?.order;
+                            const isReorderSelected = !!selectedPhoto;
+                            const reorderNumber = selectedPhoto?.order;
+                            const downloadPhoto = downloadSelectedPhotos.find(p => p.url === img);
+                            const isDownloadSelected = !!downloadPhoto;
+                            const downloadNumber = downloadPhoto?.order;
+                            const isSelected = isReorderSelected || isDownloadSelected;
 
                             return (
                               <div
                                 key={idx}
-                                onClick={() => isReordering ? handlePhotoClick(img) : undefined}
+                                onClick={() => {
+                                  if (isReordering) handlePhotoClick(img);
+                                  else if (isDownloading) handleDownloadPhotoClick(img);
+                                }}
                                 className={`relative group rounded-lg overflow-hidden border-2 transition-all ${
-                                  isReordering ? 'cursor-pointer' : ''
+                                  isReordering || isDownloading ? 'cursor-pointer' : ''
                                 } ${
                                   isSelected
                                     ? 'border-green-500 ring-2 ring-green-500 ring-offset-2'
                                     : idx === 0
                                     ? 'border-primary'
                                     : 'border-border'
-                                } ${isReordering && !isSelected ? 'opacity-60 hover:opacity-80' : ''}`}
+                                } ${(isReordering && !isReorderSelected) || (isDownloading && !isDownloadSelected) ? 'opacity-60 hover:opacity-80' : ''}`}
                               >
                                 <img
                                   src={img}
                                   alt={`Photo ${idx + 1}`}
                                   className="w-full h-24 object-cover"
                                 />
-                                {idx === 0 && !isReordering && (
+                                {idx === 0 && !isReordering && !isDownloading && (
                                   <div className="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-1 rounded">
                                     Primary
                                   </div>
                                 )}
-                                {isReordering && isSelected && (
+                                {isReordering && isReorderSelected && (
                                   <div className="absolute top-1 left-1 bg-green-600 text-white text-sm font-bold w-7 h-7 rounded-full flex items-center justify-center shadow-lg">
-                                    {orderNumber}
+                                    {reorderNumber}
                                   </div>
                                 )}
-                                {!isReordering && (
+                                {isDownloading && isDownloadSelected && (
+                                  <div className="absolute top-1 left-1 bg-green-600 text-white text-sm font-bold w-7 h-7 rounded-full flex items-center justify-center shadow-lg">
+                                    {downloadNumber}
+                                  </div>
+                                )}
+                                {!isReordering && !isDownloading && (
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -1741,6 +1899,38 @@ export default function Inventory() {
                 className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mode Conflict Confirmation */}
+      {modeConflictTarget && (
+        <div
+          className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4"
+          onClick={() => setModeConflictTarget(null)}
+        >
+          <div
+            className="bg-background rounded-lg max-w-sm w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-foreground mb-2">Switch Mode?</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              You have unsaved selections. Switching to {modeConflictTarget === 'reorder' ? 'reorder' : 'download'} mode will reset your current progress.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setModeConflictTarget(null)}
+                className="flex-1 m3-button-outlined"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmModeSwitch}
+                className="flex-1 bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary/90"
+              >
+                Switch
               </button>
             </div>
           </div>
