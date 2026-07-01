@@ -31,56 +31,11 @@ We provide professional detailing services to keep your vehicle looking showroom
 - **Ceramic Coating** - Long-lasting paint protection
 - **Headlight Restoration** - Crystal-clear visibility
 
-### Warranty & Protection Plans
-
-Protect your investment with our comprehensive warranty options:
-
-- **Powertrain Warranty** - Engine, transmission, and drivetrain coverage
-- **Bumper-to-Bumper Coverage** - Comprehensive protection
-- **Extended Warranties** - Peace of mind for years to come
-- **Gap Insurance** - Financial protection
-- **Tire & Wheel Protection** - Road hazard coverage
-
-### Trade-In Services
-
-Looking to upgrade? We make trading in your current vehicle quick and easy:
-
-- **Free Vehicle Appraisal** - Fair market value assessment
-- **Instant Offers** - Get a quote in minutes
-- **Simple Process** - Minimal paperwork
-- **Top Dollar Paid** - Competitive trade-in values
-
-[Get Your Trade-In Value](/trade-in)
-
-### Financing Assistance
-
-Our finance team works with multiple lenders to secure the best rates:
-
-- **Credit Applications** - Quick pre-approval process
-- **Multiple Lender Network** - Competitive rates
-- **Bad Credit OK** - We work with all credit situations
-- **Same-Day Approval** - Fast financing decisions
-
-[Apply for Financing](/financing)
-
 ### Vehicle History Reports
 
-Transparency is our priority. Every vehicle comes with:
+Transparency is our priority. CARFAX reports are available for a fee on any vehicle in our inventory:
 
-- **CARFAX Reports** - Complete vehicle history
-- **AutoCheck Reports** - Alternative history verification
-- **Accident History** - Full disclosure
-- **Service Records** - Maintenance documentation
-- **Ownership History** - Previous owner information
-
-### Customer Support
-
-Our commitment doesn't end at the sale:
-
-- **Dedicated Support Team** - Available during business hours
-- **Follow-Up Service** - We check in after your purchase
-- **Referral Program** - Rewards for referring friends
-- **Customer Portal** - Online account management
+- **CARFAX Reports** - Complete vehicle history available for a fee upon request
 
 ---
 

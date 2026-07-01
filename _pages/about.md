@@ -136,6 +136,5 @@ When you choose JP AUTO, you're choosing a dealership that:
   <div class="flex flex-wrap justify-center gap-4 not-prose">
     <a href="/inventory" class="inline-block px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">Browse Inventory</a>
     <a href="/contact" class="inline-block px-8 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-semibold">Contact Us</a>
-    <a href="/financing" class="inline-block px-8 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition font-semibold">Get Pre-Approved</a>
   </div>
 </div>
